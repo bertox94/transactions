@@ -1,0 +1,172 @@
+package com.example.demo;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+public class MainController {
+
+    static Connection connection;
+
+    // private String path = "C:\\Users\\tiraboschi\\Desktop\\folder1\\export.xml";
+    private String path = "./export.xml";
+    private String pathStorage = "./data.json";
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @PostMapping("/export")
+    public @ResponseBody
+    boolean export(@RequestParam String data) {
+
+        data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<xfa:data xmlns:xfa=\"http://www.xfa.org/schema/xfa-data/1.0/\">\n" + "	<moduloIntermittenti>\n"
+                + "		<Campi>\n" + "			<CFdatorelavoro>00909360174</CFdatorelavoro>\n"
+                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
+                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
+                + "			<EMmail>info@ristorantealmulino.it</EMmail>\n" + data;
+
+        data = data + "\n</Campi>\n" + "	</moduloIntermittenti>\n" + "</xfa:data>";
+
+        File file = new File(path);
+        file.delete();
+
+        try {
+            file.createNewFile();
+            PrintWriter printWriter = new PrintWriter(path);
+            printWriter.println(data);
+            printWriter.close();
+        } catch (IOException ioe) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @ResponseBody
+    @GetMapping(path = "/populates")
+    public String populates() {
+        String data = "";
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM public.single_orders;");
+
+            while (rs.next()) {
+                data += rs.getString(1) + "; " + rs.getString(2) + "\n";
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return data;
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/schedule")
+    public String schedule(@RequestParam String data) {
+        Socket clientSocket;
+        PrintWriter out;
+        BufferedReader in;
+        String resp = "";
+        try {
+            clientSocket = new Socket("localhost", 27015);
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String msg = "schedule\n" + data;
+            out.println(msg);
+            resp = in.readLine();
+            in.close();
+            out.close();
+            clientSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return resp;
+    }
+
+    @PostMapping(path = "/addnews")
+    public String addnews(@RequestParam String data) {
+        try {
+            Statement stmt = connection.createStatement();
+            stmt.executeQuery("INSERT INTO public.single_orders (encoded)VALUES('" + data + "');");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "KO";
+        }
+        return "OK";
+    }
+
+    @GetMapping(path = "/download")
+    public ResponseEntity<Resource> download() throws FileNotFoundException {
+        File file = new File(path);
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.set("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .body(resource);
+
+        } catch (
+                IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @GetMapping("/get")
+    public @ResponseBody
+    String get() {
+
+        String content = "";
+
+        try {
+            content = new String(Files.readAllBytes(Paths.get(pathStorage)));
+            // data = mapper.readValue(new File("c:\\test\\staff.json"), String[][].class);
+        } catch (IOException ioe) {
+
+        }
+
+        return content;
+    }
+
+    @PostMapping("/update")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void update(@RequestParam String data) {
+
+        PrintWriter writer;
+        try {
+            writer = new PrintWriter(pathStorage);
+            writer.println(data);
+            writer.close();
+            //String[][] array = mapper.readValue(data, String[][].class);
+            //mapper.writeValue(new FileOutputStream(pathStorage), array);
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+}

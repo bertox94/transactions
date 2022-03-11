@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<!--suppress HtmlFormInputWithoutLabel -->
+<html lang="">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <title>Title</title>
+</head>
+<body>
+
+<h2>Scheduler</h2>
+
+<table class="myclass" id="orders">
+
+    <thead>
+    <tr>
+        <th>Description</th>
+        <th>Execution Date</th>
+        <th>Amount</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th style="font-size:0;">ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr style="background: #c7a800;">
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td>Bla bla</td>
+        <td>1.5.2020</td>
+        <td>122</td>
+        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
+                                                       alt="No" src="images/plus.svg"></td>
+        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
+                                                       alt="No" src="images/pencil.svg"></td>
+        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
+                                                       alt="No" src="images/bin.svg"></td>
+        <td style="font-size:0;">3333333333333333</td>
+    </tr>
+    </tbody>
+</table>
+
+<div style="overflow: hidden">
+    <div style="padding: 10px"></div>
+    <table class="myclass">
+        <tr>
+            <td style="padding: 5px"><h4>Enter new Single Order</h4></td>
+            <td style="padding: 5px; cursor: pointer;" id="clickme1"><img style=" vertical-align:middle;" width="13px"
+                                                                          alt="No"
+                                                                          src="images/plus.svg"></td>
+        </tr>
+    </table>
+    <div id="id12345" style="display:none; float: left; padding-bottom: 3px;">
+        <table class="myclass">
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th>Wire Transfer</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Day</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr id="singleordernew">
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="sdescription"></label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text"
+                               id="sdescription"
+                               name="descr">
+                    </div>
+                </td>   <!-- Desc -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800;">
+                        <label for="swt"></label>
+                        <select name="wt" style="padding: 1.8px" id="swt">
+                            <option value="$">--Please Select--</option>
+                            <option value="val2">YES</option>
+                            <option value="val1">NO</option>
+                        </select>
+                    </div>
+                </td>   <!-- WT -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="syear"> </label>
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" id="syear"
+                               name="year" size="3">
+                    </div>
+                </td>   <!-- Year -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <select onchange="ssetdays()" name="month" style="padding: 1.8px">
+                            <option value="$">--Please Select--</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                </td>   <!-- Month -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <select style="padding: 1.8px" name="day">
+                            <option value="$">--Please Select--</option>
+                        </select>
+                    </div>
+                </td>   <!-- Day -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" name="amount"
+                               size="10">
+                    </div>
+                </td>   <!-- Amount -->
+                <td>
+                    <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="No"
+                         src="images/plus.svg">
+                </td>                                                   <!-- Add button -->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr style="border: 2px solid #c7a800; width: 61% ; float: left"/>
+</div>
+<div style="margin: 30px"></div>
+<div style="padding: 10px"></div>
+
+
+<div style="overflow: hidden">
+    <table class="myclass">
+        <tr>
+            <td style="padding: 5px"><h4>Enter new Repeated Order</h4></td>
+            <td style="cursor: pointer; padding: 5px" id="clickme2"><img style="vertical-align:middle;" width="13px"
+                                                                         alt="No" src="images/plus.svg"></td>
+        </tr>
+    </table>
+    <div id="id12346" style="display:none; float: left; padding-bottom: 3px;">
+        <table class="myclass">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="2">Frequency</th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Initial Date</th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Final Date</th>
+                <th style="font-size:0;">Empty space</th>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <th>Wire Transfer</th>
+                <th></th>
+                <th></th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Day</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Day</th>
+                <th>Amount</th>
+                <th></th>
+                <th style="font-size:0;">Empty space</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="ldname"></label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" size="40" type="text"
+                               id="ldname"
+                               name="ldndame">
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <label for="select15"></label>
+                        <select style="padding: 1.8px" id="select15">
+                            <option value="$">--Please Select--</option>
+                            <option value="val2">YES</option>
+                            <option value="val1">NO</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="ldgname"></label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" size="2" type="text"
+                               id="ldgname"
+                               name="ldndame">
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <label for="select1"></label>
+                        <select style="padding: 1.8px" id="select1">
+                            <option value="$">--Please Select--</option>
+                            <option value="val2">days</option>
+                            <option value="val1">months</option>
+                            <option value="val1">years</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="lname"> </label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lname"
+                               name="lname" size="3">
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="select3"></label>
+                        <select style="padding: 1.8px" id="select3">
+                            <option value="$">--Please Select--</option>
+                            <option value="val1">Jan</option>
+                            <option value="val2">Feb</option>
+                            <option value="val2">...</option>
+                            <option value="val3">Dec</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="select2"></label>
+                        <select style="padding: 1.8px" id="select2">
+                            <option value="$">--Please Select--</option>
+                            <option value="val1">1</option>
+                            <option value="val2">2</option>
+                            <option value="val2">...</option>
+                            <option value="val3">End of month</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="lname"> </label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lname"
+                               name="lname" size="3">
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="select3"></label>
+                        <select style="padding: 1.8px" id="select3">
+                            <option value="$">--Please Select--</option>
+                            <option value="val1">Jan</option>
+                            <option value="val2">Feb</option>
+                            <option value="val2">...</option>
+                            <option value="val3">Dec</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="select2"></label>
+                        <select style="padding: 1.8px" id="select2">
+                            <option value="$">--Please Select--</option>
+                            <option value="val1">1</option>
+                            <option value="val2">2</option>
+                            <option value="val2">...</option>
+                            <option value="val3">End of month</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <label for="lndame"></label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lndame"
+                               name="lndame" size="10">
+                    </div>
+                </td>
+                <td>
+                    <img style="cursor: pointer; vertical-align:middle;" width="20px" alt="No" src="images/plus.svg">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr style="border: 2px solid #c7a800; width: 99% ; float: left"/>
+</div>
+<div style="padding: 20px"></div>
+
+<!-- HERE BELOW IT IS ALWAYS UPDATED THE FULL SCHEDULE-->
+
+
+</body>
+
+<!-- POPULATE(S/R) -->
+<script>
+    function populates() {
+
+
+        $.get("/populates", function (returnedData) {
+
+            let el = $("#orders tbody");
+            el.empty();
+            el.append("        <tr style=\"background: #c7a800;\">\n" +
+                "            <td colspan=\"3\"></td>\n" +
+                "        </tr>");
+
+            returnedData = returnedData.trim()
+            var lines = returnedData.split("\n")
+
+            for (var i = 0; i < lines.length; i++) {
+                data = lines[i].split(";")
+                el.append("        <tr>\n" +
+                    "            <td>" + data[1] + "</td>\n" +
+                    "            <td><div class=\"animate\">Loading</div></td>\n" +
+                    "            <td>" + data[4] + "</td>\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
+                    "            <td style=\"font-size:0;\">" + data[0] + "</td>\n" +
+                    "        </tr>")
+            }
+
+            el.find("tr").each(function () {
+                var ell = $(this).children();
+                if (ell.length > 1) {
+                    $.post("/schedule", {data: returnedData}, function (returnedData) {
+                        ell[1].removeChild(ell[1].firstChild)
+                        ell[1].append(returnedData)
+                    })
+                }
+            });
+
+
+        }).fail(function () {
+            console.log("error")
+        })
+
+    }
+</script>
+
+<!-- INITIALIZER SCRIPT-->
+<script>
+
+    populates();
+    //populater
+
+</script>
+
+<!-- SLIDESHOW SCRIPTS-->
+<script>
+    $("#clickme1").click(function () {
+        if (!$("#id12345").is(':visible')) {
+            $("#id12345").slideDown(1500, function () {
+                $("#clickme1").children().attr("src", "images/minus.png")
+            });
+        } else {
+            $("#id12345").slideUp(1500, function () {
+                $("#clickme1").children().attr("src", "images/plus.svg")
+            });
+        }
+    });
+
+    $("#clickme2").click(function () {
+        if (!$("#id12346").is(':visible')) {
+            $("#id12346").slideDown(1500, function () {
+                $("#clickme2").children().attr("src", "images/minus.png")
+            });
+        } else {
+            $("#id12346").slideUp(1500, function () {
+                $("#clickme2").children().attr("src", "images/plus.svg")
+            });
+        }
+    });
+</script>
+
+
+<!-- SET AVAILABLE DAYS ON SINGLE ORDER -->
+<script>
+    function ssetdays() {
+        var el = $("#singleordernew");
+        var res = new Date(el.find("[name = year]").val(), (el.find("[name = month] :selected").val()), 0);
+        res = res.getDate();
+
+        el.find("[name = day]").empty();
+        el.find("[name = day]").append("<option value=\"?\">--Please Select--</option>");
+        for (var i = 1; i < res; i++) {
+            el.find("[name = day]").append("<option value=\"" + i + "\">" + i + "</option>");
+        }
+        el.find("[name = day]").append("<option value=\"" + i + "\">End of month</option>");
+
+    }
+</script>
+
+<!--addnews-->
+<script>
+    //do not use ';' in the input
+    function addnews() {
+        var el = $("#singleordernew");
+        line += el.find("[name = descr]").val() + '; '
+        line += el.find("[name = wt] :selected").val() + '; '
+        line += el.find("[name = year]").val() + '; '
+        line += el.find("[name = month] :selected").val() + '; '
+        line += el.find("[name = day] :selected").val() + '; '
+        line += el.find("[name = amount]").val() + ';'
+
+        $.post("/addnews", {data: line}, function (returnedData) {
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+</script>
+
+
+</html>
+
