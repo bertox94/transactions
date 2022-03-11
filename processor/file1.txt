@@ -1,0 +1,17 @@
+inmation Gehalt;        true;   24.3.2022;                                   2450;
+inmation Gehalt;        true;   24.4.2022;              1;  months;          2650;
+inmation Bonus;         true;   24.11.2022;             1;  years;           2379.17;
+Rent;                   true;   25.3.2022;      4.2022; 1;  months;         -1060;
+Rent;                   true;   27.6.2022;                                  -1040;
+Rent;                   true;   27.7.2022;              1;  months;         -1090;
+Automated Payments;     true;   5.3.2022;       5.2022; 1;  months;         -110;
+Automated Payments;     true;   5.6.2022;                                   -100;
+Automated Payments;     true;   5.6.2022;               1;  months;         -83.7;
+DB fee;                 true;   12.2022;                1;  years;          -124.8;
+Food & Friends;         true;   5.4.2022;               1;  months;         -700;
+Nexi;                   true;   5.3.2022;                                   -150;
+Nexi;                   true;   5.4.2022;                                   -600;
+Nexi;                   true;   5.5.2022;                                   -400;
+Mamma;                  true;   5.6.2022;                                   -500;
+Lina;                   true;   5.6.2022;                                   -500;
+AMZ;                    true;   5.7.2022;                                   -629;
