@@ -102,6 +102,7 @@ public class MainController {
         return resp;
     }
 
+    @ResponseBody
     @PostMapping(path = "/addnews")
     public String addnews(@RequestParam String data) {
         try {
