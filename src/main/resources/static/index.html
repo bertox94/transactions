@@ -104,7 +104,7 @@
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
-                <td style="padding-left: 10px; padding-right: 10px">
+                <td onkeyup="checksamount()" style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" name="amount"
                                size="10">
@@ -311,7 +311,7 @@
                     "            <td>" + data[1] + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
                     "            <td>" + data[6] + "</td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "            <td onclick='duplicate(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
                     "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
@@ -408,6 +408,7 @@
     }
 
     function checksamount() {
+        var el = $("#singleordernew");
         if (el.find("[name = amount]").val() !== "")
             el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
 
@@ -456,6 +457,18 @@
     function _delete(_id) {
         $.post("/delete", {data: _id}, function (returnedData) {
             $("#orders tbody").find("[name = " + _id + "]").remove();
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
+    function duplicate(_id) {
+        $.post("/duplicate", {data: _id}, function (returnedData) {
+            $("#orders tbody").find("[name = " + _id + "]").clone().appendTo($("#orders tbody"));
+            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[4].attr("onclick", "duplicate(" + returnedData + ")");
+            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[5].attr("onclick", "duplicate(" + returnedData + ")");
+            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[6].attr("onclick", "duplicate(" + returnedData + ")");
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
@@ -524,6 +537,12 @@
         line += el.find("[name = amount]").val() + ';'
 
         $.post("/addnews", {data: line}, function (returnedData) {
+            el.find("[name = descr]").val("")
+            el.find("[name = wt]").val("$")
+            el.find("[name = year]").val("")
+            el.find("[name = month]").val("$")
+            el.find("[name = day]").val("$")
+            el.find("[name = amount]").val("")
             console.log(returnedData)
         }).fail(function () {
             console.log("error")

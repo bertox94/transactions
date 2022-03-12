@@ -87,7 +87,17 @@ public class MainController {
     public String addnews(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery("INSERT INTO public.single_orders (encoded)VALUES('" + data + "');");
+            ResultSet resultSet = stmt.executeQuery(
+                    "INSERT INTO public.single_orders (id, encoded) " +
+                            "VALUES((" +
+                            "       SELECT row_number " +
+                            "       FROM (" +
+                            "           SELECT row_number() over (ORDER BY id), id" +
+                            "           FROM single_orders" +
+                            "       ) AS sub1" +
+                            "       WHERE row_number !=id" +
+                            "       limit 1" +
+                            "   ), '" + data + "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
@@ -106,6 +116,32 @@ public class MainController {
             return "KO";
         }
         return "OK";
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/duplicate")
+    public String duplicate(@RequestParam String data) {
+        int id = 0;
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(
+                    "INSERT INTO public.single_orders (id, encoded) " +
+                            "SELECT (" +
+                            "           SELECT row_number " +
+                            "           FROM (" +
+                            "               SELECT row_number() over (ORDER BY id), id" +
+                            "               FROM single_orders" +
+                            "           ) AS sub1" +
+                            "           WHERE row_number !=id" +
+                            "           limit 1" +
+                            "),encoded " +
+                            "FROM public.single_orders " +
+                            "WHERE id = " + data + ";");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "KO";
+        }
+        return String.valueOf(id);
     }
 
     @GetMapping(path = "/download")
