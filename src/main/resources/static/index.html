@@ -106,15 +106,15 @@
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="checksamount()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="amount"
+                        <input oninput="checksamount(this)"
+                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" name="amount"
                                size="10">
                     </div>
                 </td>   <!-- Amount -->
                 <td>
                     <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="No"
                          src="images/plus.svg">
-                </td>                                                   <!-- Add button -->
+                </td>                                                   <!-- Button add -->
             </tr>
             </tbody>
         </table>
@@ -382,6 +382,11 @@
 <!-- SSETDAYS -->
 <script>
 
+    var checksamount = function (e) {
+        var t = e.value;
+        e.value = (t.indexOf(".") >= 0) ? (t.substr(0, t.indexOf(".")) + t.substr(t.indexOf("."), 3)) : t;
+    }
+
     function isNumeric(num) {
         let value1 = num.toString();
         let value2 = parseFloat(num).toString();
@@ -411,23 +416,13 @@
         }
     }
 
-    function checksamount() {
-        var el = $("#singleordernew");
-        if (el.find("[name = amount]").val() !== "")
-            el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
-
-        if (isNumeric(el.find("[name = amount]").val()))
-            if (Number(el.find("[name = amount]").val()) !== 0)
-                el.find("[name = amount]").css("color", "");
-
-    }
-
     function ssetdays() {
         var el = $("#singleordernew");
 
         var yy = undefined;
         if (isNumeric(el.find("[name = year]").val())) {
-            yy = el.find("[name = year]").val();
+            if (Number.isInteger(Number(el.find("[name = year]").val())))
+                yy = el.find("[name = year]").val();
         }
 
         var res = new Date(yy, (el.find("[name = month] :selected").val()), 0);
@@ -444,11 +439,13 @@
         if (!el.find("[name = month] :selected").val().includes("$"))
             el.find("[name = month]").css("color", "");
 
-        if (el.find("[name = year]").val() !== "")
+        if (el.find("[name = year]").val() !== "") {
             el.find("[name = year]").parent().css("border", "2px solid #c7a800");
+            if (Number.isInteger(Number(el.find("[name = year]").val())))
+                el.find("[name = year]").css("color", "");
 
-        if (isNumeric(el.find("[name = year]").val()))
-            el.find("[name = year]").css("color", "");
+        }
+
 
     }
 
@@ -505,7 +502,7 @@
             flag = true;
         }
 
-        if (!isNumeric(el.find("[name = year]").val())) {
+        if (!Number.isInteger(Number(el.find("[name = year]").val()))) {
             if (el.find("[name = year]").val() === "") {
                 el.find("[name = year]").parent().css("border", "2px solid red");
             } else {
