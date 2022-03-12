@@ -30,7 +30,7 @@ public class DemoApplication {
             Files.delete(Paths.get("main.obj"));
         } catch (Exception ignored) {
         }
-/*
+
         String[] command = {"cmd.exe", "/C", "Start /B", "E:\\workspace\\webapp-transaction-scheduler\\processor\\build.bat"};
         Runtime.getRuntime().exec(command);
         while (Files.notExists(Paths.get("processor\\main.exe"))) {
@@ -38,7 +38,7 @@ public class DemoApplication {
         Thread.sleep(500);
         Runtime.getRuntime().exec("E:\\workspace\\webapp-transaction-scheduler\\processor\\main.exe", null, new File("E:\\workspace\\webapp-transaction-scheduler\\processor"));
         Thread.sleep(500);
-*/
+
         try {
             String url = "jdbc:postgresql://otto.db.elephantsql.com/olkpwuzc";
             Properties props = new Properties();
