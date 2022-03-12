@@ -78,12 +78,11 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="syear"> </label>
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" id="syear"
-                               name="year" size="3">
+                        <select style="padding: 1.8px" name="day">
+                            <option value="$">--Please Select--</option>
+                        </select>
                     </div>
-                </td>   <!-- Year -->
+                </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <select onchange="ssetdays()" name="month" style="padding: 1.8px">
@@ -105,11 +104,12 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="day">
-                            <option value="$">--Please Select--</option>
-                        </select>
+                        <label for="syear"> </label>
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" id="syear"
+                               name="year" size="3">
                     </div>
-                </td>   <!-- Day -->
+                </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" name="amount"
@@ -155,12 +155,12 @@
                 <th>Wire Transfer</th>
                 <th></th>
                 <th></th>
-                <th>Year</th>
-                <th>Month</th>
                 <th>Day</th>
-                <th>Year</th>
                 <th>Month</th>
+                <th>Year</th>
                 <th>Day</th>
+                <th>Month</th>
+                <th>Year</th>
                 <th>Amount</th>
                 <th></th>
                 <th style="font-size:0;">Empty space</th>
@@ -194,7 +194,7 @@
                                id="f1"
                                name="f1">
                     </div>
-                </td>  <!-- F1 -->
+                </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <label for="f2"></label>
@@ -205,13 +205,14 @@
                             <option value="years">years</option>
                         </select>
                     </div>
-                </td>  <!-- F2 -->
+                </td>     <!-- F2 -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="iyear" size="3">
+                        <select style="padding: 1.8px" name="iday">
+                            <option value="$">--Please Select--</option>
+                        </select>
                     </div>
-                </td>   <!-- Year -->
+                </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <select onchange="ssetdays()" name="imonth" style="padding: 1.8px">
@@ -233,18 +234,17 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="iday">
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="iyear" size="3">
+                    </div>
+                </td>   <!-- Year -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <select style="padding: 1.8px" name="fday">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800; ">
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text"
-                               name="fyear" size="3">
-                    </div>
-                </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <select onchange="ssetdays()" name="fmonth" style="padding: 1.8px">
@@ -266,11 +266,11 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="fday">
-                            <option value="$">--Please Select--</option>
-                        </select>
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text"
+                               name="fyear" size="3">
                     </div>
-                </td>   <!-- Day -->
+                </td>   <!-- Year -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800; ">
                         <label for="lndame"></label>
