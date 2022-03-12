@@ -20,38 +20,33 @@
 
 std::list<std::thread> thread_pool;
 std::condition_variable cv;
-std::mutex tHread_pool_mutex;
-std::mutex cleaner_mutex;
+std::mutex mtx; //this guards over both cleaner_stop and thread_pool
 bool cleaner_stop = false;
 
 using namespace std;
 
 void cleaner() {
-    cout << "Cleaner initialized" << endl;
+    cout << "Cleaner initialized\n" << endl;
     while (true) {
         {
-            unique_lock<mutex> thread_pool_lock(tHread_pool_mutex);
-
-
-            cv.wait(thread_pool_lock, []() {
-                return !thread_pool.empty() ;
+            unique_lock<mutex> lk(mtx);
+            cv.wait(lk, []() {
+                return !thread_pool.empty() || cleaner_stop;
             });
-        }
-        {
-            lock_guard<mutex> cleaner_guard(cleaner_mutex);
             if (cleaner_stop)
                 break;
         }
 
         bool flag = false;
         do {
-            unique_lock<mutex> cleaner_lock(tHread_pool_mutex);
+            lock_guard<mutex> lk(mtx);
             auto el = thread_pool.begin();
             el->join();
             thread_pool.erase(el);
             flag = thread_pool.empty();
         } while (!flag);
     }
+    cout << "Cleaning complete" << endl;
 }
 
 void t_handler(SOCKET ClientSocket) {
@@ -179,7 +174,7 @@ int __cdecl main() {
         }
 
         {
-            lock_guard<mutex> cleaner_lock(tHread_pool_mutex);
+            lock_guard<mutex> cleaner_lock(mtx);
             thread_pool.emplace_back(t_handler, ClientSocket);
         }
         cv.notify_one();
@@ -189,9 +184,11 @@ int __cdecl main() {
     WSACleanup();
     closesocket(ListenSocket);
     {
-        lock_guard<mutex> lockGuard(cleaner_mutex);
+        //make sure to not have thread pool mutex locked here!
+        lock_guard<mutex> lockGuard(mtx);
         cleaner_stop = true;
     }
+    cv.notify_one();
     t_cleaner.join();
 
     return 0;
