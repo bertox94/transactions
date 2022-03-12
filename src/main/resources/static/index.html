@@ -382,9 +382,40 @@
 <!-- SSETDAYS -->
 <script>
 
-    var checksamount = function (e) {
-        var t = e.value;
-        e.value = (t.indexOf(".") >= 0) ? (t.substr(0, t.indexOf(".")) + t.substr(t.indexOf("."), 3)) : t;
+    var checksamount = function (el) {
+        let caret = el.selectionStart;
+        let post;
+        let pre;
+        let pos;
+        let str = el.value;
+
+        str = str.replace(/[^\d.-]/g, '');
+
+        if (str.indexOf("-") === 0) {
+            str = str.replace(/-/g, '');
+            str = "-" + str;
+        } else {
+            str = str.replace(/-/g, '');
+        }
+
+        if (str.includes(".")) {
+            pos = str.lastIndexOf(".");
+            pre = str.slice(0, pos);
+            post = str.slice(pos);
+            pre = pre.replace(/\./g, '');
+            str = pre + post;
+        }
+
+        pos = str.indexOf(".");
+
+        if (pos > -1) {
+            pre = str.slice(0, pos);
+            post = str.slice(pos, pos + 3);
+            post = post.slice(0, 3);
+            str = pre + post;
+        }
+        el.value = str;
+        el.selectionEnd = el.selectionStart = caret;
     }
 
     function isNumeric(num) {
