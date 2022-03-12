@@ -9,6 +9,17 @@
 
 using namespace std;
 
+std::string trim(const std::string &str, const std::string &whitespace = " \t") {
+    const auto strBegin = str.find_first_not_of(whitespace);
+    if (strBegin == std::string::npos)
+        return ""; // no content
+
+    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strRange = strEnd - strBegin + 1;
+
+    return str.substr(strBegin, strRange);
+}
+
 class order {
 public:
     //single order
@@ -40,6 +51,25 @@ public:
             end_of_month_i(endOfMonth),
             initial_date(initialDate),
             f1(f1), f2(f2), amount(amount) {}
+
+    order(string &line) {
+        std::stringstream ss(line);
+        vector<string> row;
+        string data;
+
+        while (getline(ss, data, ';')) {
+            data = trim(data);
+            row.push_back(data);
+        }
+
+        if (row.size() == 7) {
+            name = row[1];
+            is_wire_transfer = row[2] == "true";
+            planned_execution_date = datetime(stol(row[5]), stol(row[4]), stol(row[3]));
+            amount = stod(row[6]);
+        }
+    }
+
 
     string name;
     bool is_wire_transfer;
@@ -129,18 +159,7 @@ double find_q() {
 
 }
 
-std::string trim(const std::string &str, const std::string &whitespace = " \t") {
-    const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
-        return ""; // no content
-
-    const auto strEnd = str.find_last_not_of(whitespace);
-    const auto strRange = strEnd - strBegin + 1;
-
-    return str.substr(strBegin, strRange);
-}
-
-void schedule(order &el, SOCKET sk) {
+string schedule(order &el) {
     if (!el.single_order) {
         if (el.initial_date >= today) {
             el.planned_execution_date = el.initial_date;
@@ -214,10 +233,11 @@ void schedule(order &el, SOCKET sk) {
              << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
              << std::setfill(' ') << endl;
     }
-    send(sk,
-         (to_string(el.effective_execution_date.get_year()) + "." + to_string(el.effective_execution_date.get_month()) +
-          "." +
-          to_string(el.effective_execution_date.get_day()) + "\r\n").c_str(), 22, 0);
+
+    stringstream ss;
+    ss << el.effective_execution_date;
+    return ss.str();
+
 };
 
 void scheduleall() {

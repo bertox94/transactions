@@ -24,19 +24,6 @@ std::list<thread> thread_pool;
 std::condition_variable cv;
 std::mutex cleaner_mutex;
 
-WSADATA wsaData;
-int iResult;
-
-SOCKET ListenSocket = INVALID_SOCKET;
-SOCKET ClientSocket = INVALID_SOCKET;
-
-struct addrinfo *result = NULL;
-struct addrinfo hints;
-
-int iSendResult;
-char recvbuf[DEFAULT_BUFLEN];
-int recvbuflen = DEFAULT_BUFLEN;
-
 [[noreturn]] void cleaner() {
     bool flagg = true;
     while (flagg) {
@@ -60,7 +47,14 @@ int recvbuflen = DEFAULT_BUFLEN;
     return;
 }
 
-int initialize() {
+int initialize(SOCKET &ListenSocket) {
+
+    WSADATA wsaData;
+    int iResult;
+
+    struct addrinfo *result = NULL;
+    struct addrinfo hints;
+
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0) {
@@ -114,103 +108,56 @@ int initialize() {
     return 0;
 }
 
-int finalize() {
-    closesocket(ListenSocket);
+void t_handler(SOCKET ClientSocket) {
 
-    // shutdown the connection since we're done
-    iResult = shutdown(ClientSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
-        printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(ClientSocket);
-        WSACleanup();
-        return 1;
+    int iSendResult;
+    int recvbuflen = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN];
+
+    int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+    printf("Bytes received: %d\n", iResult);
+
+    string str = string(recvbuf).substr(0, iResult - 2);
+
+    if (str.find("schedule") != string::npos) {
+        str = str.substr(9);
+        order o(str);
+        str = schedule(o);
     }
 
-    // cleanup
+    iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
+    printf("Bytes sent: %d\n", iSendResult);
     closesocket(ClientSocket);
     WSACleanup();
-    //stop the infinite loop
 
 }
 
 int __cdecl main(void) {
-
     thread cleaner_thread(cleaner);
 
-    initialize();
+    auto ListenSocket = INVALID_SOCKET;
+    auto ClientSocket = INVALID_SOCKET;
 
-    // Accept a client socket
-    ClientSocket = accept(ListenSocket, NULL, NULL);
-    if (ClientSocket == INVALID_SOCKET) {
-        printf("accept failed with error: %d\n", WSAGetLastError());
-        closesocket(ListenSocket);
-        WSACleanup();
-        return 1;
+    initialize(ListenSocket);
+
+    while (true) {
+        // Accept a client socket
+        //ClientSocket = accept(ListenSocket, NULL, NULL);
+        //if (ClientSocket == INVALID_SOCKET) {
+        //    printf("accept failed with error: %d\n", WSAGetLastError());
+        //    closesocket(ListenSocket);
+        //    WSACleanup();
+        //    return 1;
+        //}
+        {
+            std::lock_guard<std::mutex> lk(cleaner_mutex);
+            thread_pool.emplace_back(t_handler, accept(ListenSocket, NULL, NULL));
+        }
+        cv.notify_one();
     }
 
-    // Receive until the peer shuts down the connection
-    do {
 
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0) - 2;
-        if (iResult > 0) {
-            printf("Bytes received: %d\n", iResult);
-
-            string str = string(recvbuf).substr(0, iResult);
-
-            auto i = str.find("schedule");
-
-            if (str.find("schedule") != string::npos) {
-                str = str.substr(9);
-                std::stringstream file(str);
-
-                vector<string> lines;
-                string line;
-
-                while (getline(file, line)) {
-                    if (line[0] == '#' || line.empty())
-                        continue;
-                    std::stringstream ss(line);
-                    vector<string> row;
-                    string data;
-                    while (getline(ss, data, ';')) {
-                        data = trim(data);
-                        row.push_back(data);
-                    }
-
-                    if (row.size() == 7) {
-                        order order("" + row[1], row[2] == "true", false,
-                                    datetime(stol(row[5]), stol(row[4]), stol(row[3])),
-                                    stod(row[6]));
-                        {
-                            std::lock_guard<std::mutex> lk(cleaner_mutex);
-                            thread_pool.emplace_back(schedule, std::ref(order), std::ref(ClientSocket));
-                        }
-                        cv.notify_one();
-                    }
-                }
-
-               // //Echo the buffer back to the sender (append /r/n)
-               // iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
-               // if (iSendResult == SOCKET_ERROR) {
-               //     printf("send failed with error: %d\n", WSAGetLastError());
-               //     closesocket(ClientSocket);
-               //     WSACleanup();
-               //     return 1;
-               // }
-               // printf("Bytes sent: %d\n", iSendResult);
-            }
-        } else if (iResult == 0)
-            printf("Connection closing...\n");
-        else {
-            printf("recv failed with error: %d\n", WSAGetLastError());
-            closesocket(ClientSocket);
-            WSACleanup();
-            return 1;
-        }
-
-    } while (iResult > 0);
-
-    finalize();
+    closesocket(ListenSocket);
     cleaner_thread.join();
 
     return 0;

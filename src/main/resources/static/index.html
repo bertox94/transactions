@@ -335,13 +335,15 @@
                     "        </tr>")
             }
 
+            var i = 0
             el.find("tr").each(function () {
                 var ell = $(this).children();
                 if (ell.length > 1) {
-                    $.post("/schedule", {data: returnedData}, function (returnedData) {
+                    $.post("/schedule", {data: lines[i]}, function (returnedData) {
                         ell[1].removeChild(ell[1].firstChild)
                         ell[1].append(returnedData)
                     })
+                    i++;
                 }
             });
 
