@@ -59,13 +59,13 @@
             <tr id="singleordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="checks1()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input onkeyup="checksdesc()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="checks2()" name="wt" style="padding: 1.8px">
+                        <select onchange="checkswt()" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -74,7 +74,7 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="day">
+                        <select onchange="checksday()" style="padding: 1.8px" name="day">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
@@ -100,10 +100,8 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="syear"> </label>
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" id="syear"
-                               name="year" size="3">
+                        <input onkeyup="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
@@ -380,25 +378,29 @@
 <!-- SSETDAYS -->
 <script>
 
-    function checks1() {
-        var el = $("#singleordernew");
-        el = el.find("[name = descr]");
-
-        if (el.val() !== "")
-            el.parent().css("border", "2px solid #c7a800");
-
-        if (!el.val().includes(";"))
-            el.css("color", "");
+    function isNumeric(num) {
+        let value1 = num.toString();
+        let value2 = parseFloat(num).toString();
+        return (value1 === value2);
     }
 
-    function checks2() {
+    function checksdesc() {
+        var el = $("#singleordernew");
+        if (el.find("[name = descr]").val() !== "")
+            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
+
+        if (!el.find("[name = descr]").val().includes(";"))
+            el.find("[name = descr]").css("color", "");
+    }
+
+    function checkswt() {
         var el = $("#singleordernew");
         if (!el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "");
         }
     }
 
-    function checks3() {
+    function checksday() {
         var el = $("#singleordernew");
         if (!el.find("[name = day] :selected").val().includes("$")) {
             el.find("[name = day]").css("color", "");
@@ -407,18 +409,34 @@
 
     function ssetdays() {
         var el = $("#singleordernew");
-        var res = new Date(el.find("[name = year]").val(), (el.find("[name = month] :selected").val()), 0);
+
+        var yy = undefined;
+        if (isNumeric(el.find("[name = year]").val())) {
+            yy = el.find("[name = year]").val();
+        }
+
+        var res = new Date(yy, (el.find("[name = month] :selected").val()), 0);
         res = res.getDate();
 
         el.find("[name = day]").empty();
-        el.find("[name = day]").append("<option value=\"?\">--Please Select--</option>");
+        el.find("[name = day]").append("<option value=\"$\">--Please Select--</option>");
         for (var i = 1; i < res; i++) {
             el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         }
         if (res > 0)
             el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
 
+        if (!el.find("[name = month] :selected").val().includes("$"))
+            el.find("[name = month]").css("color", "");
+
+        if (el.find("[name = year]").val() !== "")
+            el.find("[name = year]").parent().css("border", "2px solid #c7a800");
+
+        if (isNumeric(el.find("[name = year]").val()))
+            el.find("[name = year]").css("color", "");
+
     }
+
 </script>
 
 <!--addnews-->
@@ -426,27 +444,45 @@
     function addnews() {
         var line = ""
         var el = $("#singleordernew");
+        var flag = false;
 
         //CHECKS
         if (el.find("[name = descr]").val() === "") {
             el.find("[name = descr]").parent().css("border", "2px solid red");
-            return;
+            flag = true;
         }
 
         if (el.find("[name = descr]").val().includes(";")) {
             el.find("[name = descr]").css("color", "red");
-            return;
+            flag = true;
         }
 
         if (el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "red");
-            return;
+            flag = true;
         }
 
         if (el.find("[name = day] :selected").val().includes("$")) {
             el.find("[name = day]").css("color", "red");
-            return;
+            flag = true;
         }
+
+        if (el.find("[name = month] :selected").val().includes("$")) {
+            el.find("[name = month]").css("color", "red");
+            flag = true;
+        }
+
+        if (!isNumeric(el.find("[name = year]").val())) {
+            if (el.find("[name = year]").val() === "") {
+                el.find("[name = year]").parent().css("border", "2px solid red");
+            } else {
+                el.find("[name = year]").css("color", "red");
+            }
+            flag = true;
+        }
+
+        if (flag)
+            return;
 
         //PREPARE TO SEND
         line += el.find("[name = descr]").val() + '; '
