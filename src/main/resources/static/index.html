@@ -59,17 +59,16 @@
             <tr id="singleordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="checks1()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input onkeyup="checks1()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <label for="swt"></label>
-                        <select onchange="checks2()" name="wt" style="padding: 1.8px" id="swt">
+                        <select onchange="checks2()" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
+                            <option style="color : black" value="true">Yes</option>
+                            <option style="color : black" value="false">No</option>
                         </select>
                     </div>
                 </td>   <!-- WT -->
@@ -84,18 +83,18 @@
                     <div style="border: 2px solid #c7a800; ">
                         <select onchange="ssetdays()" name="month" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
+                            <option style="color : black" value="1">January</option>
+                            <option style="color : black" value="2">February</option>
+                            <option style="color : black" value="3">March</option>
+                            <option style="color : black" value="4">April</option>
+                            <option style="color : black" value="5">May</option>
+                            <option style="color : black" value="6">June</option>
+                            <option style="color : black" value="7">July</option>
+                            <option style="color : black" value="8">August</option>
+                            <option style="color : black" value="9">September</option>
+                            <option style="color : black" value="10">October</option>
+                            <option style="color : black" value="11">November</option>
+                            <option style="color : black" value="12">December</option>
                         </select>
                     </div>
                 </td>   <!-- Month -->
@@ -384,17 +383,25 @@
     function checks1() {
         var el = $("#singleordernew");
         el = el.find("[name = descr]");
-        if (el.val().includes(";")) {
-            el.css("color", "red")
-        } else {
-            el.css("color", "")
-        }
+
+        if (el.val() !== "")
+            el.parent().css("border", "2px solid #c7a800");
+
+        if (!el.val().includes(";"))
+            el.css("color", "");
     }
 
     function checks2() {
         var el = $("#singleordernew");
         if (!el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "");
+        }
+    }
+
+    function checks3() {
+        var el = $("#singleordernew");
+        if (!el.find("[name = day] :selected").val().includes("$")) {
+            el.find("[name = day]").css("color", "");
         }
     }
 
@@ -406,10 +413,10 @@
         el.find("[name = day]").empty();
         el.find("[name = day]").append("<option value=\"?\">--Please Select--</option>");
         for (var i = 1; i < res; i++) {
-            el.find("[name = day]").append("<option value=\"" + i + "\">" + i + "</option>");
+            el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         }
         if (res > 0)
-            el.find("[name = day]").append("<option value=\"" + i + "\">End of month</option>");
+            el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
 
     }
 </script>
@@ -421,8 +428,23 @@
         var el = $("#singleordernew");
 
         //CHECKS
+        if (el.find("[name = descr]").val() === "") {
+            el.find("[name = descr]").parent().css("border", "2px solid red");
+            return;
+        }
+
+        if (el.find("[name = descr]").val().includes(";")) {
+            el.find("[name = descr]").css("color", "red");
+            return;
+        }
+
         if (el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "red");
+            return;
+        }
+
+        if (el.find("[name = day] :selected").val().includes("$")) {
+            el.find("[name = day]").css("color", "red");
             return;
         }
 
