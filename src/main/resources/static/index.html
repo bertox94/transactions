@@ -27,19 +27,7 @@
     </thead>
     <tbody>
     <tr style="background: #c7a800;">
-        <td colspan="3"></td>
-    </tr>
-    <tr>
-        <td>Bla bla</td>
-        <td>1.5.2020</td>
-        <td>122</td>
-        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
-                                                       alt="No" src="images/plus.svg"></td>
-        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
-                                                       alt="No" src="images/pencil.svg"></td>
-        <td style="cursor: pointer; padding: 5px"><img style="vertical-align:middle;" width="13px"
-                                                       alt="No" src="images/bin.svg"></td>
-        <td style="font-size:0;">3333333333333333</td>
+        <td colspan="6"></td>
     </tr>
     </tbody>
 </table>
@@ -50,9 +38,8 @@
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Single Order</h4></td>
-            <td style="padding: 5px; cursor: pointer;" id="clickme1"><img style=" vertical-align:middle;" width="13px"
-                                                                          alt="No"
-                                                                          src="images/plus.svg"></td>
+            <td style="cursor: pointer; padding: 5px" id="clickme1"><img style="vertical-align:middle;" width="15px"
+                                                                         alt="No" src="images/plus.svg"></td>
         </tr>
     </table>
     <div id="id12345" style="display:none; float: left; padding-bottom: 3px;">
@@ -84,8 +71,8 @@
                         <label for="swt"></label>
                         <select name="wt" style="padding: 1.8px" id="swt">
                             <option value="$">--Please Select--</option>
-                            <option value="val2">YES</option>
-                            <option value="val1">NO</option>
+                            <option value="val2">Yes</option>
+                            <option value="val1">No</option>
                         </select>
                     </div>
                 </td>   <!-- WT -->
@@ -147,7 +134,7 @@
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Repeated Order</h4></td>
-            <td style="cursor: pointer; padding: 5px" id="clickme2"><img style="vertical-align:middle;" width="13px"
+            <td style="cursor: pointer; padding: 5px" id="clickme2"><img style="vertical-align:middle;" width="15px"
                                                                          alt="No" src="images/plus.svg"></td>
         </tr>
     </table>
@@ -313,7 +300,7 @@
             let el = $("#orders tbody");
             el.empty();
             el.append("        <tr style=\"background: #c7a800;\">\n" +
-                "            <td colspan=\"3\"></td>\n" +
+                "            <td colspan=\"6\"></td>\n" +
                 "        </tr>");
 
             returnedData = returnedData.trim()
@@ -324,12 +311,12 @@
                 el.append("        <tr>\n" +
                     "            <td>" + data[1] + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
-                    "            <td>" + data[4] + "</td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "            <td>" + data[6] + "</td>\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"13px\"\n" +
+                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
                     "            <td style=\"font-size:0;\">" + data[0] + "</td>\n" +
                     "        </tr>")
@@ -359,7 +346,6 @@
 <script>
 
     populates();
-    //populater
 
 </script>
 
@@ -391,7 +377,7 @@
 </script>
 
 
-<!-- SET AVAILABLE DAYS ON SINGLE ORDER -->
+<!-- SSETDAYS -->
 <script>
     function ssetdays() {
         var el = $("#singleordernew");
