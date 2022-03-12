@@ -31,21 +31,26 @@ using namespace std;
 void cleaner() {
     cout << "Cleaner initialized\n" << endl;
     while (true) {
+        bool flag = false;
+        unsigned int n = 0;
         {
             unique_lock<mutex> lk(mtx);
             cv.wait(lk, []() {
                 return !thread_pool.empty() || cleaner_stop;
             });
+            flag = thread_pool.empty();
+            n = thread_pool.size();
         }
 
-        bool flag = false;
-        do {
+        while (!flag) {
             lock_guard<mutex> lk(mtx);
             auto el = thread_pool.begin();
             el->join();
             thread_pool.erase(el);
             flag = thread_pool.empty();
-        } while (!flag);
+        }
+
+        cout << "------- Cleaned: " << n << " instances." << endl;
         if (cleaner_stop)
             break;
     }
@@ -61,22 +66,18 @@ void t_handler(SOCKET ClientSocket) {
 
     iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
     if (iResult > 2) {
-        printf("Bytes received: %d\n", iResult);
 
         string str = string(recvbuf).substr(0, iResult - 2);
-        string resp = "";
+        string resp;
 
+        // if the process should close
         bool close_fg = false;
-
         if (str.find("close") != string::npos) {
             close_fg = true;
             resp = "OK";
-            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-            }
-            printf("Bytes sent: %d\n", iSendResult);
         }
+
+        //report immediately to the main loop whether it should loop again or not.
         {
             lock_guard<mutex> lg(mtx2);
             process_stop = close_fg;
@@ -84,33 +85,29 @@ void t_handler(SOCKET ClientSocket) {
         }
         cv2.notify_one();
 
+        // if the process should continue, then choose the right function requested
         if (!process_stop) {
             if (str.find("schedule") != string::npos) {
                 str = str.substr(9);
                 order o(str);
                 resp = schedule(o);
             }
+        }
 
-            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
+        // Always send back a message
+        iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
 
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-            }
-            printf("Bytes sent: %d\n", iSendResult);
+        if (iSendResult == SOCKET_ERROR) {
+            printf("send failed with error: %d\n", WSAGetLastError());
         }
     }
 
-    printf("Connection closing...\n");
-    cout << endl;
-    // shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
     }
 
-    // cleanup
     closesocket(ClientSocket);
-
 
 }
 
@@ -182,6 +179,7 @@ int __cdecl main() {
     while (true) {
         // Accept a client socket
         ClientSocket = accept(ListenSocket, NULL, NULL);
+        cout << "Connection accepted." << endl;
         if (ClientSocket == INVALID_SOCKET) {
             printf("accept failed with error: %d\n", WSAGetLastError());
             break;
@@ -204,6 +202,8 @@ int __cdecl main() {
         }
     }
 
+    cout << endl;
+    cout << "Termination initiated." << endl;
     {
         //make sure to not have thread pool mutex locked here!
         lock_guard<mutex> lockGuard(mtx);

@@ -79,7 +79,6 @@ public class MainController {
     @PostMapping(path = "/schedule")
     public String schedule(@RequestParam String data) {
         String dd = SpaceTime_Gap.send("schedule " + data);
-        SpaceTime_Gap.send("close");
         return dd;
     }
 
