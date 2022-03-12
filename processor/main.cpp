@@ -59,55 +59,58 @@ void t_handler(SOCKET ClientSocket) {
     char recvbuf[DEFAULT_BUFLEN];
     int recvbuflen = DEFAULT_BUFLEN;
 
-    // Receive until the peer shuts down the connection
-    do {
+    iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+    if (iResult > 2) {
+        printf("Bytes received: %d\n", iResult);
 
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        if (iResult > 2) {
-            printf("Bytes received: %d\n", iResult);
+        string str = string(recvbuf).substr(0, iResult - 2);
+        string resp = "";
 
-            string str = string(recvbuf).substr(0, iResult - 2);
+        bool close_fg = false;
 
-            bool close_fg = false;
+        if (str.find("close") != string::npos) {
+            close_fg = true;
+            resp = "OK";
+            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
+            if (iSendResult == SOCKET_ERROR) {
+                printf("send failed with error: %d\n", WSAGetLastError());
+            }
+            printf("Bytes sent: %d\n", iSendResult);
+        }
+        {
+            lock_guard<mutex> lg(mtx2);
+            process_stop = close_fg;
+            process_stop_set = true;
+        }
+        cv2.notify_one();
+
+        if (!process_stop) {
             if (str.find("schedule") != string::npos) {
                 str = str.substr(9);
                 order o(str);
-                str = schedule(o);
-            } else if (str.find("close") != string::npos) {
-                close_fg = true;
+                resp = schedule(o);
             }
 
-            {
-                lock_guard<mutex> lg(mtx2);
-                process_stop = close_fg;
-                process_stop_set = true;
-            }
-            cv2.notify_one();
-
-
-            iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
+            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
 
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
             }
             printf("Bytes sent: %d\n", iSendResult);
-        } else if (iResult == 2) {
-            printf("Connection closing...\n");
-            cout << endl;
-            // shutdown the connection since we're done
-            iResult = shutdown(ClientSocket, SD_SEND);
-            if (iResult == SOCKET_ERROR) {
-                printf("shutdown failed with error: %d\n", WSAGetLastError());
-            }
-
-            // cleanup
-            closesocket(ClientSocket);
-        } else {
-            printf("recv failed with error: %d\n", WSAGetLastError());
-            closesocket(ClientSocket);
         }
+    }
 
-    } while (iResult > 0);
+    printf("Connection closing...\n");
+    cout << endl;
+    // shutdown the connection since we're done
+    iResult = shutdown(ClientSocket, SD_SEND);
+    if (iResult == SOCKET_ERROR) {
+        printf("shutdown failed with error: %d\n", WSAGetLastError());
+    }
+
+    // cleanup
+    closesocket(ClientSocket);
+
 
 }
 

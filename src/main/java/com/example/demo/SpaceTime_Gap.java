@@ -18,7 +18,6 @@ public class SpaceTime_Gap {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out.println(msg);
             resp = in.readLine();
-            out.println("");
             in.close();
             out.close();
             clientSocket.close();
