@@ -2,13 +2,11 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <thread>
+#include <iostream>
+#include <list>
 #include <condition_variable>
 #include <mutex>
 #include "scheduler.h"
@@ -20,9 +18,11 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
-std::list<thread> thread_pool;
+std::list<std::thread> thread_pool;
 std::condition_variable cv;
 std::mutex cleaner_mutex;
+
+using namespace std;
 
 [[noreturn]] void cleaner() {
     bool flagg = true;
@@ -47,13 +47,43 @@ std::mutex cleaner_mutex;
     return;
 }
 
-int initialize(SOCKET &ListenSocket) {
+void t_handler(SOCKET ClientSocket) {
 
+    int iSendResult;
+    int recvbuflen = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN];
+
+    int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+    printf("Bytes received: %d\n", iResult);
+
+    string str = string(recvbuf).substr(0, iResult - 2);
+
+    if (str.find("schedule") != string::npos) {
+        str = str.substr(9);
+        order o(str);
+        str = schedule(o);
+    }
+
+    iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
+    printf("Bytes sent: %d\n", iSendResult);
+    closesocket(ClientSocket);
+    WSACleanup();
+
+}
+
+int __cdecl main(void) {
     WSADATA wsaData;
     int iResult;
 
+    SOCKET ListenSocket = INVALID_SOCKET;
+    SOCKET ClientSocket = INVALID_SOCKET;
+
     struct addrinfo *result = NULL;
     struct addrinfo hints;
+
+    int iSendResult;
+    char recvbuf[DEFAULT_BUFLEN];
+    int recvbuflen = DEFAULT_BUFLEN;
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -105,81 +135,57 @@ int initialize(SOCKET &ListenSocket) {
         return 1;
     }
 
-    return 0;
-}
-
-void t_handler(SOCKET ClientSocket) {
-
-    int iSendResult;
-    int recvbuflen = DEFAULT_BUFLEN;
-    char recvbuf[DEFAULT_BUFLEN];
-
-    int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-    printf("Bytes received: %d\n", iResult);
-
-    string str = string(recvbuf).substr(0, iResult - 2);
-
-    if (str.find("schedule") != string::npos) {
-        str = str.substr(9);
-        order o(str);
-        str = schedule(o);
-    }
-
-    iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
-    printf("Bytes sent: %d\n", iSendResult);
-    closesocket(ClientSocket);
-    WSACleanup();
-
-}
-
-int __cdecl main(void) {
-    thread cleaner_thread(cleaner);
-
-    auto ListenSocket = INVALID_SOCKET;
-    auto ClientSocket = INVALID_SOCKET;
-
-    initialize(ListenSocket);
-
     while (true) {
         // Accept a client socket
         ClientSocket = accept(ListenSocket, NULL, NULL);
-        //if (ClientSocket == INVALID_SOCKET) {
-        //    printf("accept failed with error: %d\n", WSAGetLastError());
-        //    closesocket(ListenSocket);
-        //    WSACleanup();
-        //    return 1;
-        //}
-
-        int iSendResult;
-        int recvbuflen = DEFAULT_BUFLEN;
-        char recvbuf[DEFAULT_BUFLEN];
-
-        int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        printf("Bytes received: %d\n", iResult);
-
-        string str = string(recvbuf).substr(0, iResult - 2);
-
-        if (str.find("schedule") != string::npos) {
-            str = str.substr(9);
-            order o(str);
-            str = schedule(o);
+        if (ClientSocket == INVALID_SOCKET) {
+            printf("accept failed with error: %d\n", WSAGetLastError());
+            closesocket(ListenSocket);
+            WSACleanup();
+            return 1;
         }
 
-        iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
-        printf("Bytes sent: %d\n", iSendResult);
+        // Receive until the peer shuts down the connection
+        do {
 
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        printf("Bytes received: %d\n", iResult);
+            iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+            if (iResult > 2) {
+                printf("Bytes received: %d\n", iResult);
 
+                // Echo the buffer back to the sender
+                iSendResult = send(ClientSocket, recvbuf, iResult, 0);
+                if (iSendResult == SOCKET_ERROR) {
+                    printf("send failed with error: %d\n", WSAGetLastError());
+                    closesocket(ClientSocket);
+                    WSACleanup();
+                    return 1;
+                }
+                printf("Bytes sent: %d\n", iSendResult);
+            } else if (iResult == 2) {
+                printf("Connection closing...\n");
+                // shutdown the connection since we're done
+                iResult = shutdown(ClientSocket, SD_SEND);
+                if (iResult == SOCKET_ERROR) {
+                    printf("shutdown failed with error: %d\n", WSAGetLastError());
+                    closesocket(ClientSocket);
+                    WSACleanup();
+                    closesocket(ListenSocket);
+                    return 1;
+                }
 
-        closesocket(ClientSocket);
-        WSACleanup();
+                // cleanup
+                closesocket(ClientSocket);
+            } else {
+                printf("recv failed with error: %d\n", WSAGetLastError());
+                closesocket(ClientSocket);
+                WSACleanup();
+                return 1;
+            }
 
+        } while (iResult > 0);
     }
 
-
+    WSACleanup();
     closesocket(ListenSocket);
-    cleaner_thread.join();
-
     return 0;
 }
