@@ -78,28 +78,9 @@ public class MainController {
     @ResponseBody
     @PostMapping(path = "/schedule")
     public String schedule(@RequestParam String data) {
-        Socket clientSocket;
-        PrintWriter out;
-        BufferedReader in;
-        String resp = "";
-        try {
-            clientSocket = new Socket("localhost", 27015);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String msg = "schedule\n" + data;
-            out.println(msg);
-            resp = in.readLine();
-            out.println("");
-            in.close();
-            out.close();
-            clientSocket.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        return resp;
+        String dd = SpaceTime_Gap.send("schedule " + data);
+        SpaceTime_Gap.send("close");
+        return dd;
     }
 
     @ResponseBody

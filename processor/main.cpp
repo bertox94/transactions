@@ -19,10 +19,13 @@
 #define DEFAULT_PORT "27015"
 
 std::list<std::thread> thread_pool;
-std::condition_variable cv;
-std::mutex mtx; //this guards over both cleaner_stop and thread_pool
 bool cleaner_stop = false;
-
+bool process_stop = false;
+bool process_stop_set = false;
+std::condition_variable cv;
+std::condition_variable cv2;
+std::mutex mtx; //this guards over both cleaner_stop and thread_pool
+std::mutex mtx2; //this guards over process_stop
 using namespace std;
 
 void cleaner() {
@@ -65,11 +68,22 @@ void t_handler(SOCKET ClientSocket) {
 
             string str = string(recvbuf).substr(0, iResult - 2);
 
+            bool close_fg = false;
             if (str.find("schedule") != string::npos) {
                 str = str.substr(9);
                 order o(str);
                 str = schedule(o);
+            } else if (str.find("close") != string::npos) {
+                close_fg = true;
             }
+
+            {
+                lock_guard<mutex> lg(mtx2);
+                process_stop = close_fg;
+                process_stop_set = true;
+            }
+            cv2.notify_one();
+
 
             iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
 
@@ -162,20 +176,29 @@ int __cdecl main() {
         return 1;
     }
 
-    bool flag = true;
-    while (flag) {
+    while (true) {
         // Accept a client socket
         ClientSocket = accept(ListenSocket, NULL, NULL);
         if (ClientSocket == INVALID_SOCKET) {
             printf("accept failed with error: %d\n", WSAGetLastError());
             break;
         }
+
         {
             lock_guard<mutex> cleaner_lock(mtx);
             thread_pool.emplace_back(t_handler, ClientSocket);
         }
         cv.notify_one();
 
+        {
+            unique_lock<mutex> lk(mtx2);
+            cv2.wait(lk, []() {
+                return process_stop_set;
+            });
+            if (process_stop)
+                break;
+            process_stop_set = false;
+        }
     }
 
     {
