@@ -33,8 +33,6 @@ void cleaner() {
             cv.wait(lk, []() {
                 return !thread_pool.empty() || cleaner_stop;
             });
-            if (cleaner_stop)
-                break;
         }
 
         bool flag = false;
@@ -45,6 +43,8 @@ void cleaner() {
             thread_pool.erase(el);
             flag = thread_pool.empty();
         } while (!flag);
+        if (cleaner_stop)
+            break;
     }
     cout << "Cleaning complete" << endl;
 }
@@ -168,11 +168,8 @@ int __cdecl main() {
         ClientSocket = accept(ListenSocket, NULL, NULL);
         if (ClientSocket == INVALID_SOCKET) {
             printf("accept failed with error: %d\n", WSAGetLastError());
-            closesocket(ListenSocket);
-            WSACleanup();
-            return 1;
+            break;
         }
-
         {
             lock_guard<mutex> cleaner_lock(mtx);
             thread_pool.emplace_back(t_handler, ClientSocket);
@@ -181,8 +178,6 @@ int __cdecl main() {
 
     }
 
-    WSACleanup();
-    closesocket(ListenSocket);
     {
         //make sure to not have thread pool mutex locked here!
         lock_guard<mutex> lockGuard(mtx);
@@ -190,6 +185,9 @@ int __cdecl main() {
     }
     cv.notify_one();
     t_cleaner.join();
+
+    WSACleanup();
+    closesocket(ListenSocket);
 
     return 0;
 }
