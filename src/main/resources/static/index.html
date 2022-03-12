@@ -401,7 +401,8 @@
         for (var i = 1; i < res; i++) {
             el.find("[name = day]").append("<option value=\"" + i + "\">" + i + "</option>");
         }
-        el.find("[name = day]").append("<option value=\"" + i + "\">End of month</option>");
+        if (res > 0)
+            el.find("[name = day]").append("<option value=\"" + i + "\">End of month</option>");
 
     }
 </script>
