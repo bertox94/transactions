@@ -71,8 +71,8 @@
                         <label for="swt"></label>
                         <select name="wt" style="padding: 1.8px" id="swt">
                             <option value="$">--Please Select--</option>
-                            <option value="val2">Yes</option>
-                            <option value="val1">No</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
                         </select>
                     </div>
                 </td>   <!-- WT -->
@@ -167,113 +167,117 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td style="padding-left: 8px; padding-right: 8px">
+            <tr id="repeatedordernew">
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="ldname"></label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" size="40" type="text"
-                               id="ldname"
-                               name="ldndame">
+                        <label for="rdescription"></label>
+                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text"
+                               id="rdescription"
+                               name="descr">
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Desc -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <label for="select15"></label>
-                        <select style="padding: 1.8px" id="select15">
+                        <label for="rwt"></label>
+                        <select name="wt" style="padding: 1.8px" id="rwt">
                             <option value="$">--Please Select--</option>
-                            <option value="val2">YES</option>
-                            <option value="val1">NO</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
                         </select>
                     </div>
-                </td>
-                <td>
+                </td>   <!-- WT -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="ldgname"></label>
+                        <label for="f1"></label>
                         <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" size="2" type="text"
-                               id="ldgname"
-                               name="ldndame">
+                               id="f1"
+                               name="f1">
                     </div>
-                </td>
+                </td>  <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
-                        <label for="select1"></label>
-                        <select style="padding: 1.8px" id="select1">
+                        <label for="f2"></label>
+                        <select style="padding: 1.8px" id="f2">
                             <option value="$">--Please Select--</option>
-                            <option value="val2">days</option>
-                            <option value="val1">months</option>
-                            <option value="val1">years</option>
+                            <option value="days">days</option>
+                            <option value="months">months</option>
+                            <option value="years">years</option>
                         </select>
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>  <!-- F2 -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="lname"> </label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lname"
-                               name="lname" size="3">
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="iyear" size="3">
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Year -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="select3"></label>
-                        <select style="padding: 1.8px" id="select3">
+                        <select onchange="ssetdays()" name="imonth" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="val1">Jan</option>
-                            <option value="val2">Feb</option>
-                            <option value="val2">...</option>
-                            <option value="val3">Dec</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
                         </select>
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Month -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="select2"></label>
-                        <select style="padding: 1.8px" id="select2">
+                        <select style="padding: 1.8px" name="iday">
                             <option value="$">--Please Select--</option>
-                            <option value="val1">1</option>
-                            <option value="val2">2</option>
-                            <option value="val2">...</option>
-                            <option value="val3">End of month</option>
                         </select>
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Day -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="lname"> </label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lname"
-                               name="lname" size="3">
+                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text"
+                               name="fyear" size="3">
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Year -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="select3"></label>
-                        <select style="padding: 1.8px" id="select3">
+                        <select onchange="ssetdays()" name="fmonth" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="val1">Jan</option>
-                            <option value="val2">Feb</option>
-                            <option value="val2">...</option>
-                            <option value="val3">Dec</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
                         </select>
                     </div>
-                </td>
-                <td style="padding-left: 8px; padding-right: 8px">
+                </td>   <!-- Month -->
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="select2"></label>
-                        <select style="padding: 1.8px" id="select2">
+                        <select style="padding: 1.8px" name="fday">
                             <option value="$">--Please Select--</option>
-                            <option value="val1">1</option>
-                            <option value="val2">2</option>
-                            <option value="val2">...</option>
-                            <option value="val3">End of month</option>
                         </select>
                     </div>
-                </td>
+                </td>   <!-- Day -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800; ">
                         <label for="lndame"></label>
                         <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lndame"
                                name="lndame" size="10">
                     </div>
-                </td>
+                </td>     <!-- Amount -->
                 <td>
                     <img style="cursor: pointer; vertical-align:middle;" width="20px" alt="No" src="images/plus.svg">
                 </td>
