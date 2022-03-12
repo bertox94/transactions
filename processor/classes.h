@@ -281,7 +281,7 @@ public:
     string format = "~~~, !! @@@ ##";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = true;
+    bool keep_original_length = false;
 };
 
 

@@ -407,6 +407,18 @@
         }
     }
 
+    function checksamount() {
+        if (el.find("[name = amount]").val() !== "")
+            el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
+
+        if (isNumeric(el.find("[name = amount]").val()))
+            el.find("[name = amount]").css("color", "");
+
+        if (Number(el.find("[name = amount]").val()) !== 0)
+            el.find("[name = amount]").css("color", "");
+
+    }
+
     function ssetdays() {
         var el = $("#singleordernew");
 
@@ -489,6 +501,16 @@
             }
             flag = true;
         }
+
+        if (!isNumeric(el.find("[name = amount]").val())) {
+            if (el.find("[name = amount]").val() === "") {
+                el.find("[name = amount]").parent().css("border", "2px solid red");
+            } else {
+                el.find("[name = amount]").css("color", "red");
+            }
+            flag = true;
+        } else if (Number(el.find("[name = amount]").val()) === 0)
+            el.find("[name = amount]").css("color", "red");
 
         if (flag)
             return;
