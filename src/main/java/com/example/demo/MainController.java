@@ -95,6 +95,19 @@ public class MainController {
         return "OK";
     }
 
+    @ResponseBody
+    @PostMapping(path = "/delete")
+    public String delete(@RequestParam String data) {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery("DELETE FROM public.single_orders WHERE id = " + data + ";");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "KO";
+        }
+        return "OK";
+    }
+
     @GetMapping(path = "/download")
     public ResponseEntity<Resource> download() throws FileNotFoundException {
         File file = new File(path);

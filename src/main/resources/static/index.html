@@ -307,7 +307,7 @@
 
             for (var i = 0; i < lines.length; i++) {
                 data = lines[i].split(";")
-                el.append("        <tr>\n" +
+                el.append("        <tr name=" + data[0] + ">\n" +
                     "            <td>" + data[1] + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
                     "            <td>" + data[6] + "</td>\n" +
@@ -315,9 +315,9 @@
                     "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
                     "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "            <td onclick='_delete(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
-                    "            <td style=\"font-size:0;\">" + data[0] + "</td>\n" +
+                    "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
                     "        </tr>")
             }
 
@@ -441,6 +441,15 @@
 
 <!--addnews-->
 <script>
+    function _delete(_id) {
+        $.post("/delete", {data: _id}, function (returnedData) {
+            $("#orders tbody").find("[name = " + _id + "]").remove();
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
     function addnews() {
         var line = ""
         var el = $("#singleordernew");
