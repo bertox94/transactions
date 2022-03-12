@@ -89,6 +89,7 @@ public class MainController {
             String msg = "schedule\n" + data;
             out.println(msg);
             resp = in.readLine();
+            out.println("");
             in.close();
             out.close();
             clientSocket.close();

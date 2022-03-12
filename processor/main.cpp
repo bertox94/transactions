@@ -142,18 +142,39 @@ int __cdecl main(void) {
 
     while (true) {
         // Accept a client socket
-        //ClientSocket = accept(ListenSocket, NULL, NULL);
+        ClientSocket = accept(ListenSocket, NULL, NULL);
         //if (ClientSocket == INVALID_SOCKET) {
         //    printf("accept failed with error: %d\n", WSAGetLastError());
         //    closesocket(ListenSocket);
         //    WSACleanup();
         //    return 1;
         //}
-        {
-            std::lock_guard<std::mutex> lk(cleaner_mutex);
-            thread_pool.emplace_back(t_handler, accept(ListenSocket, NULL, NULL));
+
+        int iSendResult;
+        int recvbuflen = DEFAULT_BUFLEN;
+        char recvbuf[DEFAULT_BUFLEN];
+
+        int iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+        printf("Bytes received: %d\n", iResult);
+
+        string str = string(recvbuf).substr(0, iResult - 2);
+
+        if (str.find("schedule") != string::npos) {
+            str = str.substr(9);
+            order o(str);
+            str = schedule(o);
         }
-        cv.notify_one();
+
+        iSendResult = send(ClientSocket, (str + "\r\n").c_str(), iResult + 2, 0);
+        printf("Bytes sent: %d\n", iSendResult);
+
+        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+        printf("Bytes received: %d\n", iResult);
+
+
+        closesocket(ClientSocket);
+        WSACleanup();
+
     }
 
 
