@@ -89,7 +89,7 @@ public class MainController {
             Statement stmt = connection.createStatement();
             ResultSet resultSet = stmt.executeQuery(
                     "INSERT INTO public.single_orders (id, encoded) " +
-                            "VALUES((" +
+                            "VALUES(( " +
                             "       SELECT ROW_NUMBER " +
                             "       FROM( " +
                             "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
@@ -97,12 +97,12 @@ public class MainController {
                             "               SELECT id " +
                             "               FROM single_orders " +
                             "               UNION ALL " +
-                            "               SELECT MAX(id) AS id " +
+                            "               SELECT COALESCE(MAX(id),2) AS id " +
                             "               FROM single_orders " +
                             "           ) AS sub1 " +
                             "       ) AS sub2 " +
                             "       WHERE ROW_NUMBER != id " +
-                            "       LIMIT 1 ), '" + data +
+                            "       LIMIT 1) , '" + data +
                             "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -140,7 +140,7 @@ public class MainController {
                             "               SELECT id " +
                             "               FROM single_orders " +
                             "               UNION ALL " +
-                            "               SELECT MAX(id) AS id " +
+                            "               SELECT COALESCE(MAX(id),2) AS id " +
                             "               FROM single_orders " +
                             "           ) AS sub1 " +
                             "       ) AS sub2 " +

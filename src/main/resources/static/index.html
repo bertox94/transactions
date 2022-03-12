@@ -296,6 +296,9 @@
     function populate1() {
         $.get("/populate1", function (returnedData) {
 
+            if (returnedData === "")
+                return;
+
             let el = $("#orders tbody");
             el.empty();
             el.append("        <tr style=\"background: #c7a800;\">\n" +
@@ -465,10 +468,7 @@
 
     function duplicate(_id) {
         $.post("/duplicate", {data: _id}, function (returnedData) {
-            $("#orders tbody").find("[name = " + _id + "]").clone().appendTo($("#orders tbody"));
-            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[4].attr("onclick", "duplicate(" + returnedData + ")");
-            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[5].attr("onclick", "duplicate(" + returnedData + ")");
-            $("#orders tbody").find("[name = " + _id + "]").last().find("td")[6].attr("onclick", "duplicate(" + returnedData + ")");
+            populate1();
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
@@ -541,30 +541,12 @@
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")
             el.find("[name = month]").val("$")
-            el.find("[name = day]").val("$")
+            el.find("[name = day]").empty();
+            el.find("[name = day]").append("<option value=\"$\">--Please Select--</option>");
             el.find("[name = amount]").val("")
 
-            let el = $("#orders tbody");
+            populate1();
 
-            data = line.split(";")
-            el.append("        <tr name=" + data[0] + ">\n" +
-                "            <td>" + data[1] + "</td>\n" +
-                "            <td><div class=\"animate\">Loading</div></td>\n" +
-                "            <td>" + data[6] + "</td>\n" +
-                "            <td onclick='duplicate(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
-                "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
-                "            <td onclick='_delete(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
-                "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
-                "        </tr>")
-
-            $.post("/schedule", {data: line}, function (returnedData) {
-                let ell = el.children().last().children();
-                ell[1].removeChild(ell[1].firstChild)
-                ell[1].append(returnedData)
-            })
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
