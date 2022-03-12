@@ -66,7 +66,7 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
                         <label for="swt"></label>
-                        <select onchange="checks2" name="wt" style="padding: 1.8px" id="swt">
+                        <select onchange="checks2()" name="wt" style="padding: 1.8px" id="swt">
                             <option value="$">--Please Select--</option>
                             <option value="true">Yes</option>
                             <option value="false">No</option>
@@ -392,6 +392,7 @@
     }
 
     function checks2() {
+        var el = $("#singleordernew");
         if (!el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "");
         }

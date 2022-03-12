@@ -87,7 +87,7 @@ public class MainController {
     public String addnews(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            stmt.executeQuery("INSERT INTO public.single_orders (encoded)VALUES('" + data + "');");
+            ResultSet resultSet = stmt.executeQuery("INSERT INTO public.single_orders (encoded)VALUES('" + data + "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
