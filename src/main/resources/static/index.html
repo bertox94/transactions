@@ -59,17 +59,14 @@
             <tr id="singleordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="sdescription"></label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               size="40" type="text"
-                               id="sdescription"
-                               name="descr">
+                        <input onkeyup="checks1()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
                         <label for="swt"></label>
-                        <select name="wt" style="padding: 1.8px" id="swt">
+                        <select onchange="checks2" name="wt" style="padding: 1.8px" id="swt">
                             <option value="$">--Please Select--</option>
                             <option value="true">Yes</option>
                             <option value="false">No</option>
@@ -200,9 +197,9 @@
                         <label for="f2"></label>
                         <select style="padding: 1.8px" id="f2">
                             <option value="$">--Please Select--</option>
-                            <option value="days">days</option>
-                            <option value="months">months</option>
-                            <option value="years">years</option>
+                            <option value="days">Days</option>
+                            <option value="months">Months</option>
+                            <option value="years">Years</option>
                         </select>
                     </div>
                 </td>     <!-- F2 -->
@@ -299,10 +296,8 @@
 
 <!-- POPULATE(S/R) -->
 <script>
-    function populates() {
-
-
-        $.get("/populates", function (returnedData) {
+    function populate1() {
+        $.get("/populate1", function (returnedData) {
 
             let el = $("#orders tbody");
             el.empty();
@@ -345,14 +340,13 @@
         }).fail(function () {
             console.log("error")
         })
-
     }
 </script>
 
 <!-- INITIALIZER SCRIPT-->
 <script>
 
-    populates();
+    populate1();
 
 </script>
 
@@ -386,6 +380,23 @@
 
 <!-- SSETDAYS -->
 <script>
+
+    function checks1() {
+        var el = $("#singleordernew");
+        el = el.find("[name = descr]");
+        if (el.val().includes(";")) {
+            el.css("color", "red")
+        } else {
+            el.css("color", "")
+        }
+    }
+
+    function checks2() {
+        if (!el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "");
+        }
+    }
+
     function ssetdays() {
         var el = $("#singleordernew");
         var res = new Date(el.find("[name = year]").val(), (el.find("[name = month] :selected").val()), 0);
@@ -404,10 +415,17 @@
 
 <!--addnews-->
 <script>
-    //do not use ';' in the input
     function addnews() {
         var line = ""
         var el = $("#singleordernew");
+
+        //CHECKS
+        if (el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "red");
+            return;
+        }
+
+        //PREPARE TO SEND
         line += el.find("[name = descr]").val() + '; '
         line += el.find("[name = wt] :selected").val() + '; '
         line += el.find("[name = year]").val() + '; '

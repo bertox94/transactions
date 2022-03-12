@@ -58,8 +58,8 @@ public class MainController {
     }
 
     @ResponseBody
-    @GetMapping(path = "/populates")
-    public String populates() {
+    @GetMapping(path = "/populate1")
+    public String populate1() {
         String data = "";
         try {
             Statement stmt = connection.createStatement();
