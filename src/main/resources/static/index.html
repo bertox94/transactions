@@ -11,6 +11,7 @@
 
 <h2>Scheduler</h2>
 
+<!--TRANSACTIONS LIST-->
 <table class="myclass" id="orders">
 
     <thead>
@@ -43,6 +44,7 @@
     </tbody>
 </table>
 
+<!--NEW SINGLE ORDER-->
 <div style="overflow: hidden">
     <div style="padding: 10px"></div>
     <table class="myclass">
@@ -140,7 +142,7 @@
 <div style="margin: 30px"></div>
 <div style="padding: 10px"></div>
 
-
+<!--NEW REPEATED ORDER-->
 <div style="overflow: hidden">
     <table class="myclass">
         <tr>
@@ -292,7 +294,7 @@
             </tbody>
         </table>
     </div>
-    <hr style="border: 2px solid #c7a800; width: 99% ; float: left"/>
+    <hr style="border: 2px solid #c7a800; width: 95% ; float: left"/>
 </div>
 <div style="padding: 20px"></div>
 
@@ -408,6 +410,7 @@
 <script>
     //do not use ';' in the input
     function addnews() {
+        var line = ""
         var el = $("#singleordernew");
         line += el.find("[name = descr]").val() + '; '
         line += el.find("[name = wt] :selected").val() + '; '
