@@ -543,6 +543,28 @@
             el.find("[name = month]").val("$")
             el.find("[name = day]").val("$")
             el.find("[name = amount]").val("")
+
+            let el = $("#orders tbody");
+
+            data = line.split(";")
+            el.append("        <tr name=" + data[0] + ">\n" +
+                "            <td>" + data[1] + "</td>\n" +
+                "            <td><div class=\"animate\">Loading</div></td>\n" +
+                "            <td>" + data[6] + "</td>\n" +
+                "            <td onclick='duplicate(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
+                "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
+                "            <td onclick='_delete(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
+                "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
+                "        </tr>")
+
+            $.post("/schedule", {data: line}, function (returnedData) {
+                let ell = el.children().last().children();
+                ell[1].removeChild(ell[1].firstChild)
+                ell[1].append(returnedData)
+            })
             console.log(returnedData)
         }).fail(function () {
             console.log("error")

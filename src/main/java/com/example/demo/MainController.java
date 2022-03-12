@@ -90,14 +90,20 @@ public class MainController {
             ResultSet resultSet = stmt.executeQuery(
                     "INSERT INTO public.single_orders (id, encoded) " +
                             "VALUES((" +
-                            "       SELECT row_number " +
-                            "       FROM (" +
-                            "           SELECT row_number() over (ORDER BY id), id" +
-                            "           FROM single_orders" +
-                            "       ) AS sub1" +
-                            "       WHERE row_number !=id" +
-                            "       limit 1" +
-                            "   ), '" + data + "');");
+                            "       SELECT ROW_NUMBER " +
+                            "       FROM( " +
+                            "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
+                            "           FROM (  " +
+                            "               SELECT id " +
+                            "               FROM single_orders " +
+                            "               UNION ALL " +
+                            "               SELECT MAX(id) AS id " +
+                            "               FROM single_orders " +
+                            "           ) AS sub1 " +
+                            "       ) AS sub2 " +
+                            "       WHERE ROW_NUMBER != id " +
+                            "       LIMIT 1 ), '" + data +
+                            "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
@@ -127,14 +133,19 @@ public class MainController {
             ResultSet resultSet = stmt.executeQuery(
                     "INSERT INTO public.single_orders (id, encoded) " +
                             "SELECT (" +
-                            "           SELECT row_number " +
-                            "           FROM (" +
-                            "               SELECT row_number() over (ORDER BY id), id" +
-                            "               FROM single_orders" +
-                            "           ) AS sub1" +
-                            "           WHERE row_number !=id" +
-                            "           limit 1" +
-                            "),encoded " +
+                            "       SELECT ROW_NUMBER " +
+                            "       FROM( " +
+                            "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
+                            "           FROM (  " +
+                            "               SELECT id " +
+                            "               FROM single_orders " +
+                            "               UNION ALL " +
+                            "               SELECT MAX(id) AS id " +
+                            "               FROM single_orders " +
+                            "           ) AS sub1 " +
+                            "       ) AS sub2 " +
+                            "       WHERE ROW_NUMBER != id " +
+                            "       LIMIT 1 ),encoded " +
                             "FROM public.single_orders " +
                             "WHERE id = " + data + ";");
         } catch (SQLException throwables) {
