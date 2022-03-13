@@ -99,7 +99,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkyears(this)" onkeyup="ssetdays()"
+                        <input oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
@@ -255,14 +255,14 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkyears(this)" onkeyup="rsetdays2()"
+                        <input oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checksamount(this)"
+                        <input oninput="wrapperamount(this)"
                                style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount" size="10">
                     </div>
@@ -421,7 +421,7 @@
         setdays(k);
     }
 
-    function wrapperyear(k) {
+    const wrapperyear = function (k) {
         //validate
         let invalid = true;
 
@@ -451,6 +451,46 @@
             k.style.removeProperty("color");
 
         setdays(k);
+    }
+
+    const wrapperamount = function (k) {
+        //validate
+        let invalid = true;
+
+        if (/^$/.test(k.value))
+            invalid = false;
+
+        if (/^-$/.test(k.value))
+            invalid = false;
+
+        if (/^-?(0|[1-9][0-9]*)$/.test(k.value))
+            invalid = false;
+
+        if (/^-?(0|[1-9][0-9]*)\.$/.test(k.value))
+            invalid = false;
+
+        if (/^-?(0|[1-9][0-9]*)\.[0-9]$/.test(k.value))
+            invalid = false;
+
+        if (/^-?(0|[1-9][0-9]*)\.[0-9][1-9]$/.test(k.value))
+            invalid = false;
+
+        if (/^-?(0|[1-9][0-9]*)\.[1-9][0-9]$/.test(k.value))
+            invalid = false;
+
+        if (invalid)
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
+
+
+        //forgive
+        if (k.value !== "")
+            k.parentElement.style.border = "2px solid #c7a800";
+
+        if (k.value !== "-")
+            k.style.removeProperty("color");
+
+        if (k.value !== ".")
+            k.style.removeProperty("color");
     }
 
     var checksamount = function (el) {
@@ -522,75 +562,6 @@
 
     }
 
-    const checkyears = function (el) {
-        let caret = el.selectionStart;
-        let str = el.value;
-        let matches = 0;
-
-        matches = str.match(/[^\d-]/g);
-        caret -= (matches === null ? 0 : matches.length);
-        str = str.replace(/[^\d-]/g, '');
-
-        matches = str.match(/-/g);
-        caret -= (matches === null ? 0 : matches.length);
-        if (str.indexOf("-") === 0) {
-            str = str.replace(/-/g, '');
-            str = "-" + str;
-            caret++;
-        } else {
-            str = str.replace(/-/g, '');
-        }
-
-        if (str !== "0") {
-            if (str[0] === "0" && str[1] === "0") {
-                matches = str.match(/^0+/);
-                caret -= (matches === null ? 0 : matches.length);
-                str = str.replace(/^0+/, "");
-                str = "0";
-                caret++;
-            } else {
-                matches = str.match(/^0+/);
-                caret -= (matches === null ? 0 : matches.length);
-                str = str.replace(/^0+/, "");
-            }
-        }
-
-        el.value = str;
-        el.selectionEnd = el.selectionStart = caret;
-    };
-
-    function ssetdays() {
-
-        checkyears($("#singleordernew").find("[name = year]")[0])
-
-        var el = $("#singleordernew");
-
-        var yy = undefined;
-        if (el.find("[name = year]").val() !== "" && el.find("[name = year]").val() !== "-") {
-            yy = el.find("[name = year]").val();
-        }
-
-        var res = new Date(yy, (el.find("[name = month] :selected").val()), 0);
-        res = res.getDate();
-
-        el.find("[name = day]").empty();
-        el.find("[name = day]").append("<option value=\"$\">--Please Select--</option>");
-        for (var i = 1; i < res; i++) {
-            el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
-        }
-        if (res > 0)
-            el.find("[name = day]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
-
-        if (!el.find("[name = month] :selected").val().includes("$"))
-            el.find("[name = month]").css("color", "");
-
-        if (el.find("[name = year]").val() !== "")
-            el.find("[name = year]").parent().css("border", "2px solid #c7a800");
-
-        if (el.find("[name = year]").val() !== "-")
-            el.find("[name = year]").css("color", "");
-    }
-
     function setdays(k) {
 
         let day;
@@ -629,37 +600,6 @@
             el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
     }
 
-    function rsetdays2() {
-
-        checkyears($("#repeatedordernew").find("[name = year2]")[0])
-
-        var el = $("#repeatedordernew");
-
-        var yy = undefined;
-        if (el.find("[name = year2]").val() !== "" && el.find("[name = year2]").val() !== "-") {
-            yy = el.find("[name = year2]").val();
-        }
-
-        var res = new Date(yy, (el.find("[name = month2] :selected").val()), 0);
-        res = res.getDate();
-
-        el.find("[name = day2]").empty();
-        el.find("[name = day2]").append("<option value=\"$\">--Please Select--</option>");
-        for (var i = 1; i < res; i++) {
-            el.find("[name = day2]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
-        }
-        if (res > 0)
-            el.find("[name = day2]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
-
-        if (!el.find("[name = month2] :selected").val().includes("$"))
-            el.find("[name = month2]").css("color", "");
-
-        if (el.find("[name = year2]").val() !== "")
-            el.find("[name = year2]").parent().css("border", "2px solid #c7a800");
-
-        if (el.find("[name = year2]").val() !== "-")
-            el.find("[name = year2]").css("color", "");
-    }
 </script>
 
 <!-- CALLS TO SERVER -->
