@@ -262,9 +262,9 @@
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="wrapperamount(this)"
+                        <input onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="amount" size="10">
+                               type="text" name="amount2" size="10">
                     </div>
                 </td>   <!-- Amount -->
                 <td>
@@ -379,8 +379,35 @@
 <!-- FUNCTIONS -->
 <script>
 
-    function prev(curr, caret) {
-        return [curr.slice(0, caret - 1) + curr.slice(caret), caret - 1, caret - 1];
+    var preyear1 = ""
+    var precaretyear1 = 0
+    var preyear2 = ""
+    var precaretyear2 = 0
+
+    var pref1 = ""
+    var precaretf1 = 0
+
+    var preamount1 = ""
+    var precaretamount1 = 0
+    var preamount2 = ""
+    var precaretamount2 = 0
+
+    function setprev(k) {
+        if (k.name === "amount1") {
+            preamount1 = k.value;
+            precaretamount1 = k.selectionStart;
+        }
+        if (k.name === "amount2") {
+            preamount2 = k.value;
+            precaretamount2 = k.selectionStart;
+        }
+    }
+
+    function prev(k) {
+        if (k.name === "amount1")
+            return [preamount1, precaretamount1, precaretamount1];
+        if (k.name === "amount2")
+            return [preamount1, precaretamount1, precaretamount1];
     }
 
     const forgivedesc = function (k) {
@@ -397,9 +424,8 @@
     }
 
     function wrapperf1(k) {
-        if (!/^[1-9][0-9]*$/.test(k.value)) {
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
-        }
+        if (!/^[1-9][0-9]*$/.test(k.value))
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
 
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -440,7 +466,7 @@
         }
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
 
 
         //forgive
@@ -479,8 +505,7 @@
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
-
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
 
         //forgive
         if (k.value !== "")
@@ -491,75 +516,6 @@
 
         if (k.value !== ".")
             k.style.removeProperty("color");
-    }
-
-    var checksamount = function (el) {
-        let caret = el.selectionStart;
-        let post;
-        let pre;
-        let pos;
-        let str = el.value;
-        let matches = 0;
-
-        matches = str.match(/[^\d.-]/g);
-        caret -= (matches === null ? 0 : matches.length);
-        str = str.replace(/[^\d.-]/g, '');
-
-        matches = str.match(/-/g);
-        caret -= (matches === null ? 0 : matches.length);
-        if (str.indexOf("-") === 0) {
-            str = str.replace(/-/g, '');
-            str = "-" + str;
-            caret++;
-        } else {
-            str = str.replace(/-/g, '');
-        }
-
-        matches = str.match(/\./g);
-        caret -= (matches === null ? 0 : matches.length);
-        if (str.includes(".")) {
-            pos = str.lastIndexOf(".");
-            pre = str.slice(0, pos);
-            post = str.slice(pos);
-            pre = pre.replace(/\./g, '');
-            str = pre + post;
-            caret++;
-        }
-
-        pos = str.indexOf(".");
-
-        if (pos > -1) {
-            pre = str.slice(0, pos);
-            post = str.slice(pos, pos + 3);
-            post = post.slice(0, 3);
-            str = pre + post;
-        }
-
-        if (str[0] === "0") {
-            matches = str.match(/^0+/);
-            caret -= (matches === null ? 0 : matches.length);
-            str = str.replace(/^0+/, "");
-            str = "0" + str;
-            caret++;
-        } else {
-            matches = str.match(/^0+/);
-            caret -= (matches === null ? 0 : matches.length);
-            str = str.replace(/^0+/, "");
-        }
-
-        el.value = str;
-        el.selectionEnd = el.selectionStart = (caret > 0 ? caret : 0);
-
-        el = $("#singleordernew");
-        if (el.find("[name = amount]").val() !== "")
-            el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
-
-        if (el.find("[name = amount]").val() !== "-")
-            el.find("[name = amount]").css("color", "");
-
-        if (!isNaN(el.find("[name = amount]").val()))
-            el.find("[name = amount]").css("color", "");
-
     }
 
     function setdays(k) {
