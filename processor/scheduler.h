@@ -161,6 +161,14 @@ double find_q() {
 }
 
 string schedule(order &el) {
+
+    long long i = 0;
+    while (i < 99999) {
+        i++;
+        cout<<"";
+    }
+
+
     if (!el.single_order) {
         if (el.initial_date >= today) {
             el.planned_execution_date = el.initial_date;

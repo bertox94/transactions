@@ -124,13 +124,13 @@ public class MainController {
         return "OK";
     }
 
-    @ResponseBody
     @PostMapping(path = "/duplicate")
-    public String duplicate(@RequestParam String data) {
+    @ResponseStatus(value = HttpStatus.OK)
+    public void duplicate(@RequestParam String data) {
         int id = 0;
         try {
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery(
+            stmt.executeQuery(
                     "INSERT INTO public.single_orders (id, encoded) " +
                             "SELECT (" +
                             "       SELECT ROW_NUMBER " +
@@ -148,11 +148,10 @@ public class MainController {
                             "       LIMIT 1 ),encoded " +
                             "FROM public.single_orders " +
                             "WHERE id = " + data + ";");
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            return "KO";
         }
-        return String.valueOf(id);
     }
 
     @GetMapping(path = "/download")
