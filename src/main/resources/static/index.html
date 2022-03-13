@@ -298,7 +298,7 @@
 <!-- POPULATE(S/R) -->
 <script>
     function populate1() {
-        $.get("/populate1", function (returnedData) {
+        $.post("/populate1", function (returnedData) {
 
             if (returnedData === "")
                 return;
@@ -447,7 +447,7 @@
         el.value = str;
         el.selectionEnd = el.selectionStart = (caret > 0 ? caret : 0);
 
-        var el = $("#singleordernew");
+        el = $("#singleordernew");
         if (el.find("[name = amount]").val() !== "")
             el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
 
@@ -479,7 +479,7 @@
         }
 
         if (str !== "0") {
-            if (str[1] === "0") {
+            if (str[0] === "0" && str[1] === "0") {
                 matches = str.match(/^0+/);
                 caret -= (matches === null ? 0 : matches.length);
                 str = str.replace(/^0+/, "");
@@ -632,6 +632,8 @@
         if (flag)
             return;
 
+        el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
+
         //PREPARE TO SEND
         line += el.find("[name = descr]").val() + '; '
         line += el.find("[name = wt] :selected").val() + '; '
@@ -658,7 +660,7 @@
     }
 
     function haltprocessor() {
-        $.get("/haltprocessor")
+        $.post("/haltprocessor")
     }
 </script>
 

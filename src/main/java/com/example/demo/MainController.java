@@ -29,36 +29,8 @@ public class MainController {
     private String pathStorage = "./data.json";
     private ObjectMapper mapper = new ObjectMapper();
 
-    @PostMapping("/export")
-    public @ResponseBody
-    boolean export(@RequestParam String data) {
-
-        data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<xfa:data xmlns:xfa=\"http://www.xfa.org/schema/xfa-data/1.0/\">\n" + "	<moduloIntermittenti>\n"
-                + "		<Campi>\n" + "			<CFdatorelavoro>00909360174</CFdatorelavoro>\n"
-                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
-                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
-                + "			<EMmail>info@ristorantealmulino.it</EMmail>\n" + data;
-
-        data = data + "\n</Campi>\n" + "	</moduloIntermittenti>\n" + "</xfa:data>";
-
-        File file = new File(path);
-        file.delete();
-
-        try {
-            file.createNewFile();
-            PrintWriter printWriter = new PrintWriter(path);
-            printWriter.println(data);
-            printWriter.close();
-        } catch (IOException ioe) {
-            return false;
-        }
-
-        return true;
-    }
-
     @ResponseBody
-    @GetMapping(path = "/populate1")
+    @PostMapping(path = "/populate1")
     public String populate1() {
         String data = "";
         try {
@@ -87,7 +59,7 @@ public class MainController {
     public String addnews(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery(
+            stmt.executeUpdate(
                     "INSERT INTO public.single_orders (id, encoded) " +
                             "VALUES(( " +
                             "       SELECT ROW_NUMBER " +
@@ -116,7 +88,7 @@ public class MainController {
     public String delete(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery("DELETE FROM public.single_orders WHERE id = " + data + ";");
+            stmt.executeUpdate("DELETE FROM public.single_orders WHERE id = " + data + ";");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
@@ -124,13 +96,12 @@ public class MainController {
         return "OK";
     }
 
+    @ResponseBody
     @PostMapping(path = "/duplicate")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void duplicate(@RequestParam String data) {
-        int id = 0;
+    public String duplicate(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            stmt.executeQuery(
+            stmt.executeUpdate(
                     "INSERT INTO public.single_orders (id, encoded) " +
                             "SELECT (" +
                             "       SELECT ROW_NUMBER " +
@@ -151,34 +122,48 @@ public class MainController {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            return "KO";
         }
+        return "OK";
     }
 
-    @GetMapping(path = "/download")
-    public ResponseEntity<Resource> download() throws FileNotFoundException {
+    @PostMapping("/haltprocessor")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void haltprocessor() {
+        SpaceTime_Gap.send("close");
+    }
+
+    @PostMapping("/export")
+    @ResponseBody
+    public boolean export(@RequestParam String data) {
+
+        data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<xfa:data xmlns:xfa=\"http://www.xfa.org/schema/xfa-data/1.0/\">\n" + "	<moduloIntermittenti>\n"
+                + "		<Campi>\n" + "			<CFdatorelavoro>00909360174</CFdatorelavoro>\n"
+                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
+                + "			<BCbarcodeModello01>ML-15-01</BCbarcodeModello01>\n"
+                + "			<EMmail>info@ristorantealmulino.it</EMmail>\n" + data;
+
+        data = data + "\n</Campi>\n" + "	</moduloIntermittenti>\n" + "</xfa:data>";
+
         File file = new File(path);
-        HttpHeaders headers = new HttpHeaders();
+        file.delete();
+
         try {
-            headers.set("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(file.length())
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .body(resource);
-
-        } catch (
-                IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            file.createNewFile();
+            PrintWriter printWriter = new PrintWriter(path);
+            printWriter.println(data);
+            printWriter.close();
+        } catch (IOException ioe) {
+            return false;
         }
-        return null;
+
+        return true;
     }
 
     @GetMapping("/get")
-    public @ResponseBody
-    String get() {
+    @ResponseBody
+    public String get() {
 
         String content = "";
 
@@ -211,9 +196,26 @@ public class MainController {
         }
     }
 
-    @GetMapping("/haltprocessor")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void haltprocessor() {
-        SpaceTime_Gap.send("close");
+    @GetMapping(path = "/download")
+    public ResponseEntity<Resource> download() throws FileNotFoundException {
+        File file = new File(path);
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.set("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .body(resource);
+
+        } catch (
+                IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
+
 }
