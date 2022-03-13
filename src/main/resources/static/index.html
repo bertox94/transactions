@@ -73,7 +73,7 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="checksday()" style="padding: 1.8px" name="day">
+                        <select onchange="checkday(this)" style="padding: 1.8px" name="day">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
@@ -203,7 +203,7 @@
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="rsetdays()" name="month1" style="padding: 1.8px">
+                        <select onchange="rsetdays1()" name="month1" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -222,7 +222,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkyears(this)" onkeyup="rsetdays()"
+                        <input oninput="checkyears(this)" onkeyup="rsetdays1()"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year1" size="3">
                     </div>
@@ -236,7 +236,7 @@
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="rsetdays()" name="month1" style="padding: 1.8px">
+                        <select onchange="rsetdays2()" name="month2" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -255,7 +255,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkyears(this)" onkeyup="rsetdays()"
+                        <input oninput="checkyears(this)" onkeyup="rsetdays2()"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
@@ -506,10 +506,9 @@
         }
     }
 
-    function checksday() {
-        var el = $("#singleordernew");
-        if (!el.find("[name = day] :selected").val().includes("$")) {
-            el.find("[name = day]").css("color", "");
+    var checkday = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$")) {
+            k.style.removeProperty("color");
         }
     }
 
@@ -574,6 +573,69 @@
         }
     }
 
+    function rsetdays1() {
+
+        checkyears($("#repeatedordernew").find("[name = year1]")[0])
+
+        var el = $("#repeatedordernew");
+
+        var yy = undefined;
+        if (el.find("[name = year1]").val() !== "" && el.find("[name = year1]").val() !== "-") {
+            yy = el.find("[name = year1]").val();
+        }
+
+        var res = new Date(yy, (el.find("[name = month1] :selected").val()), 0);
+        res = res.getDate();
+
+        el.find("[name = day1]").empty();
+        el.find("[name = day1]").append("<option value=\"$\">--Please Select--</option>");
+        for (var i = 1; i < res; i++) {
+            el.find("[name = day1]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
+        }
+        if (res > 0)
+            el.find("[name = day1]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
+
+        if (!el.find("[name = month1] :selected").val().includes("$"))
+            el.find("[name = month1]").css("color", "");
+
+        if (el.find("[name = year1]").val() !== "")
+            el.find("[name = year1]").parent().css("border", "2px solid #c7a800");
+
+        if (el.find("[name = year1]").val() !== "-")
+            el.find("[name = year1]").css("color", "");
+    }
+
+    function rsetdays2() {
+
+        checkyears($("#repeatedordernew").find("[name = year2]")[0])
+
+        var el = $("#repeatedordernew");
+
+        var yy = undefined;
+        if (el.find("[name = year2]").val() !== "" && el.find("[name = year2]").val() !== "-") {
+            yy = el.find("[name = year2]").val();
+        }
+
+        var res = new Date(yy, (el.find("[name = month2] :selected").val()), 0);
+        res = res.getDate();
+
+        el.find("[name = day2]").empty();
+        el.find("[name = day2]").append("<option value=\"$\">--Please Select--</option>");
+        for (var i = 1; i < res; i++) {
+            el.find("[name = day2]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
+        }
+        if (res > 0)
+            el.find("[name = day2]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
+
+        if (!el.find("[name = month2] :selected").val().includes("$"))
+            el.find("[name = month2]").css("color", "");
+
+        if (el.find("[name = year2]").val() !== "")
+            el.find("[name = year2]").parent().css("border", "2px solid #c7a800");
+
+        if (el.find("[name = year2]").val() !== "-")
+            el.find("[name = year2]").css("color", "");
+    }
 </script>
 
 <!-- CALLS TO SERVER -->
@@ -714,23 +776,43 @@
         }
 
 
-        if (el.find("[name = day] :selected").val().includes("$")) {
-            el.find("[name = day]").css("color", "red");
+        if (el.find("[name = day1] :selected").val().includes("$")) {
+            el.find("[name = day1]").css("color", "red");
             flag = true;
         }
 
-        if (el.find("[name = month] :selected").val().includes("$")) {
-            el.find("[name = month]").css("color", "red");
+        if (el.find("[name = month1] :selected").val().includes("$")) {
+            el.find("[name = month1]").css("color", "red");
             flag = true;
         }
 
-        if (el.find("[name = year]").val() === "") {
-            el.find("[name = year]").parent().css("border", "2px solid red");
+        if (el.find("[name = year1]").val() === "") {
+            el.find("[name = year1]").parent().css("border", "2px solid red");
             flag = true;
         }
 
-        if (el.find("[name = year]").val() === "-") {
-            el.find("[name = year]").css("color", "red");
+        if (el.find("[name = year1]").val() === "-") {
+            el.find("[name = year1]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = day2] :selected").val().includes("$")) {
+            el.find("[name = day2]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = month2] :selected").val().includes("$")) {
+            el.find("[name = month2]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = year2]").val() === "") {
+            el.find("[name = year2]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = year2]").val() === "-") {
+            el.find("[name = year2]").css("color", "red");
             flag = true;
         }
 
