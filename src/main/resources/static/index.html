@@ -13,7 +13,6 @@
 
 <!--TRANSACTIONS LIST-->
 <table class="myclass" id="orders">
-
     <thead>
     <tr>
         <th>Description</th>
@@ -34,14 +33,14 @@
 
 <!--NEW SINGLE ORDER-->
 <div style="overflow: hidden">
-    <div style="padding: 10px"></div>
+    <div style="padding: 10px"></div>                                                   <!-- SPACING -->
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Single Order</h4></td>
             <td style="cursor: pointer; padding: 5px" id="clickme1"><img style="vertical-align:middle;" width="15px"
-                                                                         alt="No" src="images/plus.svg"></td>
+                                                                         alt="Plus" src="images/plus.svg"></td>
         </tr>
-    </table>
+    </table>                                                          <!-- TITLE -->
     <div id="id12345" style="display:none; float: left; padding-bottom: 3px;">
         <table class="myclass">
             <thead>
@@ -101,7 +100,7 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input oninput="checksyears(this)" onkeyup="ssetdays()"
-                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
@@ -113,14 +112,14 @@
                     </div>
                 </td>   <!-- Amount -->
                 <td>
-                    <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="No"
+                    <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
                          src="images/plus.svg">
                 </td>                                                   <!-- Button add -->
             </tr>
             </tbody>
         </table>
-    </div>
-    <hr style="border: 2px solid #c7a800; width: 61% ; float: left"/>
+    </div>       <!-- ACTUAL CONTENT -->
+    <hr style="border: 2px solid #c7a800; width: 61% ; float: left"/>                   <!-- LINE UNDERNEATH -->
 </div>
 
 <!-- SPACING -->
@@ -166,29 +165,23 @@
             <tr id="repeatedordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="rdescription"></label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               size="40" type="text"
-                               id="rdescription"
-                               name="descr">
+                        <input onkeyup="checkrdesc()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <label for="rwt"></label>
-                        <select name="wt" style="padding: 1.8px" id="rwt">
+                        <select onchange="checkrwt()" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
+                            <option style="color : black" value="true">Yes</option>
+                            <option style="color : black" value="false">No</option>
                         </select>
                     </div>
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="f1"></label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" size="2" type="text"
-                               id="f1"
-                               name="f1">
+                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" type="number"
+                               min="1" max="999" name="f1" oninput="checkrf1(this)">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
@@ -549,6 +542,13 @@
 
         if (el.find("[name = year]").val() !== "-")
             el.find("[name = year]").css("color", "");
+    }
+
+    var checkrf1 = function (el) {
+        let str = el.value;
+        str = str.replace(/[^\d-]/g, '');
+
+        el.value = str;
     }
 
 </script>
