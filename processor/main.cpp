@@ -16,7 +16,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define DEFAULT_PORT "27016"
 
 std::list<std::thread> thread_pool;
 bool cleaner_stop = false;
@@ -134,20 +134,13 @@ void t_handler(SOCKET ClientSocket) {
 
 }
 
-int __cdecl main() {
-
-    thread t_cleaner(cleaner);
+int initializeSSocket(SOCKET &ListenSocket) {
 
     WSADATA wsaData;
     int iResult;
 
-    SOCKET ListenSocket = INVALID_SOCKET;
-    SOCKET ClientSocket = INVALID_SOCKET;
-
     struct addrinfo *result = NULL;
     struct addrinfo hints;
-
-
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -198,9 +191,19 @@ int __cdecl main() {
         WSACleanup();
         return 1;
     }
+    return 0;
+}
+
+int __cdecl main() {
+
+    thread t_cleaner(cleaner);
+
+    auto ListenSocket = INVALID_SOCKET;
+    auto ClientSocket = INVALID_SOCKET;
+
+    initializeSSocket(ListenSocket);
 
     while (true) {
-        // Accept a client socket
         ClientSocket = accept(ListenSocket, NULL, NULL);
         if (ClientSocket == INVALID_SOCKET) {
             printf("accept failed with error: %d\n", WSAGetLastError());
@@ -223,6 +226,7 @@ int __cdecl main() {
             process_stop_set = false;
         }
     }
+
     {
         lock_guard<mutex> lockGuard(mtx);
         cleaner_stop = true;
