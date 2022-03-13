@@ -73,14 +73,14 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day">
+                        <select id="00" onchange="forgiveday(this)" style="padding: 1.8px" name="day">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="sssetdays()" name="month" style="padding: 1.8px">
+                        <select id="01" onchange="setdays(this)" name="month" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -99,15 +99,15 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="wrapperyear(this)"
+                        <input id="02" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checksamount(this)"
-                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input oninput="checkamount(this)"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount" size="10">
                     </div>
                 </td>   <!-- Amount -->
@@ -229,14 +229,14 @@
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
+                        <select id="20" onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="rsetdays2()" name="month2" style="padding: 1.8px">
+                        <select id="21" onchange="rsetdays2()" name="month2" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -255,7 +255,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="22" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
@@ -263,7 +263,7 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input onkeydown="setprev(this)" oninput="wrapperamount(this)"
-                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount2" size="10">
                     </div>
                 </td>   <!-- Amount -->
@@ -294,6 +294,7 @@
     function populate1() {
         $.post("/populate1", function (returnedData) {
 
+            let i;
             if (returnedData === "")
                 return;
 
@@ -306,9 +307,9 @@
             returnedData = returnedData.trim()
             var lines = returnedData.split("\n")
 
-            for (var i = 0; i < lines.length; i++) {
+            for (i = 0; i < lines.length; i++) {
                 data = lines[i].split(";")
-                el.append("        <tr name=" + data[0] + ">\n" +
+                el.append("        <tr>\n" +
                     "            <td>" + data[1] + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
                     "            <td>" + data[6] + "</td>\n" +
@@ -322,7 +323,7 @@
                     "        </tr>")
             }
 
-            var i = 0
+            i = 0;
             el.find("tr").each(function () {
                 var ell = $(this).children();
                 if (ell.length > 1) {
@@ -333,8 +334,6 @@
                     i++;
                 }
             });
-
-
         }).fail(function () {
             console.log("error")
         })
@@ -351,24 +350,26 @@
 <!-- SLIDESHOW SCRIPTS-->
 <script>
     $("#clickme1").click(function () {
-        if (!$("#id12345").is(':visible')) {
-            $("#id12345").slideDown(1500, function () {
+        let sel = $("#id12345");
+        if (!sel.is(':visible')) {
+            sel.slideDown(1500, function () {
                 $("#clickme1").children().attr("src", "images/minus.png")
             });
         } else {
-            $("#id12345").slideUp(1500, function () {
+            sel.slideUp(1500, function () {
                 $("#clickme1").children().attr("src", "images/plus.svg")
             });
         }
     });
 
     $("#clickme2").click(function () {
-        if (!$("#id12346").is(':visible')) {
-            $("#id12346").slideDown(1500, function () {
+        let sel = $("#id12346");
+        if (!sel.is(':visible')) {
+            sel.slideDown(1500, function () {
                 $("#clickme2").children().attr("src", "images/minus.png")
             });
         } else {
-            $("#id12346").slideUp(1500, function () {
+            sel.slideUp(1500, function () {
                 $("#clickme2").children().attr("src", "images/plus.svg")
             });
         }
@@ -422,6 +423,14 @@
     }
 
     function prev(k) {
+        if (k.name === "f1")
+            return [pref1, precaretf1, precaretf1];
+        if (k.name === "year")
+            return [preyear0, precaretyear0, precaretyear0];
+        if (k.name === "year1")
+            return [preyear1, precaretyear1, precaretyear1];
+        if (k.name === "year2")
+            return [preyear2, precaretyear2, precaretyear2];
         if (k.name === "amount1")
             return [preamount1, precaretamount1, precaretamount1];
         if (k.name === "amount2")
@@ -469,17 +478,29 @@
         //validate
         let invalid = true;
 
-        if (/^[1-9]+$/.test(k.value)) {
+        let regex = /^(-?)0+([1-9])/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        regex = /^(-?)0+(0)/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        if (/^[0-9]*$/.test(k.value)) {
             invalid = false;
         }
 
-        if (/^0$/.test(k.value))
-            invalid = false;
-
-        if (/^-$/.test(k.value))
-            invalid = false;
-
-        if (/^-[1-9]+$/.test(k.value)) {
+        if (/^-[1-9][0-9]*$/.test(k.value)) {
             invalid = false;
         }
 
