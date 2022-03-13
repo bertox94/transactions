@@ -198,10 +198,9 @@ int __cdecl main() {
     thread t_cleaner(cleaner);
 
     auto ListenSocket = INVALID_SOCKET;
-    auto ClientSocket = INVALID_SOCKET;
-
     initializeSSocket(ListenSocket);
 
+    auto ClientSocket = INVALID_SOCKET;
     while (true) {
         ClientSocket = accept(ListenSocket, NULL, NULL);
         if (ClientSocket == INVALID_SOCKET) {

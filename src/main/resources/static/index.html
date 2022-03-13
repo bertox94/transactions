@@ -99,7 +99,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checksyears(this)" onkeyup="ssetdays()"
+                        <input oninput="checkyears(this)" onkeyup="ssetdays()"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
@@ -180,96 +180,97 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" type="number"
-                               min="1" max="999" name="f1" oninput="checkrf1(this)">
+                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" name="f1" size="3" type=text
+                               onkeypress="return /^[1-9][0-9]*$/.test(this.value+event.key)">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
-                        <label for="f2"></label>
-                        <select style="padding: 1.8px" id="f2">
+                        <select style="padding: 1.8px" name="f2">
                             <option value="$">--Please Select--</option>
-                            <option value="days">Days</option>
-                            <option value="months">Months</option>
-                            <option value="years">Years</option>
+                            <option style="color : black" value="Days">January</option>
+                            <option style="color : black" value="Months">February</option>
+                            <option style="color : black" value="Years">March</option>
                         </select>
                     </div>
                 </td>     <!-- F2 -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="iday">
+                        <select onchange="checkday(this)" style="padding: 1.8px" name="day1">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="ssetdays()" name="imonth" style="padding: 1.8px">
+                        <select onchange="rsetdays()" name="month1" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
+                            <option style="color : black" value="1">January</option>
+                            <option style="color : black" value="2">February</option>
+                            <option style="color : black" value="3">March</option>
+                            <option style="color : black" value="4">April</option>
+                            <option style="color : black" value="5">May</option>
+                            <option style="color : black" value="6">June</option>
+                            <option style="color : black" value="7">July</option>
+                            <option style="color : black" value="8">August</option>
+                            <option style="color : black" value="9">September</option>
+                            <option style="color : black" value="10">October</option>
+                            <option style="color : black" value="11">November</option>
+                            <option style="color : black" value="12">December</option>
                         </select>
                     </div>
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="iyear" size="3">
+                        <input oninput="checkyears(this)" onkeyup="rsetdays()"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="year1" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select style="padding: 1.8px" name="fday">
+                        <select onchange="checkday(this)" style="padding: 1.8px" name="day2">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="ssetdays()" name="fmonth" style="padding: 1.8px">
+                        <select onchange="rsetdays()" name="month1" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
+                            <option style="color : black" value="1">January</option>
+                            <option style="color : black" value="2">February</option>
+                            <option style="color : black" value="3">March</option>
+                            <option style="color : black" value="4">April</option>
+                            <option style="color : black" value="5">May</option>
+                            <option style="color : black" value="6">June</option>
+                            <option style="color : black" value="7">July</option>
+                            <option style="color : black" value="8">August</option>
+                            <option style="color : black" value="9">September</option>
+                            <option style="color : black" value="10">October</option>
+                            <option style="color : black" value="11">November</option>
+                            <option style="color : black" value="12">December</option>
                         </select>
                     </div>
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onchange="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text"
-                               name="fyear" size="3">
+                        <input oninput="checkyears(this)" onkeyup="rsetdays()"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="year2" size="3">
                     </div>
                 </td>   <!-- Year -->
-                <td style="padding-left: 8px; padding-right: 8px">
+                <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <label for="lndame"></label>
-                        <input style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" id="lndame"
-                               name="lndame" size="10">
+                        <input oninput="checksamount(this)"
+                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="amount" size="10">
                     </div>
-                </td>     <!-- Amount -->
+                </td>   <!-- Amount -->
                 <td>
-                    <img style="cursor: pointer; vertical-align:middle;" width="20px" alt="No" src="images/plus.svg">
-                </td>
+                    <img onclick="addnewr()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
+                         src="images/plus.svg">
+                </td>                                                   <!-- Button add -->
                 <td></td>
             </tr>
             </tbody>
@@ -452,7 +453,7 @@
 
     }
 
-    var checksyears = function (el) {
+    var checkyears = function (el) {
         let caret = el.selectionStart;
         let str = el.value;
         let matches = 0;
@@ -498,8 +499,24 @@
             el.find("[name = descr]").css("color", "");
     }
 
+    function checkrdesc() {
+        var el = $("#repeatedordernew");
+        if (el.find("[name = descr]").val() !== "")
+            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
+
+        if (!el.find("[name = descr]").val().includes(";"))
+            el.find("[name = descr]").css("color", "");
+    }
+
     function checkswt() {
         var el = $("#singleordernew");
+        if (!el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "");
+        }
+    }
+
+    function checkrwt() {
+        var el = $("#repeatedordernew");
         if (!el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "");
         }
@@ -514,7 +531,7 @@
 
     function ssetdays() {
 
-        checksyears($("#singleordernew").find("[name = year]")[0])
+        checkyears($("#singleordernew").find("[name = year]")[0])
 
         var el = $("#singleordernew");
 
@@ -544,16 +561,9 @@
             el.find("[name = year]").css("color", "");
     }
 
-    var checkrf1 = function (el) {
-        let str = el.value;
-        str = str.replace(/[^\d-]/g, '');
-
-        el.value = str;
-    }
-
 </script>
 
-<!--addnews-->
+<!-- CALLS TO SERVER -->
 <script>
     function _delete(_id) {
         $.post("/delete", {data: _id}, function (returnedData) {
@@ -576,6 +586,92 @@
     function addnews() {
         var line = ""
         var el = $("#singleordernew");
+        var flag = false;
+
+        //CHECKS
+        if (el.find("[name = descr]").val() === "") {
+            el.find("[name = descr]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = descr]").val().includes(";")) {
+            el.find("[name = descr]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = day] :selected").val().includes("$")) {
+            el.find("[name = day]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = month] :selected").val().includes("$")) {
+            el.find("[name = month]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = year]").val() === "") {
+            el.find("[name = year]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = year]").val() === "-") {
+            el.find("[name = year]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = amount]").val() === "") {
+            el.find("[name = amount]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = amount]").val() === "-") {
+            el.find("[name = amount]").css("color", "red");
+            flag = true;
+        }
+
+        if (isNaN(el.find("[name = amount]").val())) {
+            el.find("[name = amount]").css("color", "red");
+            flag = true;
+        }
+
+        if (flag)
+            return;
+
+        el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
+
+        //PREPARE TO SEND
+        line += el.find("[name = descr]").val() + '; '
+        line += el.find("[name = wt] :selected").val() + '; '
+        line += el.find("[name = year]").val() + '; '
+        line += el.find("[name = month] :selected").val() + '; '
+        line += el.find("[name = day] :selected").val() + '; '
+        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
+
+        $.post("/addnews", {data: line}, function (returnedData) {
+            el.find("[name = descr]").val("")
+            el.find("[name = wt]").val("$")
+            el.find("[name = year]").val("")
+            el.find("[name = month]").val("$")
+            el.find("[name = day]").empty();
+            el.find("[name = day]").append("<option value=\"$\">--Please Select--</option>");
+            el.find("[name = amount]").val("")
+
+            populate1();
+
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
+    function addnewr() {
+        var line = ""
+        var el = $("#repeatedordernew");
         var flag = false;
 
         //CHECKS
