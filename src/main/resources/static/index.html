@@ -196,14 +196,14 @@
                 </td>     <!-- F2 -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
+                        <select id="10" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
+                        <select id="11" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -222,7 +222,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkyears(this)" onkeyup="rsetdays1()"
+                        <input id="12" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year1" size="3">
                     </div>
@@ -415,12 +415,42 @@
             k.style.removeProperty("color");
     }
 
-    function wrappermonth(k) {
+    const wrappermonth = function (k) {
         if (!k.options[k.selectedIndex].value.includes("$"))
             k.style.removeProperty("color");
+        setdays(k);
+    }
 
-        rsetdays(k);
+    function wrapperyear(k) {
+        //validate
+        let invalid = true;
 
+        if (/^[1-9]+$/.test(k.value)) {
+            invalid = false;
+        }
+
+        if (/^0$/.test(k.value))
+            invalid = false;
+
+        if (/^-$/.test(k.value))
+            invalid = false;
+
+        if (/^-[1-9]+$/.test(k.value)) {
+            invalid = false;
+        }
+
+        if (invalid)
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
+
+
+        //forgive
+        if (k.value !== "")
+            k.parentElement.style.border = "2px solid #c7a800";
+
+        if (k.value !== "-")
+            k.style.removeProperty("color");
+
+        setdays(k);
     }
 
     var checksamount = function (el) {
@@ -561,36 +591,42 @@
             el.find("[name = year]").css("color", "");
     }
 
-    function rsetdays1() {
+    function setdays(k) {
 
-        checkyears($("#repeatedordernew").find("[name = year1]")[0])
+        let day;
+        let month;
+        let year;
 
-        var el = $("#repeatedordernew");
-
-        var yy = undefined;
-        if (el.find("[name = year1]").val() !== "" && el.find("[name = year1]").val() !== "-") {
-            yy = el.find("[name = year1]").val();
+        if (parseInt(k.id.slice(1)) % 3 === 0) { //day
+            day = k;
+            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
+            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 2))
         }
 
-        var res = new Date(yy, (el.find("[name = month1] :selected").val()), 0);
+        if (parseInt(k.id.slice(1)) % 3 === 1) { //month
+            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
+            month = k;
+            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
+        }
+
+        if (parseInt(k.id.slice(1)) % 3 === 2) { //year
+            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 2))
+            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
+            year = k;
+        }
+
+        let res = new Date((year.value === "" ? undefined : year.value), month.options[month.selectedIndex].value, 0);
         res = res.getDate();
 
-        el.find("[name = day1]").empty();
-        el.find("[name = day1]").append("<option value=\"$\">--Please Select--</option>");
-        for (var i = 1; i < res; i++) {
-            el.find("[name = day1]").append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
-        }
+
+        day.innerText = null;
+        let el = $("#" + day.id);
+
+        el.append("<option value=\"$\">--Please Select--</option>");
+        for (var i = 1; i < res; i++)
+            el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         if (res > 0)
-            el.find("[name = day1]").append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
-
-        if (!el.find("[name = month1] :selected").val().includes("$"))
-            el.find("[name = month1]").css("color", "");
-
-        if (el.find("[name = year1]").val() !== "")
-            el.find("[name = year1]").parent().css("border", "2px solid #c7a800");
-
-        if (el.find("[name = year1]").val() !== "-")
-            el.find("[name = year1]").css("color", "");
+            el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
     }
 
     function rsetdays2() {
