@@ -44,9 +44,9 @@ void cleaner() {
             _List_iterator<_List_val<_List_simple_types<thread>>> el;
             {
                 lock_guard<mutex> lk(mtx);
-                el = thread_pool.begin();
-                if (el == thread_pool.end())
+                if (thread_pool.empty())
                     break;
+                el = thread_pool.begin();
             }
             el->join();
             n++;
