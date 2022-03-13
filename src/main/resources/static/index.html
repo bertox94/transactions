@@ -186,11 +186,11 @@
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
-                        <select style="padding: 1.8px" name="f2">
+                        <select onchange="checkrf2()" style="padding: 1.8px" name="f2">
                             <option value="$">--Please Select--</option>
-                            <option style="color : black" value="Days">January</option>
-                            <option style="color : black" value="Months">February</option>
-                            <option style="color : black" value="Years">March</option>
+                            <option style="color : black" value="Days">Days</option>
+                            <option style="color : black" value="Months">Months</option>
+                            <option style="color : black" value="Years">Years</option>
                         </select>
                     </div>
                 </td>     <!-- F2 -->
@@ -567,6 +567,13 @@
             el.find("[name = f1]").parent().css("border", "2px solid #c7a800");
     }
 
+    function checkrf2() {
+        var el = $("#repeatedordernew");
+        if (!el.find("[name = f2] :selected").val().includes("$")) {
+            el.find("[name = f2]").css("color", "");
+        }
+    }
+
 </script>
 
 <!-- CALLS TO SERVER -->
@@ -701,8 +708,8 @@
             flag = true;
         }
 
-        if (el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "red");
+        if (el.find("[name = f2] :selected").val().includes("$")) {
+            el.find("[name = f2]").css("color", "red");
             flag = true;
         }
 
