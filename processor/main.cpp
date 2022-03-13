@@ -16,7 +16,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define DEFAULT_PORT "27016"
 
 std::list<std::thread> thread_pool;
 bool cleaner_stop = false;
@@ -32,41 +32,39 @@ using namespace std;
 void cleaner() {
     cout << "Cleaner initialized\n" << endl;
     while (true) {
-        bool flag = false;
         unsigned int n = 0;
         {
             unique_lock<mutex> lk(mtx);
             cv.wait(lk, []() {
                 return !thread_pool.empty() || cleaner_stop;
             });
-            flag = thread_pool.empty();
         }
 
-
-        while (!flag) {
+        while (true) {
             _List_iterator<_List_val<_List_simple_types<thread>>> el;
             {
                 lock_guard<mutex> lk(mtx);
                 el = thread_pool.begin();
+                if (el == thread_pool.end())
+                    break;
             }
             el->join();
             n++;
             {
                 lock_guard<mutex> lk(mtx);
                 thread_pool.erase(el);
-                flag = thread_pool.empty();
             }
         }
-
         {
             lock_guard<mutex> lg(mtx3);
             cout << "------- Cleaned: " << n << " instances." << endl;
         }
-
-        if (cleaner_stop)
-            break;
+        {
+            lock_guard<mutex> lk(mtx);
+            if (cleaner_stop)
+                break;
+        }
     }
-
     {
         lock_guard<mutex> lg(mtx3);
         cout << "Cleaning complete" << endl;
