@@ -181,7 +181,7 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" name="f1" size="3" type=text
-                               onkeypress="return /^[1-9][0-9]*$/.test(this.value+event.key)">
+                               onkeypress="return /^[1-9][0-9]*$/.test(this.value+event.key)" oninput="checkrf1()">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
@@ -499,24 +499,8 @@
             el.find("[name = descr]").css("color", "");
     }
 
-    function checkrdesc() {
-        var el = $("#repeatedordernew");
-        if (el.find("[name = descr]").val() !== "")
-            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
-
-        if (!el.find("[name = descr]").val().includes(";"))
-            el.find("[name = descr]").css("color", "");
-    }
-
     function checkswt() {
         var el = $("#singleordernew");
-        if (!el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "");
-        }
-    }
-
-    function checkrwt() {
-        var el = $("#repeatedordernew");
         if (!el.find("[name = wt] :selected").val().includes("$")) {
             el.find("[name = wt]").css("color", "");
         }
@@ -559,6 +543,28 @@
 
         if (el.find("[name = year]").val() !== "-")
             el.find("[name = year]").css("color", "");
+    }
+
+    function checkrdesc() {
+        var el = $("#repeatedordernew");
+        if (el.find("[name = descr]").val() !== "")
+            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
+
+        if (!el.find("[name = descr]").val().includes(";"))
+            el.find("[name = descr]").css("color", "");
+    }
+
+    function checkrwt() {
+        var el = $("#repeatedordernew");
+        if (!el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "");
+        }
+    }
+
+    function checkrf1() {
+        var el = $("#repeatedordernew");
+        if (el.find("[name = f1]").val() !== "")
+            el.find("[name = f1]").parent().css("border", "2px solid #c7a800");
     }
 
 </script>
@@ -689,6 +695,17 @@
             el.find("[name = wt]").css("color", "red");
             flag = true;
         }
+
+        if (el.find("[name = f1] ").val() === "") {
+            el.find("[name = f1]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "red");
+            flag = true;
+        }
+
 
         if (el.find("[name = day] :selected").val().includes("$")) {
             el.find("[name = day]").css("color", "red");
