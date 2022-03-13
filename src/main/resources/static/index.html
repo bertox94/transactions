@@ -255,7 +255,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="wrapperyear(this)"
+                        <input onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
@@ -379,6 +379,8 @@
 <!-- FUNCTIONS -->
 <script>
 
+    var preyear0 = ""
+    var precaretyear0 = 0
     var preyear1 = ""
     var precaretyear1 = 0
     var preyear2 = ""
@@ -393,6 +395,22 @@
     var precaretamount2 = 0
 
     function setprev(k) {
+        if (k.name === "f1") {
+            pref1 = k.value;
+            precaretf1 = k.selectionStart;
+        }
+        if (k.name === "year") {
+            preyear0 = k.value;
+            precaretyear0 = k.selectionStart;
+        }
+        if (k.name === "year1") {
+            preyear1 = k.value;
+            precaretyear1 = k.selectionStart;
+        }
+        if (k.name === "year2") {
+            preyear2 = k.value;
+            precaretyear2 = k.selectionStart;
+        }
         if (k.name === "amount1") {
             preamount1 = k.value;
             precaretamount1 = k.selectionStart;
@@ -407,7 +425,7 @@
         if (k.name === "amount1")
             return [preamount1, precaretamount1, precaretamount1];
         if (k.name === "amount2")
-            return [preamount1, precaretamount1, precaretamount1];
+            return [preamount2, precaretamount2, precaretamount2];
     }
 
     const forgivedesc = function (k) {
@@ -483,25 +501,21 @@
         //validate
         let invalid = true;
 
-        if (/^$/.test(k.value))
-            invalid = false;
+        let regex = /^(-?)0+(0\.[0-9]*)/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
 
-        if (/^-$/.test(k.value))
-            invalid = false;
+        regex = /^(-?)0+([1-9])/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
 
-        if (/^-?(0|[1-9][0-9]*)$/.test(k.value))
-            invalid = false;
-
-        if (/^-?(0|[1-9][0-9]*)\.$/.test(k.value))
-            invalid = false;
-
-        if (/^-?(0|[1-9][0-9]*)\.[0-9]$/.test(k.value))
-            invalid = false;
-
-        if (/^-?(0|[1-9][0-9]*)\.[0-9][1-9]$/.test(k.value))
-            invalid = false;
-
-        if (/^-?(0|[1-9][0-9]*)\.[1-9][0-9]$/.test(k.value))
+        if (/^-?[0-9]*\.?[0-9]?[0-9]?$/.test(k.value))
             invalid = false;
 
         if (invalid)
@@ -516,6 +530,11 @@
 
         if (k.value !== ".")
             k.style.removeProperty("color");
+
+        if (k.value !== "-.")
+            k.style.removeProperty("color");
+
+        //check also if number(amount)===0
     }
 
     function setdays(k) {
@@ -742,6 +761,11 @@
         }
 
         if (el.find("[name = amount]").val() === "-") {
+            el.find("[name = amount]").css("color", "red");
+            flag = true;
+        }
+
+        if (el.find("[name = amount]").val() === "-.") {
             el.find("[name = amount]").css("color", "red");
             flag = true;
         }
