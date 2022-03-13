@@ -16,7 +16,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27016"
+#define DEFAULT_PORT "27015"
 
 std::list<std::thread> thread_pool;
 bool cleaner_stop = false;
@@ -50,7 +50,9 @@ void cleaner() {
             flag = thread_pool.empty();
         }
 
-        cout << "------- Cleaned: " << n << " instances." << endl;
+        stringstream aa;
+        aa << "------- Cleaned: " << n << " instances." << endl;
+        cout << aa.str();
         if (cleaner_stop)
             break;
     }

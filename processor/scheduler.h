@@ -63,6 +63,7 @@ public:
         }
 
         if (row.size() == 7) {
+            single_order = true;
             name = row[1];
             is_wire_transfer = row[2] == "true";
             planned_execution_date = datetime(stol(row[5]), stol(row[4]), stol(row[3]));
@@ -214,25 +215,25 @@ string schedule(order &el) {
 
     if (el.single_order) {
         if (el.effective_execution_date < today) {
-            cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-                 << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
+            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
+            //     << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
             el.cancelled = true;
+            return "Expired";
         }
     }
 
     if (el.repeated_order_with_final_date) {
         if (el.effective_execution_date > el.final_date) {
-            cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-                 << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
+            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
+            //     << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
             el.cancelled = true;
+            return "Expired";
         }
     }
 
-    if (!el.cancelled) {
-        cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.single_order ? "     " : " (R) ")
-             << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
-             << std::setfill(' ') << endl;
-    }
+    //cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.single_order ? "     " : " (R) ")
+    //     << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
+    //     << std::setfill(' ') << endl;
 
     stringstream ss;
     ss << el.effective_execution_date;
