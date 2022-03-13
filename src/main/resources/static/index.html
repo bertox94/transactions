@@ -58,13 +58,13 @@
             <tr id="singleordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="checksdesc()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="checkswt()" name="wt" style="padding: 1.8px">
+                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -73,14 +73,14 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="checkday(this)" style="padding: 1.8px" name="day">
+                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="ssetdays()" name="month" style="padding: 1.8px">
+                        <select onchange="sssetdays()" name="month" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -165,13 +165,13 @@
             <tr id="repeatedordernew">
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="checkrdesc()" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="checkrwt()" name="wt" style="padding: 1.8px">
+                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -181,12 +181,12 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" name="f1" size="3" type=text
-                               onkeypress="return /^[1-9][0-9]*$/.test(this.value+event.key)" oninput="checkrf1()">
+                               oninput="wrapperf1(this)">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="checkrf2()" style="padding: 1.8px" name="f2">
+                        <select onchange="forgivef2(this)" style="padding: 1.8px" name="f2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="Days">Days</option>
                             <option style="color : black" value="Months">Months</option>
@@ -196,14 +196,14 @@
                 </td>     <!-- F2 -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="checkday(this)" style="padding: 1.8px" name="day1">
+                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="rsetdays1()" name="month1" style="padding: 1.8px">
+                        <select onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -229,7 +229,7 @@
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select onchange="checkday(this)" style="padding: 1.8px" name="day2">
+                        <select onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
                             <option value="$">--Please Select--</option>
                         </select>
                     </div>
@@ -376,8 +376,52 @@
 </script>
 
 
-<!-- SSETDAYS -->
+<!-- FUNCTIONS -->
 <script>
+
+    function prev(curr, caret) {
+        return [curr.slice(0, caret - 1) + curr.slice(caret), caret - 1, caret - 1];
+    }
+
+    const forgivedesc = function (k) {
+        if (k.value !== "")
+            k.parentElement.style.border = "2px solid #c7a800";
+
+        if (k.value.includes(";"))
+            k.style.removeProperty("color");
+    }
+
+    const forgivewt = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+    }
+
+    function wrapperf1(k) {
+        if (!/^[1-9][0-9]*$/.test(k.value)) {
+            [k.value, k.selectionEnd, k.selectionStart] = prev(k.value, k.selectionStart)
+        }
+
+        if (k.value !== "")
+            k.parentElement.style.border = "2px solid #c7a800";
+    }
+
+    const forgivef2 = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+    }
+
+    const forgiveday = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+    }
+
+    function wrappermonth(k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+
+        rsetdays(k);
+
+    }
 
     var checksamount = function (el) {
         let caret = el.selectionStart;
@@ -414,11 +458,6 @@
 
         pos = str.indexOf(".");
 
-        //if (pos === 0) {
-        //    str = str.slice(1)
-        //    caret--;
-        //}
-
         if (pos > -1) {
             pre = str.slice(0, pos);
             post = str.slice(pos, pos + 3);
@@ -453,7 +492,7 @@
 
     }
 
-    var checkyears = function (el) {
+    const checkyears = function (el) {
         let caret = el.selectionStart;
         let str = el.value;
         let matches = 0;
@@ -488,29 +527,7 @@
 
         el.value = str;
         el.selectionEnd = el.selectionStart = caret;
-    }
-
-    function checksdesc() {
-        var el = $("#singleordernew");
-        if (el.find("[name = descr]").val() !== "")
-            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
-
-        if (!el.find("[name = descr]").val().includes(";"))
-            el.find("[name = descr]").css("color", "");
-    }
-
-    function checkswt() {
-        var el = $("#singleordernew");
-        if (!el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "");
-        }
-    }
-
-    var checkday = function (k) {
-        if (!k.options[k.selectedIndex].value.includes("$")) {
-            k.style.removeProperty("color");
-        }
-    }
+    };
 
     function ssetdays() {
 
@@ -542,35 +559,6 @@
 
         if (el.find("[name = year]").val() !== "-")
             el.find("[name = year]").css("color", "");
-    }
-
-    function checkrdesc() {
-        var el = $("#repeatedordernew");
-        if (el.find("[name = descr]").val() !== "")
-            el.find("[name = descr]").parent().css("border", "2px solid #c7a800");
-
-        if (!el.find("[name = descr]").val().includes(";"))
-            el.find("[name = descr]").css("color", "");
-    }
-
-    function checkrwt() {
-        var el = $("#repeatedordernew");
-        if (!el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "");
-        }
-    }
-
-    function checkrf1() {
-        var el = $("#repeatedordernew");
-        if (el.find("[name = f1]").val() !== "")
-            el.find("[name = f1]").parent().css("border", "2px solid #c7a800");
-    }
-
-    function checkrf2() {
-        var el = $("#repeatedordernew");
-        if (!el.find("[name = f2] :selected").val().includes("$")) {
-            el.find("[name = f2]").css("color", "");
-        }
     }
 
     function rsetdays1() {
