@@ -16,7 +16,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27016"
+#define DEFAULT_PORT "27015"
 
 std::list<shared_ptr<thread>> thread_pool;
 bool cleaner_stop = false;
