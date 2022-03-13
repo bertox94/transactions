@@ -18,7 +18,7 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27016"
 
-std::list<std::thread> thread_pool;
+std::list<shared_ptr<thread>> thread_pool;
 bool cleaner_stop = false;
 bool process_stop = false;
 bool process_stop_set = false;
@@ -41,14 +41,14 @@ void cleaner() {
         }
 
         while (true) {
-            _List_iterator<_List_val<_List_simple_types<thread>>> el;
+            _List_iterator<_List_val<_List_simple_types<shared_ptr<thread>>>> el;
             {
                 lock_guard<mutex> lk(mtx);
                 if (thread_pool.empty())
                     break;
                 el = thread_pool.begin();
             }
-            el->join();
+            (*el)->join();
             n++;
             {
                 lock_guard<mutex> lk(mtx);
@@ -74,7 +74,7 @@ void cleaner() {
 void t_handler(SOCKET ClientSocket) {
 
     int iResult = 0;
-    int iSendResult;
+    int iSendResult = 0;
     char recvbuf[DEFAULT_BUFLEN];
     int recvbuflen = DEFAULT_BUFLEN;
 
@@ -84,27 +84,27 @@ void t_handler(SOCKET ClientSocket) {
         string str = string(recvbuf).substr(0, iResult - 2);
         string resp;
 
-        // if the process should close
-        bool close_fg = false;
+        // check if the process should close ...
+        bool local = false;
         if (str.find("close") != string::npos) {
             {
                 lock_guard<mutex> lg(mtx3);
                 cout << "\nTermination initiated." << endl;
             }
-            close_fg = true;
+            local = true;
             resp = "OK";
         }
 
-        //report immediately to the main loop whether it should loop again or not.
+        //... and report immediately to the main loop whether it should loop again or not, so that it can accept new connections
         {
-            lock_guard<mutex> lg(mtx2);
-            process_stop = close_fg;
+            lock_guard<mutex> guard(mtx2);
+            process_stop = local;
             process_stop_set = true;
         }
         cv2.notify_one();
 
-        // if the process should continue, then choose the right function requested
-        if (!process_stop) {
+        // if the process should continue, then choose the function requested
+        if (!local) {
             if (str.find("schedule") != string::npos) {
                 str = str.substr(9);
                 order o(str);
@@ -118,6 +118,11 @@ void t_handler(SOCKET ClientSocket) {
         if (iSendResult == SOCKET_ERROR) {
             printf("send failed with error: %d\n", WSAGetLastError());
         }
+
+        {
+            lock_guard<mutex> lg(mtx3);
+            cout << "Request executed." << endl;
+        }
     }
 
     iResult = shutdown(ClientSocket, SD_SEND);
@@ -126,12 +131,6 @@ void t_handler(SOCKET ClientSocket) {
     }
 
     closesocket(ClientSocket);
-
-    {
-        lock_guard<mutex> lg(mtx3);
-        cout << "Request executed." << endl;
-    }
-
 }
 
 int initializeSSocket(SOCKET &ListenSocket) {
@@ -210,9 +209,10 @@ int __cdecl main() {
             break;
         }
 
+        auto tp = make_shared<thread>(t_handler, ClientSocket);
         {
             lock_guard<mutex> cleaner_lock(mtx);
-            thread_pool.emplace_back(t_handler, ClientSocket);
+            thread_pool.push_back(tp);
         }
         cv.notify_one();
 
