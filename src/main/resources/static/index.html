@@ -100,15 +100,16 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="ssetdays()" style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input oninput="checksyears(this)" onkeyup="ssetdays()"
+                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input oninput="checksamount(this)"
-                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px" type="text" name="amount"
-                               size="10">
+                               style="border: 0px; padding-top: 3.2px; padding-bottom: 3.2px"
+                               type="text" name="amount" size="10">
                     </div>
                 </td>   <!-- Amount -->
                 <td>
@@ -388,25 +389,39 @@
         let pre;
         let pos;
         let str = el.value;
+        let matches = 0;
 
+        matches = str.match(/[^\d.-]/g);
+        caret -= (matches === null ? 0 : matches.length);
         str = str.replace(/[^\d.-]/g, '');
 
+        matches = str.match(/-/g);
+        caret -= (matches === null ? 0 : matches.length);
         if (str.indexOf("-") === 0) {
             str = str.replace(/-/g, '');
             str = "-" + str;
+            caret++;
         } else {
             str = str.replace(/-/g, '');
         }
 
+        matches = str.match(/\./g);
+        caret -= (matches === null ? 0 : matches.length);
         if (str.includes(".")) {
             pos = str.lastIndexOf(".");
             pre = str.slice(0, pos);
             post = str.slice(pos);
             pre = pre.replace(/\./g, '');
             str = pre + post;
+            caret++;
         }
 
         pos = str.indexOf(".");
+
+        //if (pos === 0) {
+        //    str = str.slice(1)
+        //    caret--;
+        //}
 
         if (pos > -1) {
             pre = str.slice(0, pos);
@@ -414,14 +429,69 @@
             post = post.slice(0, 3);
             str = pre + post;
         }
+
+        if (str[0] === "0") {
+            matches = str.match(/^0+/);
+            caret -= (matches === null ? 0 : matches.length);
+            str = str.replace(/^0+/, "");
+            str = "0" + str;
+            caret++;
+        } else {
+            matches = str.match(/^0+/);
+            caret -= (matches === null ? 0 : matches.length);
+            str = str.replace(/^0+/, "");
+        }
+
         el.value = str;
-        el.selectionEnd = el.selectionStart = caret;
+        el.selectionEnd = el.selectionStart = (caret > 0 ? caret : 0);
+
+        var el = $("#singleordernew");
+        if (el.find("[name = amount]").val() !== "")
+            el.find("[name = amount]").parent().css("border", "2px solid #c7a800");
+
+        if (el.find("[name = amount]").val() !== "-")
+            el.find("[name = amount]").css("color", "");
+
+        if (!isNaN(el.find("[name = amount]").val()))
+            el.find("[name = amount]").css("color", "");
+
     }
 
-    function isNumeric(num) {
-        let value1 = num.toString();
-        let value2 = parseFloat(num).toString();
-        return (value1 === value2);
+    var checksyears = function (el) {
+        let caret = el.selectionStart;
+        let str = el.value;
+        let matches = 0;
+
+        matches = str.match(/[^\d-]/g);
+        caret -= (matches === null ? 0 : matches.length);
+        str = str.replace(/[^\d-]/g, '');
+
+        matches = str.match(/-/g);
+        caret -= (matches === null ? 0 : matches.length);
+        if (str.indexOf("-") === 0) {
+            str = str.replace(/-/g, '');
+            str = "-" + str;
+            caret++;
+        } else {
+            str = str.replace(/-/g, '');
+        }
+
+        if (str !== "0") {
+            if (str[1] === "0") {
+                matches = str.match(/^0+/);
+                caret -= (matches === null ? 0 : matches.length);
+                str = str.replace(/^0+/, "");
+                str = "0";
+                caret++;
+            } else {
+                matches = str.match(/^0+/);
+                caret -= (matches === null ? 0 : matches.length);
+                str = str.replace(/^0+/, "");
+            }
+        }
+
+        el.value = str;
+        el.selectionEnd = el.selectionStart = caret;
     }
 
     function checksdesc() {
@@ -448,12 +518,14 @@
     }
 
     function ssetdays() {
+
+        checksyears($("#singleordernew").find("[name = year]")[0])
+
         var el = $("#singleordernew");
 
         var yy = undefined;
-        if (isNumeric(el.find("[name = year]").val())) {
-            if (Number.isInteger(Number(el.find("[name = year]").val())))
-                yy = el.find("[name = year]").val();
+        if (el.find("[name = year]").val() !== "" && el.find("[name = year]").val() !== "-") {
+            yy = el.find("[name = year]").val();
         }
 
         var res = new Date(yy, (el.find("[name = month] :selected").val()), 0);
@@ -470,14 +542,11 @@
         if (!el.find("[name = month] :selected").val().includes("$"))
             el.find("[name = month]").css("color", "");
 
-        if (el.find("[name = year]").val() !== "") {
+        if (el.find("[name = year]").val() !== "")
             el.find("[name = year]").parent().css("border", "2px solid #c7a800");
-            if (Number.isInteger(Number(el.find("[name = year]").val())))
-                el.find("[name = year]").css("color", "");
 
-        }
-
-
+        if (el.find("[name = year]").val() !== "-")
+            el.find("[name = year]").css("color", "");
     }
 
 </script>
@@ -533,24 +602,30 @@
             flag = true;
         }
 
-        if (!Number.isInteger(Number(el.find("[name = year]").val()))) {
-            if (el.find("[name = year]").val() === "") {
-                el.find("[name = year]").parent().css("border", "2px solid red");
-            } else {
-                el.find("[name = year]").css("color", "red");
-            }
+        if (el.find("[name = year]").val() === "") {
+            el.find("[name = year]").parent().css("border", "2px solid red");
             flag = true;
         }
 
-        if (!isNumeric(el.find("[name = amount]").val())) {
-            if (el.find("[name = amount]").val() === "") {
-                el.find("[name = amount]").parent().css("border", "2px solid red");
-            } else {
-                el.find("[name = amount]").css("color", "red");
-            }
+        if (el.find("[name = year]").val() === "-") {
+            el.find("[name = year]").css("color", "red");
             flag = true;
-        } else if (Number(el.find("[name = amount]").val()) === 0)
+        }
+
+        if (el.find("[name = amount]").val() === "") {
+            el.find("[name = amount]").parent().css("border", "2px solid red");
+            flag = true;
+        }
+
+        if (el.find("[name = amount]").val() === "-") {
             el.find("[name = amount]").css("color", "red");
+            flag = true;
+        }
+
+        if (isNaN(el.find("[name = amount]").val())) {
+            el.find("[name = amount]").css("color", "red");
+            flag = true;
+        }
 
         if (flag)
             return;
@@ -561,7 +636,7 @@
         line += el.find("[name = year]").val() + '; '
         line += el.find("[name = month] :selected").val() + '; '
         line += el.find("[name = day] :selected").val() + '; '
-        line += el.find("[name = amount]").val() + ';'
+        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
 
         $.post("/addnews", {data: line}, function (returnedData) {
             el.find("[name = descr]").val("")
