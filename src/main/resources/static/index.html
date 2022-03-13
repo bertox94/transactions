@@ -504,6 +504,8 @@
         let regex = /^(-?)0+(0\.[0-9]*)/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
             k.value = k.value.replace(regex, '$1$2');
             k.selectionStart = k.selectionEnd = caret;
         }
@@ -511,6 +513,8 @@
         regex = /^(-?)0+([1-9])/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
             k.value = k.value.replace(regex, '$1$2');
             k.selectionStart = k.selectionEnd = caret;
         }
