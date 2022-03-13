@@ -211,4 +211,10 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    @GetMapping("/haltprocessor")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void haltprocessor() {
+        SpaceTime_Gap.send("close");
+    }
 }

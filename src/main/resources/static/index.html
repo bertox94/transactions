@@ -288,6 +288,8 @@
 <!-- SPACING -->
 <div style="padding: 20px"></div>
 
+
+<a onclick="haltprocessor()">Stop</a>
 <!-- HERE BELOW IT IS ALWAYS UPDATED THE FULL SCHEDULE-->
 
 
@@ -653,6 +655,10 @@
         }).fail(function () {
             console.log("error")
         })
+    }
+
+    function haltprocessor() {
+        $.get("/haltprocessor")
     }
 </script>
 

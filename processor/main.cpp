@@ -26,6 +26,7 @@ std::condition_variable cv;
 std::condition_variable cv2;
 std::mutex mtx; //this guards over both cleaner_stop and thread_pool
 std::mutex mtx2; //this guards over process_stop
+std::mutex mtx3; //this guards over cout
 using namespace std;
 
 void cleaner() {
@@ -39,24 +40,37 @@ void cleaner() {
                 return !thread_pool.empty() || cleaner_stop;
             });
             flag = thread_pool.empty();
-            n = thread_pool.size();
         }
+
 
         while (!flag) {
-            lock_guard<mutex> lk(mtx);
-            auto el = thread_pool.begin();
+            _List_iterator<_List_val<_List_simple_types<thread>>> el;
+            {
+                lock_guard<mutex> lk(mtx);
+                el = thread_pool.begin();
+            }
             el->join();
-            thread_pool.erase(el);
-            flag = thread_pool.empty();
+            n++;
+            {
+                lock_guard<mutex> lk(mtx);
+                thread_pool.erase(el);
+                flag = thread_pool.empty();
+            }
         }
 
-        stringstream aa;
-        aa << "------- Cleaned: " << n << " instances." << endl;
-        cout << aa.str();
+        {
+            lock_guard<mutex> lg(mtx3);
+            cout << "------- Cleaned: " << n << " instances." << endl;
+        }
+
         if (cleaner_stop)
             break;
     }
-    cout << "Cleaning complete" << endl;
+
+    {
+        lock_guard<mutex> lg(mtx3);
+        cout << "Cleaning complete" << endl;
+    }
 }
 
 void t_handler(SOCKET ClientSocket) {
@@ -75,6 +89,10 @@ void t_handler(SOCKET ClientSocket) {
         // if the process should close
         bool close_fg = false;
         if (str.find("close") != string::npos) {
+            {
+                lock_guard<mutex> lg(mtx3);
+                cout << "\nTermination initiated." << endl;
+            }
             close_fg = true;
             resp = "OK";
         }
@@ -110,6 +128,11 @@ void t_handler(SOCKET ClientSocket) {
     }
 
     closesocket(ClientSocket);
+
+    {
+        lock_guard<mutex> lg(mtx3);
+        cout << "Request executed." << endl;
+    }
 
 }
 
@@ -181,7 +204,6 @@ int __cdecl main() {
     while (true) {
         // Accept a client socket
         ClientSocket = accept(ListenSocket, NULL, NULL);
-        cout << "Connection accepted." << endl;
         if (ClientSocket == INVALID_SOCKET) {
             printf("accept failed with error: %d\n", WSAGetLastError());
             break;
@@ -203,11 +225,7 @@ int __cdecl main() {
             process_stop_set = false;
         }
     }
-
-    cout << endl;
-    cout << "Termination initiated." << endl;
     {
-        //make sure to not have thread pool mutex locked here!
         lock_guard<mutex> lockGuard(mtx);
         cleaner_stop = true;
     }
