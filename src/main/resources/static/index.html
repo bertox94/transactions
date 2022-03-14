@@ -309,7 +309,7 @@
 
             for (i = 0; i < lines.length; i++) {
                 data = lines[i].split(";")
-                el.append("        <tr>\n" +
+                el.append("        <tr id='" + data[0] + "'>\n" +
                     "            <td>" + data[1] + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
                     "            <td>" + data[6] + "</td>\n" +
@@ -320,7 +320,8 @@
                     "            <td onclick='_delete(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
                     "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
-                    "        </tr>")
+                    "        </tr>"
+                )
             }
 
             i = 0;
@@ -534,19 +535,15 @@
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
 
-        if (k.value !== "-")
+        if (!isNaN(k.value))
             k.style.removeProperty("color");
 
-        if (k.value !== ".")
+        if (Number(k.value) !== 0)
             k.style.removeProperty("color");
 
-        if (k.value !== "-.")
-            k.style.removeProperty("color");
-
-        //check also if number(amount)===0
     }
 
-    function setdays(k) {
+    const setdays = function (k) {
 
         let day;
         let month;
@@ -578,7 +575,8 @@
         let el = $("#" + day.id);
 
         el.append("<option value=\"$\">--Please Select--</option>");
-        for (let i = 1; i < res; i++)
+        let i = 1;
+        for (i = 1; i < res; i++)
             el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         if (res > 0)
             el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
@@ -590,7 +588,7 @@
 <script>
     function _delete(_id) {
         $.post("/delete", {data: _id}, function (returnedData) {
-            $("#orders tbody").find("[name = " + _id + "]").remove();
+            $("#" + _id).remove();
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
@@ -769,8 +767,13 @@
             flag = true;
         }
 
+        if (Number(k.value) === 0) {
+            k.style.removeProperty("color");
+            flag = true;
+        }
+
         if (isNaN(el.find("[name = amount]").val())) {
-            el.find("[name = amount]").css("color", "red");
+            el.find("[name = amount]").parent().css("color", "red");
             flag = true;
         }
 
