@@ -305,7 +305,7 @@
                 "        </tr>");
 
             returnedData = returnedData.trim()
-            var lines = returnedData.split("\n")
+            let lines = returnedData.split("\n")
 
             for (i = 0; i < lines.length; i++) {
                 data = lines[i].split(";")
@@ -325,7 +325,7 @@
 
             i = 0;
             el.find("tr").each(function () {
-                var ell = $(this).children();
+                let ell = $(this).children();
                 if (ell.length > 1) {
                     $.post("/schedule", {data: lines[i]}, function (returnedData) {
                         ell[1].removeChild(ell[1].firstChild)
@@ -582,7 +582,7 @@
         let el = $("#" + day.id);
 
         el.append("<option value=\"$\">--Please Select--</option>");
-        for (var i = 1; i < res; i++)
+        for (let i = 1; i < res; i++)
             el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         if (res > 0)
             el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
@@ -611,9 +611,9 @@
     }
 
     function addnews() {
-        var line = ""
-        var el = $("#singleordernew");
-        var flag = false;
+        let line = ""
+        let el = $("#singleordernew");
+        let flag = false;
 
         //CHECKS
         if (el.find("[name = descr]").val() === "") {
@@ -697,9 +697,9 @@
     }
 
     function addnewr() {
-        var line = ""
-        var el = $("#repeatedordernew");
-        var flag = false;
+        let line = ""
+        let el = $("#repeatedordernew");
+        let flag = false;
 
         //CHECKS
         if (el.find("[name = descr]").val() === "") {
