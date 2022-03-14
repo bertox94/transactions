@@ -562,9 +562,9 @@
         let pos = k.value.indexOf(".");
         if (pos > -1 && pos === k.value.lastIndexOf(".")) {
             let caret = k.selectionStart;
-            if (pos[0] === "-") {
+            if (k.value[0] === "-") {
                 if (pos === 1) {
-                    k.value = "-0" + k.value.slice(0, pos + 3);
+                    k.value = "-0" + k.value.slice(1, pos + 3);
                     k.selectionStart = k.selectionEnd = 3;
                 } else {
                     k.value = k.value.slice(0, pos + 3);
