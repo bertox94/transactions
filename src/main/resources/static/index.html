@@ -99,14 +99,14 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="02" onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="02" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeydown="setprev(this)" oninput="wrapperamount(this)"
+                        <input dirname="" onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount" size="10">
                     </div>
@@ -222,7 +222,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="12" onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="12" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year1" size="3">
                     </div>
@@ -255,14 +255,14 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="22" onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="22" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeydown="setprev(this)" oninput="wrapperamount(this)"
+                        <input dirname="" onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount2" size="10">
                     </div>
@@ -380,61 +380,8 @@
 <!-- FUNCTIONS -->
 <script>
 
-    var preyear = ""
-    var precaretyear = 0
-    var preyear1 = ""
-    var precaretyear1 = 0
-    var preyear2 = ""
-    var precaretyear2 = 0
-
-    var pref1 = ""
-    var precaretf1 = 0
-
-    var preamount = ""
-    var precaretamount = 0
-    var preamount2 = ""
-    var precaretamount2 = 0
-
     function setprev(k) {
-        if (k.name === "f1") {
-            pref1 = k.value;
-            precaretf1 = k.selectionStart;
-        }
-        if (k.name === "year") {
-            preyear = k.value;
-            precaretyear = k.selectionStart;
-        }
-        if (k.name === "year1") {
-            preyear1 = k.value;
-            precaretyear1 = k.selectionStart;
-        }
-        if (k.name === "year2") {
-            preyear2 = k.value;
-            precaretyear2 = k.selectionStart;
-        }
-        if (k.name === "amount") {
-            preamount = k.value;
-            precaretamount = k.selectionStart;
-        }
-        if (k.name === "amount2") {
-            preamount2 = k.value;
-            precaretamount2 = k.selectionStart;
-        }
-    }
-
-    function prev(k) {
-        if (k.name === "f1")
-            return [pref1, precaretf1, precaretf1];
-        if (k.name === "year")
-            return [preyear, precaretyear, precaretyear];
-        if (k.name === "year1")
-            return [preyear1, precaretyear1, precaretyear1];
-        if (k.name === "year2")
-            return [preyear2, precaretyear2, precaretyear2];
-        if (k.name === "amount")
-            return [preamount, precaretamount, precaretamount];
-        if (k.name === "amount2")
-            return [preamount2, precaretamount2, precaretamount2];
+        k.dirName = k.value + ";" + k.selectionEnd + ";" + k.selectionEnd;
     }
 
     const forgivedesc = function (k) {
@@ -452,7 +399,7 @@
 
     function wrapperf1(k) {
         if (!/^[1-9][0-9]*$/.test(k.value))
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";");
 
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -505,7 +452,7 @@
         }
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";")
 
 
         //forgive
@@ -560,7 +507,7 @@
         }
 
         let pos = k.value.indexOf(".");
-        if (pos > -1 && pos === k.value.lastIndexOf(".")) {
+        if (pos > -1 && !k.dirName.split(";")[0].includes(".")) {
             let caret = k.selectionStart;
             if (k.value[0] === "-") {
                 if (pos === 1) {
@@ -585,7 +532,7 @@
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = prev(k)
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";")
 
         //forgive
         if (k.value !== "")
