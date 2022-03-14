@@ -80,7 +80,7 @@
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="01" onchange="setdays(this)" name="month" style="padding: 1.8px">
+                        <select id="01" onchange="wrappermonth(this)" name="month" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -99,14 +99,14 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="02" oninput="wrapperyear(this)"
+                        <input id="02" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year" size="3">
                     </div>
                 </td>   <!-- Year -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input oninput="checkamount(this)"
+                        <input onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="amount" size="10">
                     </div>
@@ -222,7 +222,7 @@
                 </td>   <!-- Month -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="12" oninput="wrapperyear(this)"
+                        <input id="12" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year1" size="3">
                     </div>
@@ -236,7 +236,7 @@
                 </td>   <!-- Day -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="21" onchange="rsetdays2()" name="month2" style="padding: 1.8px">
+                        <select id="21" onchange="wrappermonth(this)" name="month2" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -380,8 +380,8 @@
 <!-- FUNCTIONS -->
 <script>
 
-    var preyear0 = ""
-    var precaretyear0 = 0
+    var preyear = ""
+    var precaretyear = 0
     var preyear1 = ""
     var precaretyear1 = 0
     var preyear2 = ""
@@ -390,8 +390,8 @@
     var pref1 = ""
     var precaretf1 = 0
 
-    var preamount1 = ""
-    var precaretamount1 = 0
+    var preamount = ""
+    var precaretamount = 0
     var preamount2 = ""
     var precaretamount2 = 0
 
@@ -401,8 +401,8 @@
             precaretf1 = k.selectionStart;
         }
         if (k.name === "year") {
-            preyear0 = k.value;
-            precaretyear0 = k.selectionStart;
+            preyear = k.value;
+            precaretyear = k.selectionStart;
         }
         if (k.name === "year1") {
             preyear1 = k.value;
@@ -412,9 +412,9 @@
             preyear2 = k.value;
             precaretyear2 = k.selectionStart;
         }
-        if (k.name === "amount1") {
-            preamount1 = k.value;
-            precaretamount1 = k.selectionStart;
+        if (k.name === "amount") {
+            preamount = k.value;
+            precaretamount = k.selectionStart;
         }
         if (k.name === "amount2") {
             preamount2 = k.value;
@@ -426,13 +426,13 @@
         if (k.name === "f1")
             return [pref1, precaretf1, precaretf1];
         if (k.name === "year")
-            return [preyear0, precaretyear0, precaretyear0];
+            return [preyear, precaretyear, precaretyear];
         if (k.name === "year1")
             return [preyear1, precaretyear1, precaretyear1];
         if (k.name === "year2")
             return [preyear2, precaretyear2, precaretyear2];
-        if (k.name === "amount1")
-            return [preamount1, precaretamount1, precaretamount1];
+        if (k.name === "amount")
+            return [preamount, precaretamount, precaretamount];
         if (k.name === "amount2")
             return [preamount2, precaretamount2, precaretamount2];
     }
