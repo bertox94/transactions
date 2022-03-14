@@ -767,13 +767,13 @@
             flag = true;
         }
 
-        if (Number(k.value) === 0) {
-            k.style.removeProperty("color");
+        if (Number(el.find("[name = amount]").val()) === 0) {
+            el.find("[name = amount]").css("color", "red");
             flag = true;
         }
 
         if (isNaN(el.find("[name = amount]").val())) {
-            el.find("[name = amount]").parent().css("color", "red");
+            el.find("[name = amount]").css("color", "red");
             flag = true;
         }
 
