@@ -599,34 +599,55 @@
         }
 
         let flag = false;
+        let res = undefined;
 
         // for repeated orders
         if (k.parentElement.id === "repeatedordernew") {
 
+            let day1 = document.getElementById("10");
+            let month1 = document.getElementById("11");
+            let year1 = document.getElementById("12");
+
+            let day2 = document.getElementById("20");
+            let month2 = document.getElementById("21");
+            let year2 = document.getElementById("22");
+
+
             //for days it is not a problem.
             //for years, if this is leap year,
+
+            if (year.value === "")
+                flag = true;
+
+            if (!flag) {
+                res = new Date(year.value, month.options[month.selectedIndex].value, 0);
+                res = res.getDate();
+            }
 
 
             if ($("#f1").val() === "")
                 flag = true;
 
-            if ($("#f2 :selected").val() === "$")
+            if ($("#f2 :selected").val() === "")
                 flag = true;
+
 
             $.post("/quickcheck", preparetosend($("#repeatedordernew")), function (_day) {
 
             })
 
+        } else {
+
+            if (year.value === "")
+                flag = true;
+
+            if (!flag) {
+                res = new Date(year.value, month.options[month.selectedIndex].value, 0);
+                res = res.getDate();
+            }
+
         }
 
-        if (year.value === "")
-            flag = true;
-
-        let res = undefined;
-        if (!flag) {
-            res = new Date(year.value, month.options[month.selectedIndex].value, 0);
-            res = res.getDate();
-        }
 
         day.innerText = null;
         let el = $("#" + day.id);
