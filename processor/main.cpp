@@ -35,8 +35,8 @@ void cleaner() {
     while (true) {
         unsigned int n = 0;
         {
-            unique_lock<mutex> lk(mtx);
-            cv.wait(lk, []() {
+            unique_lock<mutex> LOCK(mtx);
+            cv.wait(LOCK, []() {
                 return !thread_pool.empty() || cleaner_stop;
             });
             local = cleaner_stop;
@@ -45,7 +45,7 @@ void cleaner() {
         while (true) {
             _List_iterator<_List_val<_List_simple_types<shared_ptr<thread>>>> el;
             {
-                lock_guard<mutex> Guard(mtx);
+                lock_guard<mutex> GUARD(mtx);
                 if (thread_pool.empty())
                     break;
                 el = thread_pool.begin();
@@ -53,12 +53,12 @@ void cleaner() {
             (*el)->join();
             n++;
             {
-                lock_guard<mutex> Guard(mtx);
+                lock_guard<mutex> GUARD(mtx);
                 thread_pool.erase(el);
             }
         }
         {
-            lock_guard<mutex> Guard(mtx3);
+            lock_guard<mutex> GUARD(mtx3);
             cout << "------- Cleaned: " << n << " instances." << endl;
         }
 
@@ -66,7 +66,7 @@ void cleaner() {
             break;
     }
     {
-        lock_guard<mutex> Guard(mtx3);
+        lock_guard<mutex> GUARD(mtx3);
         cout << "Cleaning complete" << endl;
     }
 }
@@ -210,14 +210,14 @@ int __cdecl main() {
 
         auto tp = make_shared<thread>(t_handler, ClientSocket);
         {
-            lock_guard<mutex> Guard(mtx);
+            lock_guard<mutex> GUARD(mtx);
             thread_pool.push_back(tp);
         }
         cv.notify_one();
 
         {
-            unique_lock<mutex> lk(mtx2);
-            cv2.wait(lk, []() {
+            unique_lock<mutex> LOCK(mtx2);
+            cv2.wait(LOCK, []() {
                 return process_stop_set;
             });
             if (process_stop)
@@ -227,7 +227,7 @@ int __cdecl main() {
     }
 
     {
-        lock_guard<mutex> Guard(mtx);
+        lock_guard<mutex> GUARD(mtx);
         cleaner_stop = true;
     }
     cv.notify_one();
