@@ -31,6 +31,7 @@ using namespace std;
 
 void cleaner() {
     cout << "Cleaner initialized\n" << endl;
+    bool local = false;
     while (true) {
         unsigned int n = 0;
         {
@@ -38,12 +39,13 @@ void cleaner() {
             cv.wait(lk, []() {
                 return !thread_pool.empty() || cleaner_stop;
             });
+            local = cleaner_stop;
         }
 
         while (true) {
             _List_iterator<_List_val<_List_simple_types<shared_ptr<thread>>>> el;
             {
-                lock_guard<mutex> lk(mtx);
+                lock_guard<mutex> Guard(mtx);
                 if (thread_pool.empty())
                     break;
                 el = thread_pool.begin();
@@ -51,22 +53,20 @@ void cleaner() {
             (*el)->join();
             n++;
             {
-                lock_guard<mutex> lk(mtx);
+                lock_guard<mutex> Guard(mtx);
                 thread_pool.erase(el);
             }
         }
         {
-            lock_guard<mutex> lg(mtx3);
+            lock_guard<mutex> Guard(mtx3);
             cout << "------- Cleaned: " << n << " instances." << endl;
         }
-        {
-            lock_guard<mutex> lk(mtx);
-            if (cleaner_stop)
-                break;
-        }
+
+        if (local)
+            break;
     }
     {
-        lock_guard<mutex> lg(mtx3);
+        lock_guard<mutex> Guard(mtx3);
         cout << "Cleaning complete" << endl;
     }
 }
@@ -210,7 +210,7 @@ int __cdecl main() {
 
         auto tp = make_shared<thread>(t_handler, ClientSocket);
         {
-            lock_guard<mutex> cleaner_lock(mtx);
+            lock_guard<mutex> Guard(mtx);
             thread_pool.push_back(tp);
         }
         cv.notify_one();
@@ -227,7 +227,7 @@ int __cdecl main() {
     }
 
     {
-        lock_guard<mutex> lockGuard(mtx);
+        lock_guard<mutex> Guard(mtx);
         cleaner_stop = true;
     }
     cv.notify_one();
