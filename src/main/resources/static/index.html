@@ -180,13 +180,14 @@
                 </td>   <!-- WT -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" name="f1" size="3" type=text
+                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
+                               type=text
                                oninput="wrapperf1(this)">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivef2(this)" style="padding: 1.8px" name="f2">
+                        <select onchange="forgivef2(this)" style="padding: 1.8px" id="f2" name="f2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="Days">Days</option>
                             <option style="color : black" value="Months">Months</option>
@@ -385,6 +386,36 @@
         k.dirName = k.value + ";" + k.selectionEnd + ";" + k.selectionEnd;
     }
 
+    function preparetosend(k) {
+        let line = "";
+        line += k.find("[name = descr]").val() + '; '
+        line += k.find("[name = wt] :selected").val() + '; '
+        if (k.find("[name = f1]").val() !== "")
+            line += k.find("[name = f1]").val() + '; '
+        if (k.find("[name = f2] :selected").val() !== "")
+            line += k.find("[name = f2] :selected").val() + '; '
+        if (k.find("[name = year]").val() !== "")
+            line += k.find("[name = year]").val() + '; '
+        if (k.find("[name = month] :selected").val() !== "")
+            line += k.find("[name = month] :selected").val() + '; '
+        if (k.find("[name = day] :selected").val() !== "")
+            line += k.find("[name = day] :selected").val() + '; '
+        if (k.find("[name = year1]").val() !== "")
+            line += k.find("[name = year1]").val() + '; '
+        if (k.find("[name = month1] :selected").val() !== "")
+            line += k.find("[name = month1] :selected").val() + '; '
+        if (k.find("[name = day1] :selected").val() !== "")
+            line += k.find("[name = day1] :selected").val() + '; '
+        if (k.find("[name = year2]").val() !== "")
+            line += k.find("[name = year2]").val() + '; '
+        if (k.find("[name = month2] :selected").val() !== "")
+            line += k.find("[name = month2] :selected").val() + '; '
+        if (k.find("[name = day2] :selected").val() !== "")
+            line += k.find("[name = day2] :selected").val() + '; '
+        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
+        return line;
+    }
+
     const forgivedesc = function (k) {
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -567,9 +598,35 @@
             year = k;
         }
 
-        let res = new Date((year.value === "" ? undefined : year.value), month.options[month.selectedIndex].value, 0);
-        res = res.getDate();
+        let flag = false;
 
+        // for repeated orders
+        if (k.parentElement.id === "repeatedordernew") {
+
+            //for days it is not a problem.
+            //for years, if this is leap year,
+
+
+            if ($("#f1").val() === "")
+                flag = true;
+
+            if ($("#f2 :selected").val() === "$")
+                flag = true;
+
+            $.post("/quickcheck", preparetosend($("#repeatedordernew")), function (_day) {
+
+            })
+
+        }
+
+        if (year.value === "")
+            flag = true;
+
+        let res = undefined;
+        if (!flag) {
+            res = new Date(year.value, month.options[month.selectedIndex].value, 0);
+            res = res.getDate();
+        }
 
         day.innerText = null;
         let el = $("#" + day.id);
@@ -605,7 +662,6 @@
     }
 
     function addnews() {
-        let line = ""
         let el = $("#singleordernew");
         let flag = false;
 
@@ -665,15 +721,8 @@
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
 
-        //PREPARE TO SEND
-        line += el.find("[name = descr]").val() + '; '
-        line += el.find("[name = wt] :selected").val() + '; '
-        line += el.find("[name = year]").val() + '; '
-        line += el.find("[name = month] :selected").val() + '; '
-        line += el.find("[name = day] :selected").val() + '; '
-        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
 
-        $.post("/addnews", {data: line}, function (returnedData) {
+        $.post("/addnews", {data: preparetosend(el)}, function (returnedData) {
             el.find("[name = descr]").val("")
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")
