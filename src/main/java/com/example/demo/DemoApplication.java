@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,12 +16,10 @@ public class DemoApplication {
 
     public static void main(String[] args) {
 
-        initialize_processor();
+        //initialize_processor();
         initialize_DB_connection();
         SpringApplication.run(DemoApplication.class, args);
-
-        System.out.println("Initialization completed.");
-
+        LoggerFactory.getLogger(DemoApplication.class).info("Initialization completed.");
     }
 
     public static boolean initialize_processor() {

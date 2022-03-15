@@ -265,7 +265,7 @@
                     <div style="border: 2px solid #c7a800; ">
                         <input dirname="" onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="amount2" size="10">
+                               type="text" name="amount" id="amount2" size="10">
                     </div>
                 </td>   <!-- Amount -->
                 <td>
@@ -305,13 +305,12 @@
                 "            <td colspan=\"6\"></td>\n" +
                 "        </tr>");
 
-            returnedData = returnedData.trim()
-            let lines = returnedData.split("\n")
+            let lines = JSON.parse(returnedData)
 
             for (i = 0; i < lines.length; i++) {
-                data = lines[i].split(";")
-                el.append("        <tr id='" + data[0] + "'>\n" +
-                    "            <td>" + data[1] + "</td>\n" +
+                data = lines[i]
+                el.append("        <tr id='" + data.id + "'>\n" +
+                    "            <td>" + data.descr + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
                     "            <td>" + data[6] + "</td>\n" +
                     "            <td onclick='duplicate(" + data[0] + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
@@ -383,37 +382,26 @@
 <script>
 
     function setprev(k) {
-        k.dirName = k.value + ";" + k.selectionEnd + ";" + k.selectionEnd;
+        k.dirName = [k.value, k.selectionEnd, k.selectionEnd];
     }
 
     function preparetosend(k) {
-        let line = "";
-        line += k.find("[name = descr]").val() + '; '
-        line += k.find("[name = wt] :selected").val() + '; '
-        if (k.find("[name = f1]").val() !== "")
-            line += k.find("[name = f1]").val() + '; '
-        if (k.find("[name = f2] :selected").val() !== "")
-            line += k.find("[name = f2] :selected").val() + '; '
-        if (k.find("[name = year]").val() !== "")
-            line += k.find("[name = year]").val() + '; '
-        if (k.find("[name = month] :selected").val() !== "")
-            line += k.find("[name = month] :selected").val() + '; '
-        if (k.find("[name = day] :selected").val() !== "")
-            line += k.find("[name = day] :selected").val() + '; '
-        if (k.find("[name = year1]").val() !== "")
-            line += k.find("[name = year1]").val() + '; '
-        if (k.find("[name = month1] :selected").val() !== "")
-            line += k.find("[name = month1] :selected").val() + '; '
-        if (k.find("[name = day1] :selected").val() !== "")
-            line += k.find("[name = day1] :selected").val() + '; '
-        if (k.find("[name = year2]").val() !== "")
-            line += k.find("[name = year2]").val() + '; '
-        if (k.find("[name = month2] :selected").val() !== "")
-            line += k.find("[name = month2] :selected").val() + '; '
-        if (k.find("[name = day2] :selected").val() !== "")
-            line += k.find("[name = day2] :selected").val() + '; '
-        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
-        return line;
+        return {
+            descr: k.find("[name = descr]").val(),
+            wt: k.find("[name = wt] :selected").val(),
+            f1: k.find("[name = f1]").val(),
+            f2: k.find("[name = f2] :selected").val(),
+            day: k.find("[name = day] :selected").val(),
+            month: k.find("[name = month] :selected").val(),
+            year: k.find("[name = year]").val(),
+            day1: k.find("[name = day1] :selected").val(),
+            month1: k.find("[name = month1] :selected").val(),
+            year1: k.find("[name = year1]").val(),
+            day2: k.find("[name = day2] :selected").val(),
+            month2: k.find("[name = month2] :selected").val(),
+            year2: k.find("[name = year2]").val(),
+            amount: k.find("[name = amount]").val()
+        };
     }
 
     const forgivedesc = function (k) {
@@ -431,7 +419,7 @@
 
     function wrapperf1(k) {
         if (!/^[1-9][0-9]*$/.test(k.value))
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";");
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
 
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -480,7 +468,7 @@
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";")
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
 
 
         //forgive
@@ -534,7 +522,7 @@
         }
 
         let pos = k.value.indexOf(".");
-        if (pos > -1 && !k.dirName.split(";")[0].includes(".")) {
+        if (pos > -1 && !k.dirName[0].includes(".")) {
             let caret = k.selectionStart;
             if (k.value[0] === "-") {
                 if (pos === 1) {
@@ -560,7 +548,7 @@
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName.split(";")
+            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
 
         //forgive
         if (k.value !== "")
@@ -574,7 +562,7 @@
 
     }
 
-    const setdays = function (k) {
+    const setdayspold = function (k) {
 
         let day;
         let month;
@@ -648,6 +636,85 @@
 
         }
 
+
+        day.innerText = null;
+        let el = $("#" + day.id);
+
+        el.append("<option value=\"$\">--Please Select--</option>");
+        let i = 1;
+        for (i = 1; i < res; i++)
+            el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
+        if (res > 0)
+            el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
+    }
+
+    const setdays = function (k) {
+
+        let day;
+        let month;
+        let year;
+
+        if (parseInt(k.id.slice(1)) % 3 === 0) { //day
+            day = k;
+            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
+            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 2))
+        }
+
+        if (parseInt(k.id.slice(1)) % 3 === 1) { //month
+            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
+            month = k;
+            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
+        }
+
+        if (parseInt(k.id.slice(1)) % 3 === 2) { //year
+            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 2))
+            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
+            year = k;
+        }
+
+        let flag = false;
+        let res = undefined;
+
+
+        let day1 = document.getElementById("10");
+        let month1 = document.getElementById("11");
+        let year1 = document.getElementById("12");
+
+        let day2 = document.getElementById("20");
+        let month2 = document.getElementById("21");
+        let year2 = document.getElementById("22");
+
+
+        //for days it is not a problem.
+        //for years, if this is leap year,
+
+        if (year.value === "")
+            flag = true;
+
+        if (!flag) {
+            res = new Date(year.value, month.options[month.selectedIndex].value, 0);
+            res = res.getDate();
+        }
+
+        //years based, month == feb, at least start year filled
+        if ($("#f2 :selected").val() === "years" && $("#11 :selected").val() === "2" && $("#12 :selected").val() !== "") {
+            let data = preparetosend($("#repeatedordernew"));
+            if ($("#f2 :selected").val() !== "")
+                data.f1 = 1;
+            $.post("/quickcheck", data, function (_day) {
+                console.log(_day)
+            })
+        }
+
+        //months based, at least start year filled
+        if ($("#f2 :selected").val() === "month" && $("#12 :selected").val() !== "") {
+            let data = preparetosend($("#repeatedordernew"));
+            if ($("#f2 :selected").val() !== "")
+                data.f1 = 1;
+            $.post("/quickcheck", data, function (_day) {
+                console.log(_day)
+            })
+        }
 
         day.innerText = null;
         let el = $("#" + day.id);
@@ -742,8 +809,7 @@
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
 
-
-        $.post("/addnews", {data: preparetosend(el)}, function (returnedData) {
+        $.post("/addnews", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
             el.find("[name = descr]").val("")
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")
@@ -764,6 +830,8 @@
         let line = ""
         let el = $("#repeatedordernew");
         let flag = false;
+
+        //12,24...months gets translated into 1, 2 years ...
 
         //CHECKS
         if (el.find("[name = descr]").val() === "") {

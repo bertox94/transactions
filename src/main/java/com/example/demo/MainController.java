@@ -50,32 +50,36 @@ public class MainController {
     @ResponseBody
     @PostMapping(path = "/schedule")
     public String schedule(@RequestParam String data) {
-        String dd = SpaceTime_Gap.send("schedule " + data);
-        return dd;
+        return SpaceTime_Gap.send("schedule\n" + data);
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/quickcheck")
+    public String quickcheck(@RequestParam String data) {
+        return SpaceTime_Gap.send("quickcheck\n" + data);
     }
 
     @ResponseBody
     @PostMapping(path = "/addnews")
     public String addnews(@RequestParam String data) {
         try {
+            String _SUB_Q_ID = " (  SELECT ROW_NUMBER " +
+                    "               FROM (" +
+                    "                  SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
+                    "                  FROM ( " +
+                    "                      SELECT id    " +
+                    "                      FROM single_orders " +
+                    "                      UNION ALL  " +
+                    "                      SELECT COALESCE(MAX(id),2) AS id   " +
+                    "                      FROM single_orders         " +
+                    "                  ) AS sub1" +
+                    "               ) AS sub2       " +
+                    "               WHERE ROW_NUMBER != id      " +
+                    "               LIMIT 1) ";
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(
                     "INSERT INTO public.single_orders (id, encoded) " +
-                            "VALUES(( " +
-                            "       SELECT ROW_NUMBER " +
-                            "       FROM( " +
-                            "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
-                            "           FROM (  " +
-                            "               SELECT id " +
-                            "               FROM single_orders " +
-                            "               UNION ALL " +
-                            "               SELECT COALESCE(MAX(id),2) AS id " +
-                            "               FROM single_orders " +
-                            "           ) AS sub1 " +
-                            "       ) AS sub2 " +
-                            "       WHERE ROW_NUMBER != id " +
-                            "       LIMIT 1) , '" + data +
-                            "');");
+                            "VALUES(" + _SUB_Q_ID + ", '{\"id\":\"" + _SUB_Q_ID + "\"," + data.substring(1) + "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";

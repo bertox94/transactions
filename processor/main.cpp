@@ -16,7 +16,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define DEFAULT_PORT "27017"
 
 std::list<shared_ptr<thread>> thread_pool;
 bool cleaner_stop = false;
@@ -30,7 +30,7 @@ std::mutex mtx3; //this guards over cout
 using namespace std;
 
 void cleaner() {
-    cout << "Cleaner initialized\n" << endl;
+    cout << "Cleaner is operational.\n" << endl;
     bool local = false;
     while (true) {
         unsigned int n = 0;
@@ -59,7 +59,7 @@ void cleaner() {
         }
         {
             lock_guard<mutex> GUARD(mtx3);
-            cout << "------- Cleaned: " << n << " instances." << endl;
+            cout << "------- Cleaned: " << n << (n == 1 ? " instance." : " instances.") << endl;
         }
 
         if (local)
@@ -67,7 +67,7 @@ void cleaner() {
     }
     {
         lock_guard<mutex> GUARD(mtx3);
-        cout << "Cleaning complete" << endl;
+        cout << "Cleaning complete." << endl;
     }
 }
 
@@ -105,10 +105,13 @@ void t_handler(SOCKET ClientSocket) {
 
         // if the process should continue, then choose the function requested
         if (!local) {
-            if (str.find("schedule") != string::npos) {
-                str = str.substr(9);
+            string cmd = str.substr(0, str.find('\n'));
+            if (cmd == "schedule") {
+                str = str.substr(str.find('\n') + 1);
                 order o(str);
                 resp = schedule(o);
+            } else if (cmd == "quickcheck") {
+
             }
         }
 
@@ -195,46 +198,45 @@ int initializeSSocket(SOCKET &ListenSocket) {
 
 int __cdecl main() {
 
-    thread t_cleaner(cleaner);
-
     auto ListenSocket = INVALID_SOCKET;
-    initializeSSocket(ListenSocket);
+    if (!initializeSSocket(ListenSocket)) {
+        thread t_cleaner(cleaner);
+        auto ClientSocket = INVALID_SOCKET;
+        while (true) {
+            ClientSocket = accept(ListenSocket, NULL, NULL);
+            if (ClientSocket == INVALID_SOCKET) {
+                printf("accept failed with error: %d\n", WSAGetLastError());
+                break;
+            }
 
-    auto ClientSocket = INVALID_SOCKET;
-    while (true) {
-        ClientSocket = accept(ListenSocket, NULL, NULL);
-        if (ClientSocket == INVALID_SOCKET) {
-            printf("accept failed with error: %d\n", WSAGetLastError());
-            break;
+            auto tp = make_shared<thread>(t_handler, ClientSocket);
+            {
+                lock_guard<mutex> GUARD(mtx);
+                thread_pool.push_back(tp);
+            }
+            cv.notify_one();
+
+            {
+                unique_lock<mutex> LOCK(mtx2);
+                cv2.wait(LOCK, []() {
+                    return process_stop_set;
+                });
+                if (process_stop)
+                    break;
+                process_stop_set = false;
+            }
         }
 
-        auto tp = make_shared<thread>(t_handler, ClientSocket);
         {
             lock_guard<mutex> GUARD(mtx);
-            thread_pool.push_back(tp);
+            cleaner_stop = true;
         }
         cv.notify_one();
+        t_cleaner.join();
 
-        {
-            unique_lock<mutex> LOCK(mtx2);
-            cv2.wait(LOCK, []() {
-                return process_stop_set;
-            });
-            if (process_stop)
-                break;
-            process_stop_set = false;
-        }
+        WSACleanup();
+        closesocket(ListenSocket);
     }
-
-    {
-        lock_guard<mutex> GUARD(mtx);
-        cleaner_stop = true;
-    }
-    cv.notify_one();
-    t_cleaner.join();
-
-    WSACleanup();
-    closesocket(ListenSocket);
 
     return 0;
 }

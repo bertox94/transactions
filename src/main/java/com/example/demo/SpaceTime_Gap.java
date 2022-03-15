@@ -13,7 +13,7 @@ public class SpaceTime_Gap {
         BufferedReader in;
         String resp = "KO";
         try {
-            clientSocket = new Socket("localhost", 27015);
+            clientSocket = new Socket("localhost", 27017);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out.println(msg);
