@@ -4,7 +4,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.DriverManager;
@@ -16,10 +18,11 @@ public class DemoApplication {
 
     public static void main(String[] args) {
 
-        //initialize_processor();
+        initialize_processor();
         initialize_DB_connection();
         SpringApplication.run(DemoApplication.class, args);
         LoggerFactory.getLogger(DemoApplication.class).info("Initialization completed.");
+
     }
 
     public static boolean initialize_processor() {
@@ -62,6 +65,12 @@ public class DemoApplication {
             return false;
         }
         return true;
+    }
+
+    @PreDestroy
+    public void destroy() throws IOException {
+        Runtime.getRuntime().exec("taskkill /F /IM main.exe");
+        LoggerFactory.getLogger(DemoApplication.class).info("Processor halted.");
     }
 
 }
