@@ -35,10 +35,10 @@ public class MainController {
         String data = "";
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM public.single_orders;");
+            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.single_orders;");
 
             while (rs.next()) {
-                data += rs.getString(1) + "; " + rs.getString(2) + "\n";
+                data = rs.getString(1) + "\n";
             }
 
         } catch (SQLException throwables) {
