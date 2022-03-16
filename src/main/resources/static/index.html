@@ -383,7 +383,7 @@
 <script>
 
     function setprev(k) {
-        k.dirName = [k.value, k.selectionEnd, k.selectionEnd];
+        k.dirName = JSON.stringify([k.value, k.selectionEnd, k.selectionEnd]);
     }
 
     function preparetosend(k) {
@@ -420,7 +420,7 @@
 
     function wrapperf1(k) {
         if (!/^[1-9][0-9]*$/.test(k.value))
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
+            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -465,11 +465,11 @@
         }
 
         //test
-        if (/^-?([1-9][0-9]*)?|0$/.test(k.value))
+        if (/^(-?([1-9][0-9]*)?|0)$/.test(k.value))
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
+            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
 
         //forgive
@@ -523,7 +523,7 @@
         }
 
         let pos = k.value.indexOf(".");
-        if (pos > -1 && !k.dirName[0].includes(".")) {
+        if (pos > -1 && !JSON.parse(k.dirName)[0].includes(".")) {
             let caret = k.selectionStart;
             if (k.value[0] === "-") {
                 if (pos === 1) {
@@ -545,11 +545,11 @@
         }
 
         //test
-        if (/^-?[0-9]*\.?[0-9]?[0-9]?$/.test(k.value))
+        if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(k.value))
             invalid = false;
 
         if (invalid)
-            [k.value, k.selectionEnd, k.selectionStart] = k.dirName;
+            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
         //forgive
         if (k.value !== "")
