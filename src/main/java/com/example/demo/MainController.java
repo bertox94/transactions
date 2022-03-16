@@ -79,7 +79,7 @@ public class MainController {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(
                     "INSERT INTO public.single_orders (id, encoded) " +
-                            "VALUES(" + _SUB_Q_ID + ", '{\"id\":\"" + _SUB_Q_ID + "\"," + data.substring(1) + "');");
+                            "VALUES(" + _SUB_Q_ID + ", '{\"id\":'|| '\"' || " + _SUB_Q_ID + "|| '\"," + data.substring(1) + "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
