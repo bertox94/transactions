@@ -22,53 +22,40 @@ std::string trim(const std::string &str, const std::string &whitespace = " \t") 
 
 class order {
 public:
-    //single order
-    order(const string &name, bool isWireTransfer, bool endOfMonth_i, const datetime &plannedExecutionDate,
-          double amount) :
-            name(name),
-            is_wire_transfer(isWireTransfer),
-            end_of_month_i(endOfMonth_i),
-            planned_execution_date(endOfMonth_i ? plannedExecutionDate.end_of_month() : plannedExecutionDate),
-            single_order(true),
-            amount(amount) {}
-
-    order(const string &name, bool isWireTransfer, bool endOfMonth_i, const datetime &initialDate, bool endOfMonth_f,
-          const datetime &finalDate, int f1, const string &f2, double amount) :
-            name(name),
-            is_wire_transfer(isWireTransfer),
-            end_of_month_i(endOfMonth_i),
-            initial_date(endOfMonth_i ? initialDate.end_of_month() : initialDate),
-            final_date(endOfMonth_f ? finalDate.end_of_month() : finalDate),
-            repeated_order_with_final_date(true),
-            f1(f1),
-            f2(f2),
-            amount(amount) {}
-
-    order(const string &name, bool isWireTransfer, bool endOfMonth, const datetime &initialDate,
-          int f1, const string &f2, double amount) :
-            name(name),
-            is_wire_transfer(isWireTransfer),
-            end_of_month_i(endOfMonth),
-            initial_date(initialDate),
-            f1(f1), f2(f2), amount(amount) {}
 
     order(unordered_map<string, string> map) {
 
         if (map.size() == 7) {
-
-        } else if (map.size() >= 12) {
+            single_order = true;
+            name = map["descr"];
+            is_wire_transfer = map["wt"] == "true";
+            amount = stol(map["amount"]);
+            planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
+        } else if (map.size() == 14) {
             single_order = false;
             name = map["descr"];
             f1 = stoi(map["f1"]);
             is_wire_transfer = map["wt"] == "true";
             f2 = map["f2"];
-            initial_day = map["day1"];
-            initial_month = stol(map["month1"]);
+            opti = map["opt1"];
+            if (map["opt1"] == "default") {
+                initial_day = stol(map["day1"]);
+                initial_month = stol(map["month1"]);
+            } else if (map["opt1"] == "eom")
+                initial_month = stol(map["month1"]);
             initial_year = stol(map["year1"]);
-            final_day = map["day2"];
-            final_month = stol(map["month2"]);
-            final_year = stol(map["year2"]);
-            //repeated_order_with_final_date = map["day2"]!="$"&&map["month2"]!="$";
+            optf = map["opt2"];
+            if (map["day2"] == "$" && map["month2"] == "$" && map["year2"].empty()) {
+                repeated_order_with_final_date = false;
+            } else {
+                repeated_order_with_final_date = true;
+                if (map["opt2"] == "default") {
+                    final_day = stol(map["day2"]);
+                    final_month = stol(map["month2"]);
+                } else if (map["opt2"] == "eom")
+                    final_month = stol(map["month2"]);
+                final_year = stol(map["year2"]);
+            }
             amount = stol(map["amount"]);
         }
     }
@@ -77,12 +64,10 @@ public:
     string name;
     bool is_wire_transfer;
     bool end_of_month_i;
-    datetime initial_date;
-    datetime final_date;
-    string initial_day;
+    long long initial_day;
     long long initial_month;
     long long initial_year;
-    string final_day;
+    long long final_day;
     long long final_month;
     long long final_year;
     datetime planned_execution_date;
@@ -93,6 +78,8 @@ public:
     int f1;
     string f2;
     double amount;
+    string opti;
+    string optf;
 };
 
 datetime today = datetime(6, 3, 2022);
@@ -168,28 +155,40 @@ double find_q() {
 
 }
 
+datetime get_date(string opt, long long day, long long month, long long year) {
+    datetime dt;
+    if (opt == "eoy") {
+        dt = datetime(31, 12, year);
+    } else if (opt == "eom") {
+        dt = datetime(32, month, year, true);
+    } else
+        dt = datetime(day, month, year);
+    return dt;
+}
+
 string schedule(order &el) {
     if (!el.single_order) {
-        if (el.initial_date >= today) {
-            el.planned_execution_date = el.initial_date;
+        datetime initial_date = get_date(el.opti, el.initial_day, el.initial_month, el.initial_year);
+        if (initial_date >= today) {
+            el.planned_execution_date = initial_date;
         } else {
             if (el.f2 == "days") {
-                period pd = today - el.initial_date;
-                datetime dtt = el.initial_date +
-                               ((pd / days(el.f1)) * days(el.f1) +
-                                (pd % days(el.f1) == 0 ? 0 : days(el.f1)));
+                period pd = today - initial_date;
+                datetime dtt = initial_date +
+                               ((pd / dd(el.f1)) * dd(el.f1) +
+                                (pd % dd(el.f1) == dd(0) ? dd(0) : dd(el.f1)));
 
                 el.planned_execution_date = dtt;
             } else if (el.f2 == "months") {
-                long long mm = el.initial_date.months_between(today);
-                if (el.end_of_month_i) {
-                    datetime dtt = el.initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).end_of_month();
+                long long mm = initial_date.months_between(today);
+                if (el.opti == "eom") {
+                    datetime dtt = initial_date.after_months(
+                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1), true);
 
                     el.planned_execution_date = dtt;
                 } else {
-                    datetime dtt = el.initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1));
+                    datetime dtt = initial_date.after_months(
+                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1), true);
                     el.planned_execution_date = dtt;
 
                     if (el.is_wire_transfer)
@@ -198,11 +197,11 @@ string schedule(order &el) {
                     if (dtt.get_year() == today.get_year())
                         if (dtt.get_month() == today.get_month())
                             if (dtt.get_day() < today.get_day())
-                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1);
+                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1, true);
                 }
             } else if (el.f2 == "years") {
-                long long yy = el.initial_date.years_between(today);
-                datetime dtt = el.initial_date.after_years(
+                long long yy = initial_date.years_between(today);
+                datetime dtt = initial_date.after_years(
                         (yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1));
                 el.planned_execution_date = dtt;
 
@@ -212,7 +211,7 @@ string schedule(order &el) {
                 if (dtt.get_year() == today.get_year())
                     if (dtt.get_month() == today.get_month())
                         if (dtt.get_day() < today.get_day())
-                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1);
+                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1, true);
             }
         }
     }
@@ -230,8 +229,9 @@ string schedule(order &el) {
         }
     }
 
+    datetime final_date = get_date(el.optf, el.final_day, el.final_month, el.final_year);
     if (el.repeated_order_with_final_date) {
-        if (el.effective_execution_date > el.final_date) {
+        if (el.effective_execution_date > final_date) {
             //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
             //     << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
             el.cancelled = true;
@@ -264,19 +264,20 @@ void reschedule(order &it) {
     }
 
     if (it.f2 == "days") {
-        it.planned_execution_date += days(it.f1);
+        it.planned_execution_date += dd(it.f1);
     } else if (it.f2 == "months") {
         if (it.end_of_month_i) {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1).end_of_month();
+            it.planned_execution_date = it.planned_execution_date.after_months(it.f1, true).end_of_month();
         } else {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1);
+            it.planned_execution_date = it.planned_execution_date.after_months(it.f1, true);
         }
     } else if (it.f2 == "years") {
-        it.planned_execution_date = it.planned_execution_date.after_years(it.f1);
+        it.planned_execution_date = it.planned_execution_date.after_years(it.f1, true);
     }
 
+    datetime final_date = get_date(it.optf, it.final_day, it.final_month, it.final_year);
     if (it.repeated_order_with_final_date) {
-        if (it.planned_execution_date > it.final_date) {
+        if (it.planned_execution_date > final_date) {
             cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
             it.cancelled = true;
             return;
@@ -553,7 +554,7 @@ int main2() {
         }
 
         insert_stat(account_balance);
-        today = today + days(1);
+        today = today + dd(1);
     }
 
 

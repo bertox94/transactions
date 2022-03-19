@@ -244,7 +244,7 @@
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
-                            <option style="color : black" value="default">Default</option>
+                            <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
                             <option style="color : black" value="eoy">End of year</option>
                         </select>
@@ -285,7 +285,6 @@
                             <option style="color : black" value="29">29</option>
                             <option style="color : black" value="30">30</option>
                             <option style="color : black" value="31">31</option>
-                            <option style="color : black" value="eom">End of month</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
@@ -318,7 +317,7 @@
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate(this)" style="padding: 1.8px" id="2k" name="opt2">
-                            <option style="color : black" value="default">Default</option>
+                            <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
                             <option style="color : black" value="eoy">End of year</option>
                         </select>
@@ -359,7 +358,6 @@
                             <option style="color : black" value="29">29</option>
                             <option style="color : black" value="30">30</option>
                             <option style="color : black" value="31">31</option>
-                            <option style="color : black" value="eom">End of month</option>
                         </select>
                     </div>
                 </td>   <!-- Day -->
@@ -523,9 +521,11 @@
             day: k.find("[name = day] :selected").val(),
             month: k.find("[name = month] :selected").val(),
             year: k.find("[name = year]").val(),
+            opt1: k.find("[name = opt1] :selected").val(),
             day1: k.find("[name = day1] :selected").val(),
             month1: k.find("[name = month1] :selected").val(),
             year1: k.find("[name = year1]").val(),
+            opt2: k.find("[name = opt2] :selected").val(),
             day2: k.find("[name = day2] :selected").val(),
             month2: k.find("[name = month2] :selected").val(),
             year2: k.find("[name = year2]").val(),
@@ -748,8 +748,6 @@
         let i = 1;
         for (i = 1; i <= res; i++)
             el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
-        if (k.id.slice(0, 1) !== "0")
-            el.append("<option style=\"color : black\" value=\"eom\">End of month</option>");
 
         el.find("[value = '" + currday + "']").prop('selected', true);
     }
@@ -886,6 +884,9 @@
         flag += check1(el.find("[name = amount]"));
         flag += check4(el.find("[name = amount]"));
         flag += check5(el.find("[name = amount]"));
+
+        //if eom check that f2 == months o years
+        //if eoy check that f2 == years
 
 
         if (flag > 0)
