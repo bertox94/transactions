@@ -880,14 +880,27 @@
             flag += check3(el.find("[name = day2]"));
             flag += check3(el.find("[name = month2]"));
             flag += check4(el.find("[name = year2]"));
+
         }
         flag += check1(el.find("[name = amount]"));
         flag += check4(el.find("[name = amount]"));
         flag += check5(el.find("[name = amount]"));
 
-        //if eom check that f2 == months o years
-        //if eoy check that f2 == years
 
+        if (el.find("[name = opt1]:selected").val() === "eom") {
+            if (el.find("[name = f2]:selected").val() === "Days") {
+                el.find("[name = opt1]:selected").css("color", "red");
+                el.find("[name = f2]:selected").css("color", "red");
+                flag++;
+            }
+        }
+        if (el.find("[name = opt1]:selected").val() === "eoy") {
+            if (el.find("[name = f2]:selected").val() !== "Years") {
+                el.find("[name = opt1]:selected").css("color", "red");
+                el.find("[name = f2]:selected").css("color", "red");
+                flag++;
+            }
+        }
 
         if (flag > 0)
             return;
