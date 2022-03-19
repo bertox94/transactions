@@ -432,7 +432,7 @@
 </table>
 <!-- SPACING -->
 <div style="padding: 10px"></div>
-<table class="myclass">
+<table id="preview" class="myclass">
     <thead>
     <tr>
         <!--  <th scope="col">#</th> -->
@@ -516,18 +516,14 @@
     }
 
     function populate2() {
-        $.post("/orders", function (returnedData) {
+        $.post("/preview", function (returnedData) {
 
             let i;
             if (returnedData === "")
                 return;
 
-            let el = $("#orders tbody");
+            let el = $("#preview tbody");
             el.empty();
-            el.append("        <tr style=\"background: #c7a800;\">\n" +
-                "            <td colspan=\"6\"></td>\n" +
-                "        </tr>");
-
 
             let lines = returnedData.split("\n");
 
