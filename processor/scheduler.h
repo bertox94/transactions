@@ -66,6 +66,7 @@ public:
             final_day = map["day1"];
             final_month = stol(map["month1"]);
             final_year = stol(map["year1"]);
+            amount = stol(map["amount"]);
         }
     }
 

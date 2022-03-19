@@ -387,7 +387,7 @@
 <!-- POPULATE(S/R) -->
 <script>
     function populate1() {
-        $.post("/populate1", function (returnedData) {
+        $.post("/orders", function (returnedData) {
 
             let i;
             if (returnedData === "")
@@ -768,9 +768,10 @@
         }
 
 
+        let currday = day.options[day.selectedIndex].value;
         let res = undefined;
 
-        if (month.options[month.selectedIndex].value !== "2") {
+        if (month.options[month.selectedIndex].value !== "2" && month.options[month.selectedIndex].value !== "$") {
             res = new Date(2000, month.options[month.selectedIndex].value, 0);
             res = res.getDate();
         } else if (month.options[month.selectedIndex].value === "2" && year.value !== "" && year.value !== "-") {
@@ -790,6 +791,16 @@
             el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
         if (k.id.slice(0, 1) !== "0")
             el.append("<option style=\"color : black\" value=\"eom\">End of month</option>");
+
+        el.find("[value = '" + currday + "']").prop('selected', true);
+
+        if (currday !== "$") {
+            for (i = 1; i <= res; i++) {
+
+            }
+        }
+
+
     }
 
 </script>

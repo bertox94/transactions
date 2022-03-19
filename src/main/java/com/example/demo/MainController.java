@@ -11,13 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class MainController {
@@ -30,15 +26,15 @@ public class MainController {
     private ObjectMapper mapper = new ObjectMapper();
 
     @ResponseBody
-    @PostMapping(path = "/populate1")
-    public String populate1() {
+    @PostMapping(path = "/orders")
+    public String orders() {
         String data = "";
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.single_orders;");
 
             while (rs.next()) {
-                data = rs.getString(1) + "\n";
+                data += rs.getString(1) + "\n";
             }
 
         } catch (SQLException throwables) {
