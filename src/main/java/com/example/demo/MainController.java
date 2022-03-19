@@ -50,9 +50,9 @@ public class MainController {
     }
 
     @ResponseBody
-    @PostMapping(path = "/quickcheck")
-    public String quickcheck(@RequestParam String data) {
-        return SpaceTime_Gap.send("quickcheck\n" + data);
+    @PostMapping(path = "/prewiew")
+    public String preview(@RequestParam String data) {
+        return SpaceTime_Gap.send("preview\n" + data);
     }
 
     @ResponseBody
