@@ -157,7 +157,7 @@
 <div style="margin: 40px"></div>
 
 <!--NEW REPEATED ORDER-->
-<div style="overflow: hidden">
+<div id="repeatedordernew" style="overflow: hidden">
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Repeated Order</h4></td>
@@ -171,14 +171,43 @@
             <tr>
                 <th></th>
                 <th></th>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <th>Wire Transfer</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text" name="descr">
+                    </div>
+                </td>   <!-- Desc -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
+                            <option value="$">--Please Select--</option>
+                            <option style="color : black" value="true">Yes</option>
+                            <option style="color : black" value="false">No</option>
+                        </select>
+                    </div>
+                </td>   <!-- WT -->
+            </tr>
+            </tbody>
+        </table>
+        <!-- SPACING -->
+        <div style="margin: 10px"></div>
+        <table class="myclass">
+            <thead>
+            <tr>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="2">Frequency</th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Initial Date</th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Final Date</th>
                 <th style="font-size:0;">Empty space</th>
             </tr>
             <tr>
-                <th>Description</th>
-                <th>Wire Transfer</th>
                 <th></th>
                 <th></th>
                 <th>Options</th>
@@ -195,22 +224,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr id="repeatedordernew">
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
-                               size="40" type="text" name="descr">
-                    </div>
-                </td>   <!-- Desc -->
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
-                            <option value="$">--Please Select--</option>
-                            <option style="color : black" value="true">Yes</option>
-                            <option style="color : black" value="false">No</option>
-                        </select>
-                    </div>
-                </td>   <!-- WT -->
+            <tr>
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
