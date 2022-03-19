@@ -513,7 +513,7 @@
     }
 
     function wrapperf1(k) {
-        if (!/^[1-9][0-9]*$/.test(k.value))
+        if (!/^([1-9][0-9]*)?$/.test(k.value))
             [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
         if (k.value !== "")
@@ -657,92 +657,6 @@
 
     }
 
-    const setdayspold = function (k) {
-
-        let day;
-        let month;
-        let year;
-
-        if (parseInt(k.id.slice(1)) % 3 === 0) { //day
-            day = k;
-            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
-            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 2))
-        }
-
-        if (parseInt(k.id.slice(1)) % 3 === 1) { //month
-            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
-            month = k;
-            year = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) + 1))
-        }
-
-        if (parseInt(k.id.slice(1)) % 3 === 2) { //year
-            day = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 2))
-            month = document.getElementById(k.id[0] + (parseInt(k.id.slice(1)) - 1))
-            year = k;
-        }
-
-        let flag = false;
-        let res = undefined;
-
-        // for repeated orders
-        if (k.parentElement.id === "repeatedordernew") {
-
-            let day1 = document.getElementById("10");
-            let month1 = document.getElementById("11");
-            let year1 = document.getElementById("12");
-
-            let day2 = document.getElementById("20");
-            let month2 = document.getElementById("21");
-            let year2 = document.getElementById("22");
-
-
-            //for days it is not a problem.
-            //for years, if this is leap year,
-
-            if (year.value === "")
-                flag = true;
-
-            if (!flag) {
-                res = new Date(year.value, month.options[month.selectedIndex].value, 0);
-                res = res.getDate();
-            }
-
-
-            if ($("#f1").val() === "")
-                flag = true;
-
-            if ($("#f2 :selected").val() === "")
-                flag = true;
-
-
-            $.post("/quickcheck", preparetosend($("#repeatedordernew")), function (_day) {
-
-            })
-
-        } else {
-
-            if (year.value === "")
-                flag = true;
-
-            if (!flag) {
-                res = new Date(year.value, month.options[month.selectedIndex].value, 0);
-                res = res.getDate();
-            }
-
-        }
-
-
-        day.innerText = null;
-        let el = $("#" + day.id);
-
-        el.append("<option value=\"$\">--Please Select--</option>");
-        let i = 1;
-        for (i = 1; i < res; i++)
-            el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
-        if (res > 0)
-            el.append("<option style=\"color : black\" value=\"" + i + "\">End of month</option>");
-    }
-
     const setdays = function (k) {
 
         let day;
@@ -794,6 +708,95 @@
         el.find("[value = '" + currday + "']").prop('selected', true);
     }
 
+    function checkdescfordeparture(el) {
+        let flag = 0;
+        if (el.find("[name = descr]").val() === "") {
+            el.find("[name = descr]").parent().css("border", "2px solid red");
+            flag++;
+        }
+        if (el.find("[name = descr]").val().includes(";")) {
+            el.find("[name = descr]").css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkwtfordeparture(el) {
+        let flag = 0;
+        if (el.find("[name = wt] :selected").val().includes("$")) {
+            el.find("[name = wt]").css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkf1fordeparture(el) {
+        let flag = 0;
+        if (el.find("[name = f1]").val() === "") {
+            el.find("[name = f1]").parent().css("border", "2px solid red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkf2fordeparture(el) {
+        let flag = 0;
+        if (el.find("[name = f2] :selected").val().includes("$")) {
+            el.find("[name = f2]").css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkdayfordeparture(el) {
+        let flag = 0;
+        if (el.find(":selected").val().includes("$")) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkmonthfordeparture(el) {
+        let flag = 0;
+        if (el.find(":selected").val().includes("$")) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkyearfordeparture(el) {
+        let flag = 0;
+        if (el.val() === "") {
+            el.parent().css("border", "2px solid red");
+            flag++;
+        }
+        if (el.val() === "-") {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function checkamountfordeparture(el) {
+        let flag = 0;
+        if (el.find("[name = amount]").val() === "") {
+            el.find("[name = amount]").parent().css("border", "2px solid red");
+            flag++;
+        }
+        if (Number(el.find("[name = amount]").val()) === 0) {
+            el.find("[name = amount]").css("color", "red");
+            flag++;
+        }
+        if (isNaN(el.find("[name = amount]").val())) {
+            el.find("[name = amount]").css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+
 </script>
 
 <!-- CALLS TO SERVER -->
@@ -817,66 +820,33 @@
     }
 
     function addnews() {
-        let el = $("#singleordernew");
-        let flag = false;
+        let el = $("#repeatedordernew");
+        let flag = 0;
+
+        if (el.find("[name = f2] :selected").val() === "Months" && el.find("[name = f1]").val() % 12 === 0) {
+            el.find("[name = f2] :selected").removeAttr('selected');
+            el.find("[name = f2] [value = Years]").prop('selected', true);
+            el.find("[name = f1]").val(el.find("[name = f1]").val() / 12);
+        }
 
         //CHECKS
-        if (el.find("[name = descr]").val() === "") {
-            el.find("[name = descr]").parent().css("border", "2px solid red");
-            flag = true;
-        }
+        flag += checkdescfordeparture(el);
+        flag += checkwtfordeparture(el);
+        flag += checkf2fordeparture(el);
+        flag += checkdayfordeparture(el.find("[name = day1]"));
+        flag += checkmonthfordeparture(el.find("[name = month1]"));
+        flag += checkyearfordeparture(el.find("[name = year1]"));
+        flag += checkdayfordeparture(el.find("[name = day2]"));
+        flag += checkmonthfordeparture(el.find("[name = month2]"));
+        flag += checkyearfordeparture(el.find("[name = year2]"));
+        flag += checkamountfordeparture(el);
 
-        if (el.find("[name = descr]").val().includes(";")) {
-            el.find("[name = descr]").css("color", "red");
-            flag = true;
-        }
 
-        if (el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = day] :selected").val().includes("$")) {
-            el.find("[name = day]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = month] :selected").val().includes("$")) {
-            el.find("[name = month]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = year]").val() === "") {
-            el.find("[name = year]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = year]").val() === "-") {
-            el.find("[name = year]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = amount]").val() === "") {
-            el.find("[name = amount]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = amount]").val() === "-") {
-            el.find("[name = amount]").css("color", "red");
-            flag = true;
-        }
-
-        if (isNaN(el.find("[name = amount]").val())) {
-            el.find("[name = amount]").css("color", "red");
-            flag = true;
-        }
-
-        if (flag)
+        if (flag > 0)
             return;
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
-
-        $.post("/addnews", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
+        $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
             el.find("[name = descr]").val("")
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")
@@ -894,80 +864,34 @@
     }
 
     function addnewr() {
-        let line = ""
         let el = $("#repeatedordernew");
-        let flag = false;
+        let flag = 0;
 
-        //12,24...months gets translated into 1, 2 years ...
+        if (el.find("[name = f2] :selected").val() === "Months" && el.find("[name = f1]").val() % 12 === 0) {
+            el.find("[name = f2] :selected").removeAttr('selected');
+            el.find("[name = f2] [value = Years]").prop('selected', true);
+            el.find("[name = f1]").val(el.find("[name = f1]").val() / 12);
+        }
 
         //CHECKS
-        if (el.find("[name = descr]").val() === "") {
-            el.find("[name = descr]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = descr]").val().includes(";")) {
-            el.find("[name = descr]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = wt] :selected").val().includes("$")) {
-            el.find("[name = wt]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = f1] ").val() === "") {
-            el.find("[name = f1]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = f2] :selected").val().includes("$")) {
-            el.find("[name = f2]").css("color", "red");
-            flag = true;
-        }
+        flag += checkdescfordeparture(el);
+        flag += checkwtfordeparture(el);
+        flag += checkf1fordeparture(el);
+        flag += checkf2fordeparture(el);
+        flag += checkdayfordeparture(el.find("[name = day1]"));
+        flag += checkmonthfordeparture(el.find("[name = month1]"));
+        flag += checkyearfordeparture(el.find("[name = year1]"));
+        flag += checkdayfordeparture(el.find("[name = day2]"));
+        flag += checkmonthfordeparture(el.find("[name = month2]"));
+        flag += checkyearfordeparture(el.find("[name = year2]"));
+        flag += checkamountfordeparture(el);
 
 
-        if (el.find("[name = day1] :selected").val().includes("$")) {
-            el.find("[name = day1]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = month1] :selected").val().includes("$")) {
-            el.find("[name = month1]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = year1]").val() === "") {
-            el.find("[name = year1]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = year1]").val() === "-") {
-            el.find("[name = year1]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = amount]").val() === "") {
-            el.find("[name = amount]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (Number(el.find("[name = amount]").val()) === 0) {
-            el.find("[name = amount]").css("color", "red");
-            flag = true;
-        }
-
-        if (isNaN(el.find("[name = amount]").val())) {
-            el.find("[name = amount]").css("color", "red");
-            flag = true;
-        }
-
-        if (flag)
+        if (flag > 0)
             return;
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
-
-        $.post("/addnews", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
+        $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
             el.find("[name = descr]").val("")
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")

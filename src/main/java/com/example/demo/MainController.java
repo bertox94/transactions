@@ -56,8 +56,8 @@ public class MainController {
     }
 
     @ResponseBody
-    @PostMapping(path = "/addnews")
-    public String addnews(@RequestParam String data) {
+    @PostMapping(path = "/addnew")
+    public String addnew(@RequestParam String data) {
         try {
             String _SUB_Q_ID = " (  SELECT ROW_NUMBER " +
                     "               FROM (" +
