@@ -181,36 +181,37 @@ string schedule(order &el) {
                 el.planned_execution_date = dtt;
             } else if (el.f2 == "months") {
                 long long mm = initial_date.months_between(today);
+                datetime dtt = initial_date.after_months(
+                        (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
                 if (el.opti == "eom") {
-                    datetime dtt = initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
-
-                    el.planned_execution_date = dtt;
+                    el.planned_execution_date = dtt.end_of_month();
                 } else {
-                    datetime dtt = initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
                     el.planned_execution_date = dtt;
-
                     if (el.is_wire_transfer)
                         dtt = dtt.first_working_day();
 
-                    if (dtt.get_year() == today.get_year())
-                        if (dtt.get_month() == today.get_month())
-                            if (dtt.get_day() < today.get_day())
+                    if (dtt.getYear() == today.getYear())
+                        if (dtt.getMonth() == today.getMonth())
+                            if (dtt.getDay() < today.getDay())
                                 el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
                 }
             } else if (el.f2 == "years") {
                 long long yy = initial_date.years_between(today);
                 datetime dtt = initial_date.after_years(
                         (yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1));
+                if (el.opti == "eoy") {
+                    el.planned_execution_date = datetime(31, 12, dtt.getYear());
+                } else if (el.opti == "eom") {
+                    el.planned_execution_date = dtt.end_of_month();
+                }
                 el.planned_execution_date = dtt;
 
                 if (el.is_wire_transfer)
                     dtt = dtt.first_working_day();
 
-                if (dtt.get_year() == today.get_year())
-                    if (dtt.get_month() == today.get_month())
-                        if (dtt.get_day() < today.get_day())
+                if (dtt.getYear() == today.getYear())
+                    if (dtt.getMonth() == today.getMonth())
+                        if (dtt.getDay() < today.getDay())
                             el.planned_execution_date = el.planned_execution_date.after_years(el.f1).fix();
             }
         }
@@ -315,89 +316,6 @@ void execute(double &d, order &el, ofstream &ofstream) {
              "        </tr>\n";
 
     cout << right << setw(25) << std::setfill(' ') << "Executed " << endl;
-}
-
-void parse(string filename) {
-    ifstream file(filename);
-
-    vector<string> lines;
-    string line;
-
-    while (getline(file, line)) {
-        if (line[0] == '#' || line.empty())
-            continue;
-        std::stringstream ss(line);
-        vector<string> row;
-        string data;
-        while (getline(ss, data, ';')) {
-            data = trim(data);
-            row.push_back(data);
-        }
-
-        if (row.size() == 4) {
-            vector<int> nums;
-            ss = stringstream(row[2]);
-            while (getline(ss, data, '.')) {
-                nums.push_back(stoi(data));
-            }
-            datetime dt;
-            if (nums.size() == 2) {
-                dt = datetime(1, nums[0], nums[1]);
-                dt = dt.end_of_month();
-            } else {
-                dt = datetime(nums[0], nums[1], nums[2]);
-            }
-            orders.emplace_back(row[0], row[1] == "true", 1 - (nums.size() - 2), dt, stod(row[3]));
-        } else if (row.size() == 6) {
-            vector<int> nums;
-            ss = stringstream(row[2]);
-            while (getline(ss, data, '.')) {
-                nums.push_back(stoi(data));
-            }
-            datetime dt;
-            if (nums.size() == 2) {
-                dt = datetime(1, nums[0], nums[1]);
-                dt = dt.end_of_month();
-            } else {
-                dt = datetime(nums[0], nums[1], nums[2]);
-            }
-            orders.emplace_back(row[0], row[1] == "true", 1 - (nums.size() - 2), dt, stoi(row[3]), row[4],
-                                stod(row[5]));
-        } else if (row.size() == 7) {
-            vector<int> nums;
-            ss = stringstream(row[2]);
-            while (getline(ss, data, '.')) {
-                nums.push_back(stoi(data));
-            }
-            datetime dt;
-            if (nums.size() == 2) {
-                dt = datetime(1, nums[0], nums[1]);
-                dt = dt.end_of_month();
-            } else {
-                dt = datetime(nums[0], nums[1], nums[2]);
-            }
-
-            vector<int> nums2;
-            ss = stringstream(row[3]);
-            while (getline(ss, data, '.')) {
-                nums2.push_back(stoi(data));
-            }
-            datetime dt2;
-            if (nums2.size() == 2) {
-                dt2 = datetime(1, nums2[0], nums2[1]);
-            } else {
-                dt2 = datetime(nums2[0], nums2[1], nums2[2]);
-            }
-
-            orders.emplace_back(row[0], row[1] == "true", 1 - (nums.size() - 2), dt, 1 - (nums2.size() - 2), dt2,
-                                stoi(row[4]),
-                                row[5],
-                                stod(row[6]));
-        } else
-            throw runtime_error("");
-        row.clear();
-    }
-    file.close();
 }
 
 string print_formatted_balances() {
@@ -528,7 +446,7 @@ int main2() {
               "      <tbody>\n";
 
 
-    parse(filename);
+    //parse(filename);
 
     cout << today << endl;
     scheduleall();

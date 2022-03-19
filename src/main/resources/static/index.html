@@ -438,7 +438,7 @@
                 el.append("        <tr id='" + data.id + "'>\n" +
                     "            <td>" + data.descr + "</td>\n" +
                     "            <td><div class=\"animate\">Loading</div></td>\n" +
-                    "            <td>" + data.amount + "</td>\n" +
+                    "            <td style = 'text-align: right'>" + data.amount + "</td>\n" +
                     "            <td onclick='duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
                     "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
@@ -872,33 +872,49 @@
         flag += check3(el.find("[name = wt]"));
         flag += check1(el.find("[name = f1]"));
         flag += check3(el.find("[name = f2]"));
-        flag += check3(el.find("[name = day1]"));
-        flag += check3(el.find("[name = month1]"));
-        flag += check1(el.find("[name = year1]"));
-        flag += check4(el.find("[name = year1]"));
-        if (el.find("[name = year2]").val() !== "") {
-            flag += check3(el.find("[name = day2]"));
-            flag += check3(el.find("[name = month2]"));
-            flag += check4(el.find("[name = year2]"));
-
-        }
         flag += check1(el.find("[name = amount]"));
         flag += check4(el.find("[name = amount]"));
         flag += check5(el.find("[name = amount]"));
 
-
-        if (el.find("[name = opt1]:selected").val() === "eom") {
-            if (el.find("[name = f2]:selected").val() === "Days") {
-                el.find("[name = opt1]:selected").css("color", "red");
-                el.find("[name = f2]:selected").css("color", "red");
+        if (el.find("[name = opt1] :selected").val() === "default") {
+            flag += check3(el.find("[name = day1]"));
+            flag += check3(el.find("[name = month1]"));
+            flag += check1(el.find("[name = year1]"));
+            flag += check4(el.find("[name = year1]"));
+        } else if (el.find("[name = opt1] :selected").val() === "eom") {
+            if (el.find("[name = f2] :selected").val() === "Days") {
+                el.find("[name = opt1] :selected").css("color", "red");
+                el.find("[name = f2] :selected").css("color", "red");
                 flag++;
             }
-        }
-        if (el.find("[name = opt1]:selected").val() === "eoy") {
-            if (el.find("[name = f2]:selected").val() !== "Years") {
-                el.find("[name = opt1]:selected").css("color", "red");
-                el.find("[name = f2]:selected").css("color", "red");
+            flag += check3(el.find("[name = month1]"));
+            flag += check1(el.find("[name = year1]"));
+            flag += check4(el.find("[name = year1]"));
+        } else if (el.find("[name = opt1] :selected").val() === "eoy") {
+            if (el.find("[name = f2] :selected").val() !== "Years") {
+                el.find("[name = opt1] :selected").css("color", "red");
+                el.find("[name = f2] :selected").css("color", "red");
                 flag++;
+            }
+            flag += check1(el.find("[name = year1]"));
+            flag += check4(el.find("[name = year1]"));
+        }
+
+        if (!(el.find("[name = day2] :selected").val() === "$" &&
+            el.find("[name = month2] :selected").val() === "$" &&
+            el.find("[name = year2]").val() === "")) {
+            if (el.find("[name = opt2] :selected").val() === "default") {
+                flag += check3(el.find("[name = day2]"));
+                flag += check3(el.find("[name = month2]"));
+                flag += check1(el.find("[name = year2]"));
+                flag += check4(el.find("[name = year2]"));
+            } else if (el.find("[name = opt2] :selected").val() === "eom") {
+                flag += check3(el.find("[name = month2]"));
+                flag += check1(el.find("[name = year2]"));
+                flag += check4(el.find("[name = year2]"));
+            } else if (el.find("[name = opt2] :selected").val() === "eoy") {
+                flag += check1(el.find("[name = year2]"));
+                flag += check4(el.find("[name = year2]"));
             }
         }
 
@@ -911,14 +927,21 @@
             el.find("[name = wt]").val("$");
             el.find("[name = f1]").val("");
             el.find("[name = f2]").val("$");
+
+            el.find("[name = opt1]").val("default");
+            adaptdate(el.find("[name = opt1]")[0]);
             el.find("[name = year1]").val("");
             el.find("[name = month1]").val("$");
             el.find("[name = day1]").val("$");
             setdays(el.find("[name = day1]")[0]);
+
+            el.find("[name = opt2]").val("default");
+            adaptdate(el.find("[name = opt2]")[0]);
             el.find("[name = year2]").val("");
             el.find("[name = month2]").val("$");
             el.find("[name = day2]").val("$");
             setdays(el.find("[name = day2]")[0]);
+
             el.find("[name = amount]").val("");
 
             populate1();
