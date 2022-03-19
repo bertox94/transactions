@@ -547,14 +547,14 @@
 
     const adaptdate = function (k) {
         if (k.options[k.selectedIndex].value === "eom") {
-            $('#' + k.id[0] + '0').parent().hide(1200);
-            $('#' + k.id[0] + '1').parent().show(1200);
+            $('#' + k.id[0] + '0').hide(1200);
+            $('#' + k.id[0] + '1').show(1200);
         } else if (k.options[k.selectedIndex].value === "eoy") {
-            $('#' + k.id[0] + '0').parent().hide(1200);
-            $('#' + k.id[0] + '1').parent().hide(1200);
+            $('#' + k.id[0] + '0').hide(1200);
+            $('#' + k.id[0] + '1').hide(1200);
         } else {
-            $('#' + k.id[0] + '0').parent().show(1200);
-            $('#' + k.id[0] + '1').parent().show(1200);
+            $('#' + k.id[0] + '0').show(1200);
+            $('#' + k.id[0] + '1').show(1200);
         }
     }
     const forgiveday = function (k) {
