@@ -172,8 +172,8 @@
                 <th></th>
                 <th></th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="2">Frequency</th>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Initial Date</th>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Final Date</th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Initial Date</th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Final Date</th>
                 <th style="font-size:0;">Empty space</th>
             </tr>
             <tr>
@@ -181,10 +181,12 @@
                 <th>Wire Transfer</th>
                 <th></th>
                 <th></th>
+                <th>Options</th>
                 <th>Day</th>
                 <th>Month</th>
                 <th>Year</th>
                 <th>Day</th>
+                <th>Options</th>
                 <th>Month</th>
                 <th>Year</th>
                 <th>Amount</th>
@@ -225,6 +227,15 @@
                         </select>
                     </div>
                 </td>     <!-- F2 -->
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
+                            <option style="color : black" value="default">Default</option>
+                            <option style="color : black" value="eom">End of month</option>
+                            <option style="color : black" value="eoy">End of year</option>
+                        </select>
+                    </div>
+                </td>     <!-- OPTIONS -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <select id="10" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
@@ -290,6 +301,15 @@
                                type="text" name="year1" size="3">
                     </div>
                 </td>   <!-- Year -->
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="adaptdate(this)" style="padding: 1.8px" id="2k" name="opt2">
+                            <option style="color : black" value="default">Default</option>
+                            <option style="color : black" value="eom">End of month</option>
+                            <option style="color : black" value="eoy">End of year</option>
+                        </select>
+                    </div>
+                </td>     <!-- OPTIONS -->
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <select id="20" onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
@@ -525,6 +545,18 @@
             k.style.removeProperty("color");
     }
 
+    const adaptdate = function (k) {
+        if (k.options[k.selectedIndex].value === "eom") {
+            $('#' + k.id[0] + '0').parent().hide(1200);
+            $('#' + k.id[0] + '1').parent().show(1200);
+        } else if (k.options[k.selectedIndex].value === "eoy") {
+            $('#' + k.id[0] + '0').parent().hide(1200);
+            $('#' + k.id[0] + '1').parent().hide(1200);
+        } else {
+            $('#' + k.id[0] + '0').parent().show(1200);
+            $('#' + k.id[0] + '1').parent().show(1200);
+        }
+    }
     const forgiveday = function (k) {
         if (!k.options[k.selectedIndex].value.includes("$"))
             k.style.removeProperty("color");
