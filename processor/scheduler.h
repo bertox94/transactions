@@ -52,22 +52,20 @@ public:
             initial_date(initialDate),
             f1(f1), f2(f2), amount(amount) {}
 
-    order(string &line) {
-        std::stringstream ss(line);
-        vector<string> row;
-        string data;
+    order(unordered_map<string, string> map) {
 
-        while (getline(ss, data, ';')) {
-            data = trim(data);
-            row.push_back(data);
-        }
-
-        if (row.size() == 7) {
-            single_order = true;
-            name = row[1];
-            is_wire_transfer = row[2] == "true";
-            planned_execution_date = datetime(stol(row[5]), stol(row[4]), stol(row[3]));
-            amount = stod(row[6]);
+        if (map.size() >= 12) {
+            single_order = false;
+            name = map["descr"];
+            f1 = stoi(map["f1"]);
+            is_wire_transfer = map["wt"] == "true";
+            f2 = map["f2"];
+            initial_day = map["day1"];
+            initial_month = stol(map["month1"]);
+            initial_year = stol(map["year1"]);
+            final_day = map["day1"];
+            final_month = stol(map["month1"]);
+            final_year = stol(map["year1"]);
         }
     }
 
@@ -77,6 +75,12 @@ public:
     bool end_of_month_i;
     datetime initial_date;
     datetime final_date;
+    string initial_day;
+    long long initial_month;
+    long long initial_year;
+    string final_day;
+    long long final_month;
+    long long final_year;
     datetime planned_execution_date;
     datetime effective_execution_date;
     bool repeated_order_with_final_date = false;

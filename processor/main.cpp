@@ -9,6 +9,8 @@
 #include <list>
 #include <condition_variable>
 #include <mutex>
+#include <regex>
+#include <unordered_map>
 #include "scheduler.h"
 
 // Need to link with Ws2_32.lib
@@ -71,6 +73,29 @@ void cleaner() {
     }
 }
 
+//suppose the JSON is valid
+std::unordered_map<string, string> JSONtomap(string json) {
+    std::unordered_map<std::string, std::string> map = {};
+    json = json.substr(1, json.length() - 2);
+
+    for (int i = 0; i < json.length(); i++) {
+        if (json[i] == '\"') {
+            string key;
+            i++;
+            for (; json[i] != '\"'; i++)
+                key += json[i];
+            string value;
+            i += 3;
+            for (; json[i] != '\"'; i++)
+                value += json[i];
+            map[key] = value;
+            i++;
+        }
+    }
+
+    return map;
+}
+
 void t_handler(SOCKET ClientSocket) {
 
     int iResult = 0;
@@ -108,7 +133,7 @@ void t_handler(SOCKET ClientSocket) {
             string cmd = str.substr(0, str.find('\n'));
             if (cmd == "schedule") {
                 str = str.substr(str.find('\n') + 1);
-                order o(str);
+                order o(JSONtomap(str));
                 resp = schedule(o);
             } else if (cmd == "quickcheck") {
 

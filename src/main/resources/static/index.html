@@ -212,8 +212,7 @@
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
-                               type=text
-                               oninput="wrapperf1(this)">
+                               dirname="" type=text onkeydown="setprev(this)" oninput="wrapperf1(this)">
                     </div>
                 </td>   <!-- F1 -->
                 <td style="padding-left: 8px; padding-right: 8px">
@@ -770,13 +769,17 @@
 
 
         let res = undefined;
-        if (month.options[month.selectedIndex].value === "$" || year.value === "" || year.value === "-")
-            res = 31;
 
-        if (res === undefined) {
+        if (month.options[month.selectedIndex].value !== "2") {
+            res = new Date(2000, month.options[month.selectedIndex].value, 0);
+            res = res.getDate();
+        } else if (month.options[month.selectedIndex].value === "2" && year.value !== "" && year.value !== "-") {
             res = new Date(year.value, month.options[month.selectedIndex].value, 0);
             res = res.getDate();
-        }
+        } else if (month.options[month.selectedIndex].value === "2" && (year.value === "" || year.value === "-")) {
+            res = 29;
+        } else
+            res = 31;
 
         day.innerText = null;
         let el = $("#" + day.id);
@@ -942,26 +945,6 @@
             flag = true;
         }
 
-        if (el.find("[name = day2] :selected").val().includes("$")) {
-            el.find("[name = day2]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = month2] :selected").val().includes("$")) {
-            el.find("[name = month2]").css("color", "red");
-            flag = true;
-        }
-
-        if (el.find("[name = year2]").val() === "") {
-            el.find("[name = year2]").parent().css("border", "2px solid red");
-            flag = true;
-        }
-
-        if (el.find("[name = year2]").val() === "-") {
-            el.find("[name = year2]").css("color", "red");
-            flag = true;
-        }
-
         if (el.find("[name = amount]").val() === "") {
             el.find("[name = amount]").parent().css("border", "2px solid red");
             flag = true;
@@ -982,15 +965,7 @@
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
 
-        //PREPARE TO SEND
-        line += el.find("[name = descr]").val() + '; '
-        line += el.find("[name = wt] :selected").val() + '; '
-        line += el.find("[name = year]").val() + '; '
-        line += el.find("[name = month] :selected").val() + '; '
-        line += el.find("[name = day] :selected").val() + '; '
-        line += parseFloat(el.find("[name = amount]").val()).toFixed(2) + ';'
-
-        $.post("/addnews", {data: line}, function (returnedData) {
+        $.post("/addnews", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
             el.find("[name = descr]").val("")
             el.find("[name = wt]").val("$")
             el.find("[name = year]").val("")

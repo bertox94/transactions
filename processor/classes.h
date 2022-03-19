@@ -338,7 +338,7 @@ public:
     /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
-    datetime(int _day, int _month, long long _year) :
+    datetime(long long _day, long long _month, long long _year) :
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
