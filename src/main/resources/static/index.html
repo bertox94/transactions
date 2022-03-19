@@ -776,7 +776,41 @@
     }
 
     function addnews() {
+        let el = $("#singleordernew");
+        let flag = 0;
 
+        //CHECKS
+        flag += check1(el.find("[name = descr]"));
+        flag += check2(el.find("[name = descr]"));
+        flag += check3(el.find("[name = wt]"));
+        flag += check3(el.find("[name = day]"));
+        flag += check3(el.find("[name = month]"));
+        flag += check1(el.find("[name = year]"));
+        flag += check4(el.find("[name = year]"));
+        flag += check1(el.find("[name = amount]"));
+        flag += check4(el.find("[name = amount]"));
+        flag += check5(el.find("[name = amount]"));
+
+
+        if (flag > 0)
+            return;
+
+        el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
+        $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
+            el.find("[name = descr]").val("")
+            el.find("[name = wt]").val("$")
+            el.find("[name = year]").val("")
+            el.find("[name = month]").val("$")
+            el.find("[name = day]").val("$");
+            setdays(el.find("[name = day]")[0]);
+            el.find("[name = amount]").val("");
+
+            populate1();
+
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
     }
 
     function addnewr() {
@@ -809,16 +843,18 @@
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
         $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
-            el.find("[name = descr]").val("")
-            el.find("[name = wt]").val("$")
-            el.find("[name = f1]").val("")
-            el.find("[name = f2]").val("$")
-            el.find("[name = year1]").val("")
-            el.find("[name = month1]").val("$")
+            el.find("[name = descr]").val("");
+            el.find("[name = wt]").val("$");
+            el.find("[name = f1]").val("");
+            el.find("[name = f2]").val("$");
+            el.find("[name = year1]").val("");
+            el.find("[name = month1]").val("$");
             el.find("[name = day1]").val("$");
-            el.find("[name = year2]").val("")
-            el.find("[name = month2]").val("$")
+            setdays(el.find("[name = day1]")[0]);
+            el.find("[name = year2]").val("");
+            el.find("[name = month2]").val("$");
             el.find("[name = day2]").val("$");
+            setdays(el.find("[name = day2]")[0]);
             el.find("[name = amount]").val("");
 
             populate1();
