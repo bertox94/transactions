@@ -160,7 +160,7 @@ datetime get_date(string opt, long long day, long long month, long long year) {
     if (opt == "eoy") {
         dt = datetime(31, 12, year);
     } else if (opt == "eom") {
-        dt = datetime(32, month, year, true);
+        dt = datetime(32, month, year).fix();
     } else
         dt = datetime(day, month, year);
     return dt;
@@ -183,12 +183,12 @@ string schedule(order &el) {
                 long long mm = initial_date.months_between(today);
                 if (el.opti == "eom") {
                     datetime dtt = initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1), true);
+                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
 
                     el.planned_execution_date = dtt;
                 } else {
                     datetime dtt = initial_date.after_months(
-                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1), true);
+                            (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
                     el.planned_execution_date = dtt;
 
                     if (el.is_wire_transfer)
@@ -197,7 +197,7 @@ string schedule(order &el) {
                     if (dtt.get_year() == today.get_year())
                         if (dtt.get_month() == today.get_month())
                             if (dtt.get_day() < today.get_day())
-                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1, true);
+                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
                 }
             } else if (el.f2 == "years") {
                 long long yy = initial_date.years_between(today);
@@ -211,7 +211,7 @@ string schedule(order &el) {
                 if (dtt.get_year() == today.get_year())
                     if (dtt.get_month() == today.get_month())
                         if (dtt.get_day() < today.get_day())
-                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1, true);
+                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1).fix();
             }
         }
     }
@@ -267,12 +267,12 @@ void reschedule(order &it) {
         it.planned_execution_date += dd(it.f1);
     } else if (it.f2 == "months") {
         if (it.end_of_month_i) {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1, true).end_of_month();
+            it.planned_execution_date = it.planned_execution_date.after_months(it.f1).fix().end_of_month();
         } else {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1, true);
+            it.planned_execution_date = it.planned_execution_date.after_months(it.f1).fix();
         }
     } else if (it.f2 == "years") {
-        it.planned_execution_date = it.planned_execution_date.after_years(it.f1, true);
+        it.planned_execution_date = it.planned_execution_date.after_years(it.f1).fix();
     }
 
     datetime final_date = get_date(it.optf, it.final_day, it.final_month, it.final_year);

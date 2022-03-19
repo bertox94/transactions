@@ -253,14 +253,14 @@ public:
      */
     period to_canonical_form() const {
         period pd;
-        long long seconds = this->to_seconds();
-        pd.days = seconds / 86400;
+        long long _seconds = this->to_seconds();
+        pd.days = _seconds / 86400;
         long long ss = pd.days * 86400;
-        pd.hours = (seconds - ss) / 3600;
+        pd.hours = (_seconds - ss) / 3600;
         ss += pd.hours * 3600;
-        pd.minutes = (seconds - ss) / 60;
+        pd.minutes = (_seconds - ss) / 60;
         ss += pd.minutes * 60;
-        pd.seconds = seconds - ss;
+        pd.seconds = _seconds - ss;
         return pd;
     }
 
@@ -316,32 +316,10 @@ public:
     explicit datetime(long long timestamp) { *this = after(timestamp); }
 
     /**
-     * Constructor of datetime. Always autofix the date.
-     */
-    datetime(long long _day, long long _month, long long _year, bool _default) {
-        year = _year;
-        day = _day - 1;
-        *this = this->after_months(_month - 1, _default);
-    }
-
-    /**
-     * Constructor of datetime. Always autofix the date.
-     */
-    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
-             bool _default) : datetime(_day, _month, _year, _default) {
-        *this += {::hh(_hrs), mm(_min), ss(_sec)};
-    }
-
-    /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
     datetime(long long _day, long long _month, long long _year) :
-            day(_day - 1), month(_month - 1), year(_year) {
-        if (month < 0 || month > 11)
-            throw runtime_error("");
-        if (day < 0 || day >= days_of_this_month())
-            throw runtime_error("");
-    }
+            day(_day - 1), month(_month - 1), year(_year) {}
 
     /**
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
@@ -351,13 +329,6 @@ public:
         sec = _sec;
         min = _min;
         hrs = _hrs;
-
-        if (sec < 0 || sec > 59)
-            throw runtime_error("");
-        if (min < 0 || min > 59)
-            throw runtime_error("");
-        if (hrs < 0 || hrs > 23)
-            throw runtime_error("");
     }
 
 private:
@@ -550,7 +521,7 @@ public:
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
-    bool isOK() {
+    bool isOK() const {
         return !(month < 0 || month >= 12) &&
                !(day < 0 || day >= days_of_this_month()) &&
                !(hrs < 0 || hrs >= 60) &&
@@ -558,8 +529,26 @@ public:
                !(sec < 0 || sec >= 60);
     }
 
-    datetime fix(bool _default) {
+    datetime fix(bool _default = true) const {
+        datetime dt = *this;
+        dt.hrs = 0;
+        dt.min = 0;
+        dt.sec = 0;
 
+        if (dt.day >= dt.days_of_this_month()) {
+            long long _day = dt.day;
+            dt.day = dt.days_of_this_month() - 1;
+            if (!_default)
+                dt += dd(_day - dt.days_of_this_month() + 1);
+        } else if (dt.day < 0) {
+            long long _day = dt.day;
+            dt.day = 0;
+            if (!_default)
+                dt += dd(_day);
+        }
+
+        period pd = extract_time_of_day();
+        return dt + pd;
     }
 
     /**
@@ -583,6 +572,10 @@ public:
      */
     long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
 
+    /**
+     * @return =  @this after @param n years. The obtained date is not checked against overflows,
+     * e.g. (31.1.2020).after_months(1) =====> 31.1.2020
+     */
     datetime after_months(long long n) const {
         datetime dt = *this;
         dt.year += n / 12;
@@ -601,60 +594,18 @@ public:
     }
 
     /**
-     * @return =  @this after @param n years. The obtained date is adjusted to return the last of the month when it overflows,
-     * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
-     */
-    datetime after_months(long long n, bool _default) const {
-        datetime dt = *this;
-        dt = after_months(n);
-
-        if (dt.day >= dt.days_of_this_month()) {
-            long long _day = dt.day;
-            dt.day = dt.days_of_this_month() - 1;
-            if (!_default)
-                dt += dd(_day - dt.days_of_this_month() + 1);
-        } else if (dt.day < 0) {
-            long long _day = dt.day;
-            dt.day = 0;
-            if (!_default)
-                dt += dd(_day);
-        }
-
-        return dt;
-    }
-
-    /**
      * @return is the number of years from @this and @param dt regardless of the dd,
      * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
      */
     long long years_between(datetime &dt) const { return dt.year - year; }
 
+    /**
+     * @return =  @this after @param n years. The obtained date is not checked against overflows,
+     * e.g. (29.2.2020).after_years(1) =====> 29.2.2021
+     */
     datetime after_years(long long n) const {
         datetime dt = *this;
         dt.year += n;
-        return dt;
-    }
-
-    /**
-     * @return =  @this after @param n years.
-     */
-    datetime after_years(long long n, bool _default) const {
-        datetime dt = *this;
-        dt.year += n;
-
-        if (dt.day >= dt.days_of_this_month()) {
-            long long _day = dt.day;
-            dt.day = dt.days_of_this_month() - 1;
-            if (!_default)
-                dt += dd(_day - dt.days_of_this_month() + 1);
-        } else if (dt.day < 0) {
-            long long _day = dt.day;
-            dt.day = 0;
-            if (!_default)
-                dt += dd(_day);
-        }
-
-
         return dt;
     }
 
@@ -718,6 +669,10 @@ public:
      * @return the ss from @d2 to @this.
      */
     long long seconds_from(const datetime &d2) const { return d2.seconds_to(*this); }
+
+    period extract_time_of_day() const {
+        return {hh(hrs), mm(min), ss(sec)};
+    }
 
 };
 
