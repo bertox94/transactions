@@ -771,16 +771,15 @@
         let currday = day.options[day.selectedIndex].value;
         let res = undefined;
 
-        if (month.options[month.selectedIndex].value !== "2" && month.options[month.selectedIndex].value !== "$") {
-            res = new Date(2000, month.options[month.selectedIndex].value, 0);
+        if (month.options[month.selectedIndex].value !== "$") {
+            let yyear = 2004;
+            if (year.value !== "" && year.value !== "-")
+                yyear = year.value;
+            res = new Date(yyear, month.options[month.selectedIndex].value, 0);
             res = res.getDate();
-        } else if (month.options[month.selectedIndex].value === "2" && year.value !== "" && year.value !== "-") {
-            res = new Date(year.value, month.options[month.selectedIndex].value, 0);
-            res = res.getDate();
-        } else if (month.options[month.selectedIndex].value === "2" && (year.value === "" || year.value === "-")) {
-            res = 29;
         } else
             res = 31;
+
 
         day.innerText = null;
         let el = $("#" + day.id);
