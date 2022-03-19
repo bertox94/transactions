@@ -535,6 +535,9 @@ public:
         dt.min = 0;
         dt.sec = 0;
 
+        dt.year += dt.month / 12;
+        dt.month %= 12;
+
         if (dt.day >= dt.days_of_this_month()) {
             long long _day = dt.day;
             dt.day = dt.days_of_this_month() - 1;
@@ -554,17 +557,17 @@ public:
     /**
      * Getter functions.
      */
-    long long int get_sec() const { return sec; }
+    long long int getSec() const { return sec; }
 
-    long long int get_min() const { return min; }
+    long long int getMin() const { return min; }
 
-    long long int get_hrs() const { return hrs; }
+    long long int getHrs() const { return hrs; }
 
-    long long int get_day() const { return day + 1; }
+    long long int getDay() const { return day + 1; }
 
-    long long int get_month() const { return month + 1; }
+    long long int getMonth() const { return month + 1; }
 
-    long long int get_year() const { return year; }
+    long long int getYear() const { return year; }
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
@@ -579,7 +582,7 @@ public:
     datetime after_months(long long n) const {
         datetime dt = *this;
         dt.year += n / 12;
-        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
+        dt.month += n % 12; // NOLINT(cppcoreguidelines-narrowing-conversions)
 
         if (dt.month > 11) {
             dt.year++;
@@ -761,7 +764,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     replace(output, std::string(num, '~'), W);
 
     num = output.find_last_of('!') - output.find('!') + 1;
-    std::string D = to_string(dd.get_day());
+    std::string D = to_string(dd.getDay());
     if (!keep_original_length) {
         D.insert(0, num - D.length(), '0');
     }
@@ -770,22 +773,22 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     num = output.find_last_of('@') - output.find('@') + 1;
     std::string M;
     if (month_str) {
-        M = to_month(dd.get_month()); // NOLINT(cppcoreguidelines-narrowing-conversions)
+        M = to_month(dd.getMonth()); // NOLINT(cppcoreguidelines-narrowing-conversions)
         if (!keep_original_length) {
             M = M.substr(0, num);
             M += std::string(num - M.length(), ' ');
         }
     } else {
-        M = to_string(dd.get_month());
+        M = to_string(dd.getMonth());
         if (!keep_original_length)
             M.insert(0, num - M.length(), '0');
     }
     replace(output, std::string(num, '@'), M);
 
     num = output.find_last_of('#') - output.find('#') + 1;
-    std::string Y = to_string(abs(dd.get_year()));
+    std::string Y = to_string(abs(dd.getYear()));
     if (!keep_original_length) {
-        if (dd.get_year() >= 0) {
+        if (dd.getYear() >= 0) {
             if (Y.length() > num) {
                 Y = Y.substr(Y.length() - num, num);
             } else {
@@ -807,28 +810,28 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     num = output.find_last_of('$') - output.find('$') + 1;
     std::string h;
     if (!h24) {
-        if (dd.get_hrs() > 12) {
-            h = to_string(dd.get_hrs() - 12);
+        if (dd.getHrs() > 12) {
+            h = to_string(dd.getHrs() - 12);
             output += " PM";
         } else {
-            h = to_string(dd.get_hrs());
+            h = to_string(dd.getHrs());
             output += " AM";
         }
     } else {
-        h = to_string(dd.get_hrs());
+        h = to_string(dd.getHrs());
     }
     if (!keep_original_length)
         h.insert(0, num - h.length(), '0');
     replace(output, std::string(num, '$'), h);
 
     num = output.find_last_of('%') - output.find('%') + 1;
-    std::string m = to_string(dd.get_min());
+    std::string m = to_string(dd.getMin());
     if (!keep_original_length)
         m.insert(0, num - m.length(), '0');
     replace(output, std::string(num, '%'), m);
 
     num = output.find_last_of('&') - output.find('&') + 1;
-    std::string s = to_string(dd.get_sec());
+    std::string s = to_string(dd.getSec());
     if (!keep_original_length)
         s.insert(0, num - s.length(), '0');
     replace(output, std::string(num, '&'), s);
