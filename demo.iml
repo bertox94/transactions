@@ -90,5 +90,7 @@
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.3.3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.checkerframework:checker-qual:3.5.0" level="project" />
     <orderEntry type="library" name="jquery" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="Chart.js" level="application" />
   </component>
 </module>
