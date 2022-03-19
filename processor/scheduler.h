@@ -54,7 +54,9 @@ public:
 
     order(unordered_map<string, string> map) {
 
-        if (map.size() >= 12) {
+        if (map.size() == 7) {
+
+        } else if (map.size() >= 12) {
             single_order = false;
             name = map["descr"];
             f1 = stoi(map["f1"]);
@@ -63,9 +65,10 @@ public:
             initial_day = map["day1"];
             initial_month = stol(map["month1"]);
             initial_year = stol(map["year1"]);
-            final_day = map["day1"];
-            final_month = stol(map["month1"]);
-            final_year = stol(map["year1"]);
+            final_day = map["day2"];
+            final_month = stol(map["month2"]);
+            final_year = stol(map["year2"]);
+            //repeated_order_with_final_date = map["day2"]!="$"&&map["month2"]!="$";
             amount = stol(map["amount"]);
         }
     }
