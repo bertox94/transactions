@@ -150,7 +150,7 @@
             </tbody>
         </table>
     </div>       <!-- ACTUAL CONTENT -->
-    <hr style="border: 2px solid #c7a800; width: 61% ; float: left"/>                   <!-- LINE UNDERNEATH -->
+    <hr id="l111" style="border: 2px solid #c7a800; float: left"/>                   <!-- LINE UNDERNEATH -->
 </div>
 
 <!-- SPACING -->
@@ -205,7 +205,8 @@
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="2">Frequency</th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Initial Date</th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Final Date</th>
-                <th style="font-size:0;">Empty space</th>
+                <th style="font-size:0;"></th>
+                <th style="font-size:0;"></th>
             </tr>
             <tr>
                 <th></th>
@@ -220,7 +221,6 @@
                 <th>Year</th>
                 <th>Amount</th>
                 <th></th>
-                <th style="font-size:0;">Empty space</th>
             </tr>
             </thead>
             <tbody>
@@ -400,12 +400,11 @@
                     <img onclick="addnewr()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
                          src="images/plus.svg">
                 </td>                                                   <!-- Button add -->
-                <td></td>
             </tr>
             </tbody>
         </table>
     </div>
-    <hr style="border: 2px solid #c7a800; width: 95% ; float: left"/>
+    <hr id="l222" style="border: 2px solid #c7a800; float: left"/>
 </div>
 
 <!-- SPACING -->
@@ -472,7 +471,8 @@
 
 <!-- INITIALIZER SCRIPT-->
 <script>
-
+    $("#l111").attr("width", $("#id12345").width())
+    $("#l222").attr("width", $("#id12346").width())
     populate1();
 
 </script>
