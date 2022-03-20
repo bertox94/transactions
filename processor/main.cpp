@@ -72,84 +72,77 @@ void cleaner() {
     }
 }
 
+int read(SOCKET ClientSocket, int howmuch, string &msg) {
+    char *buf = new char[howmuch + 2];
+    int ires = recv(ClientSocket, buf, howmuch + 2, 0);
+    msg = string(buf).substr(0, ires - 2);
+    delete[] buf;
+    return ires;
+}
+
+int write(SOCKET ClientSocket, string &msg) {
+    int ires = send(ClientSocket, (msg + "\r\n").c_str(), msg.length() + 2, 0);
+
+    if (ires == SOCKET_ERROR) {
+        printf("send failed with error: %d\n", WSAGetLastError());
+    }
+    return ires;
+}
+
+int write(SOCKET ClientSocket, string &&msg) {
+    return write(ClientSocket, msg);
+}
+
 void t_handler(SOCKET ClientSocket) {
 
-    int iResult = 0;
-    int iSendResult = 0;
-    char szbuf[10 + 2];
+    string msg;
+    read(ClientSocket, 10, msg);
+    write(ClientSocket, "OK");
+    read(ClientSocket, stol(msg), msg);
+    string resp;
 
-    iResult = recv(ClientSocket, szbuf, 10 + 2, 0);
-    if (iResult > 2) {
-
-        iSendResult = send(ClientSocket, "OK\r\n", 4, 0);
-
-        if (iSendResult == SOCKET_ERROR) {
-            printf("send failed with error: %d\n", WSAGetLastError());
-        } else {
-
-
-            const int sz = stoi(string(szbuf).substr(0, iResult - 2)) + 2;
-            char *buf = new char[sz];
-            iResult = recv(ClientSocket, buf, sz, 0);
-
-
-            string str = string(buf).substr(0, iResult - 2);
-            delete[] buf;
-            string resp;
-
-            // check if the process should close ...
-            bool local = false;
-            if (str.find("close") != string::npos) {
-                {
-                    lock_guard<mutex> lg(mtx3);
-                    cout << "\nTermination initiated." << endl;
-                }
-                local = true;
-                resp = "OK";
-            }
-
-            //... and report immediately to the main loop whether it should loop again or not, so that it can accept new connections
-            {
-                lock_guard<mutex> guard(mtx2);
-                process_stop = local;
-                process_stop_set = true;
-            }
-            cv2.notify_one();
-
-            // if the process should continue, then choose the function requested
-            if (!local) {
-                string cmd = str.substr(0, str.find('\n'));
-                if (cmd == "schedule") {
-                    str = str.substr(str.find('\n') + 1);
-                    order o(JSONtomap(str));
-                    resp = schedule(o, datetime(20, 3, 2022));
-                } else if (cmd == "preview") {
-                    resp = preview(str.substr(str.find('\n') + 1));
-                }
-            }
-
-            string ssz = to_string(resp.length() + 2) + "\r\n";
-            iSendResult = send(ClientSocket, ssz.c_str(), ssz.length(), 0);
-
-            char *buff = new char[4];
-            iResult = recv(ClientSocket, buff, 4, 0);
-            delete[] buff;
-
-            // Always send back a message
-            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
-
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-            }
-        }
-
+    // check if the process should close ...
+    bool local = false;
+    if (msg.find("close") != string::npos) {
         {
             lock_guard<mutex> lg(mtx3);
-            cout << "Request executed." << endl;
+            cout << "\nTermination initiated." << endl;
+        }
+        local = true;
+        resp = "OK";
+    }
+
+    //... and report immediately to the main loop whether it should loop again or not, so that it can accept new connections
+    {
+        lock_guard<mutex> guard(mtx2);
+        process_stop = local;
+        process_stop_set = true;
+    }
+    cv2.notify_one();
+
+    // if the process should continue, then choose the function requested
+    if (!local) {
+        string cmd = msg.substr(0, msg.find('\n'));
+        if (cmd == "schedule") {
+            msg = msg.substr(msg.find('\n') + 1);
+            order o(JSONtomap(msg));
+            resp = schedule(o, datetime(20, 3, 2022));
+        } else if (cmd == "preview") {
+            resp = preview(msg.substr(msg.find('\n') + 1));
         }
     }
 
-    iResult = shutdown(ClientSocket, SD_SEND);
+    msg = to_string(resp.length() + 2);
+    write(ClientSocket, msg);
+    read(ClientSocket, 2, msg);
+    write(ClientSocket, resp);
+
+    {
+        lock_guard<mutex> lg(mtx3);
+        cout << "Request executed." << endl;
+    }
+
+    int iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
     }
