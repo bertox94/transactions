@@ -17,14 +17,10 @@ public class SpaceTime_Gap {
             clientSocket = new Socket("localhost", 27017);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out.println(msg.length());
-            in.readLine();
-            out.println(msg);
-            String ss = in.readLine();
-            resp = new StringBuilder();
-            while (ss != null) {
-                resp.append(ss);
-                ss = in.readLine();
+
+            for (int i = 0; i < 10; i++) {
+                out.println(i);
+                System.out.println(in.readLine());
             }
             in.close();
             out.close();

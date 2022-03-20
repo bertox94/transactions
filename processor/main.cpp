@@ -78,68 +78,10 @@ void t_handler(SOCKET ClientSocket) {
     int iSendResult = 0;
     char szbuf[10 + 2];
 
-    iResult = recv(ClientSocket, szbuf, 10 + 2, 0);
-    if (iResult > 2) {
-
+    for (int i = 0; i < 10; i++) {
+        iResult = recv(ClientSocket, szbuf, 10 + 2, 0);
         iSendResult = send(ClientSocket, "OK\r\n", 4, 0);
-
-        if (iSendResult == SOCKET_ERROR) {
-            printf("send failed with error: %d\n", WSAGetLastError());
-        } else {
-
-
-            const int sz = stoi(string(szbuf).substr(0, iResult - 2)) + 2;
-            char *buf = new char[sz];
-            iResult = recv(ClientSocket, buf, sz, 0);
-
-
-            string str = string(buf).substr(0, iResult - 2);
-            delete[] buf;
-            string resp;
-
-            // check if the process should close ...
-            bool local = false;
-            if (str.find("close") != string::npos) {
-                {
-                    lock_guard<mutex> lg(mtx3);
-                    cout << "\nTermination initiated." << endl;
-                }
-                local = true;
-                resp = "OK";
-            }
-
-            //... and report immediately to the main loop whether it should loop again or not, so that it can accept new connections
-            {
-                lock_guard<mutex> guard(mtx2);
-                process_stop = local;
-                process_stop_set = true;
-            }
-            cv2.notify_one();
-
-            // if the process should continue, then choose the function requested
-            if (!local) {
-                string cmd = str.substr(0, str.find('\n'));
-                if (cmd == "schedule") {
-                    str = str.substr(str.find('\n') + 1);
-                    order o(JSONtomap(str));
-                    resp = schedule(o, datetime(20, 3, 2022));
-                } else if (cmd == "preview") {
-                    resp = preview(str.substr(str.find('\n') + 1));
-                }
-            }
-
-            // Always send back a message
-            iSendResult = send(ClientSocket, (resp + "\r\n").c_str(), resp.length() + 2, 0);
-
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-            }
-        }
-
-        {
-            lock_guard<mutex> lg(mtx3);
-            cout << "Request executed." << endl;
-        }
+        cout << string(szbuf) << endl;
     }
 
     iResult = shutdown(ClientSocket, SD_SEND);
