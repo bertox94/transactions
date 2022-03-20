@@ -75,6 +75,7 @@ public:
     bool repeated_order_with_final_date = false;
     bool single_order = false;
     bool cancelled = false;
+    bool scheduled = false;
     int f1;
     string f2;
     double amount;
@@ -267,9 +268,25 @@ string schedule(order &el, datetime today) {
 
 };
 
-void scheduleall(list<order> &list1, datetime today) {
-    for (auto &el: list1)
-        schedule(el, today);
+void scheduleall(list<order> &orders, datetime &today) {
+    for (auto it = orders.begin(); it != orders.end();) {
+        schedule(*it, today);
+        auto el = orders.begin();
+        while (el != orders.end() && el->scheduled && el->effective_execution_date < it->effective_execution_date) {
+            el++;
+        }
+        auto el2 = el;
+        el2++;
+        while (el2 != orders.end() && el2->scheduled && el2->effective_execution_date == el->effective_execution_date &&
+               el2->amount > it->amount) {
+            el++;
+            el2++;
+        }
+
+        it->scheduled = true;
+        orders.insert(el, *it);
+        it = orders.erase(it);
+    }
 }
 
 void reschedule(order &el) {
@@ -346,11 +363,11 @@ string preview(string param) {
         orders.emplace_back(JSONtomap(param.substr(0, param.find('\n'))));
 
     datetime today(20, 03, 2022);
-    string resp = "";
+    string resp;
     scheduleall(orders, today);
-    orders.sort(compare);
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
+        cout << it->effective_execution_date << endl;
         execute(account_balance, *it);
         reschedule(*it);
         auto el = it;
