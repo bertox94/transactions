@@ -82,13 +82,6 @@ public:
     string optf;
 };
 
-void scheduleall(list<order> &list1);
-
-datetime today = datetime(6, 3, 2022);
-//double account_balance = 194.10;
-double account_balance = 1386.77;
-string filename = "file1.txt";
-datetime end(2, 1, 2023);
 list<datetime> dates;
 list<datetime> dates2;
 list<double> balances;
@@ -132,12 +125,12 @@ std::unordered_map<string, string> JSONtomap(string json) {
     return map;
 }
 
-void insert_stat(double bal) {
+void insert_stat(double bal, datetime today) {
     dates.push_back(today);
     balances.push_back(bal);
 }
 
-void insert_stat2(double bal, double exp) {
+void insert_stat2(double bal, double exp, datetime today) {
     transactions.push_back(exp);
     balances2.push_back(bal);
     dates2.push_back(today);
@@ -190,7 +183,7 @@ datetime get_date(string opt, long long day, long long month, long long year) {
     return dt;
 }
 
-string schedule(order &el) {
+string schedule(order &el, datetime today) {
     if (!el.single_order) {
         datetime initial_date = get_date(el.opti, el.initial_day, el.initial_month, el.initial_year);
         if (initial_date >= today) {
@@ -274,6 +267,11 @@ string schedule(order &el) {
 
 };
 
+void scheduleall(list<order> &list1, datetime today) {
+    for (auto &el: list1)
+        schedule(el, today);
+}
+
 void reschedule(order &it) {
 
     if (it.single_order) {
@@ -337,9 +335,9 @@ string execute(double &d, order &el) {
 }
 
 string preview(string param) {
-    string enddate = param.substr(0, param.find('\n'));
+    datetime enddate(31, 12, 2022);//param.substr(0, param.find('\n'));
     param = param.substr(param.find('\n') + 1);
-    string initialbalance = param.substr(0, param.find('\n'));
+    double account_balance = stod(param.substr(0, param.find('\n')));
     param = param.substr(param.find('\n') + 1);
 
     list<order> orders;
@@ -347,10 +345,11 @@ string preview(string param) {
     for (; !param.empty(); param = param.substr(param.find('\n') + 1))
         orders.emplace_back(JSONtomap(param.substr(0, param.find('\n'))));
 
+    datetime today(20, 03, 2022);
     string resp = "";
-    scheduleall(orders);
+    scheduleall(orders, today);
     orders.sort(compare);
-    while (today <= ::end) {
+    while (today <= enddate) {
         bool flag = true;
         for (auto &el: orders) {
             if (el.effective_execution_date == today && !el.cancelled) {
@@ -361,7 +360,7 @@ string preview(string param) {
                 flag = false;
                 resp += execute(account_balance, el);
                 reschedule(el);
-                insert_stat2(account_balance, el.amount);
+                insert_stat2(account_balance, el.amount, today);
             }
         }
         if (!flag) {
@@ -369,7 +368,7 @@ string preview(string param) {
             orders.sort(compare);
         }
 
-        insert_stat(account_balance);
+        insert_stat(account_balance, today);
         today = today + dd(1);
     }
 
@@ -377,11 +376,6 @@ string preview(string param) {
     return resp;
 
 
-}
-
-void scheduleall(list<order> &list1) {
-    for (auto &el: list1)
-        schedule(el);
 }
 
 string print_formatted_balances() {
@@ -514,7 +508,7 @@ int main2() {
 
     //parse(filename);
 
-    cout << today << endl;
+    //cout << today << endl;
     //scheduleall();
 
     //_orders.sort(compare);

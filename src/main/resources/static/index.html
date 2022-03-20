@@ -524,7 +524,8 @@
 
     function populate2() {
         $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
-            $("#preview tbody").val(returnedData);
+            $("#preview tbody").empty();
+            $("#preview tbody").append(returnedData);
         }).fail(function () {
             console.log("error")
         })
