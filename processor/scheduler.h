@@ -350,21 +350,19 @@ string preview(string param) {
     scheduleall(orders, today);
     orders.sort(compare);
 
-    int num = 0;
-
-    for (auto it = orders.begin(); it != orders.end();) {
+    for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         execute(account_balance, *it);
         reschedule(*it);
         auto el = it;
-        while (it->effective_execution_date > el->effective_execution_date)
+        el++;
+        while (el != orders.end() && el->effective_execution_date < it->effective_execution_date)
             el++;
-        //ordina anche in base ad amount
+        auto tmp = el;
+        while (el != orders.end() && el->effective_execution_date == tmp->effective_execution_date &&
+               el->amount < it->amount)
+            el++;
         orders.insert(el, *it);
         it = orders.erase(it);
-        it--;
-        num++;
-        if (num == 20)
-            break;
     }
 
 
