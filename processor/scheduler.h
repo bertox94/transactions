@@ -272,42 +272,42 @@ void scheduleall(list<order> &list1, datetime today) {
         schedule(el, today);
 }
 
-void reschedule(order &it) {
+void reschedule(order &el) {
 
-    if (it.single_order) {
+    if (el.single_order) {
         //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
-        it.cancelled = true;
+        el.cancelled = true;
         return;
     }
 
-    if (it.f2 == "days") {
-        it.planned_execution_date += dd(it.f1);
-    } else if (it.f2 == "months") {
-        if (it.end_of_month_i) {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1).fix().end_of_month();
+    if (el.f2 == "days") {
+        el.planned_execution_date += dd(el.f1);
+    } else if (el.f2 == "months") {
+        if (el.end_of_month_i) {
+            el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix().end_of_month();
         } else {
-            it.planned_execution_date = it.planned_execution_date.after_months(it.f1).fix();
+            el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
         }
-    } else if (it.f2 == "years") {
-        it.planned_execution_date = it.planned_execution_date.after_years(it.f1).fix();
+    } else if (el.f2 == "years") {
+        el.planned_execution_date = el.planned_execution_date.after_years(el.f1).fix();
     }
 
-    datetime final_date = get_date(it.optf, it.final_day, it.final_month, it.final_year);
-    if (it.repeated_order_with_final_date) {
-        if (it.planned_execution_date > final_date) {
-            cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
-            it.cancelled = true;
+    datetime final_date = get_date(el.optf, el.final_day, el.final_month, el.final_year);
+    if (el.repeated_order_with_final_date) {
+        if (el.planned_execution_date > final_date) {
+            //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
+            el.cancelled = true;
             return;
         }
     }
 
-    it.effective_execution_date = it.planned_execution_date;
-    if (it.is_wire_transfer) {
-        it.effective_execution_date = it.effective_execution_date.first_working_day();
+    el.effective_execution_date = el.planned_execution_date;
+    if (el.is_wire_transfer) {
+        el.effective_execution_date = el.effective_execution_date.first_working_day();
     }
 
-    cout << right << setw(25) << std::setfill(' ') << "Rescheduled " << "     for: " << setw(30)
-         << it.effective_execution_date << std::setfill(' ') << endl;
+    //cout << right << setw(25) << std::setfill(' ') << "Rescheduled " << "     for: " << setw(30)
+    //     << el.effective_execution_date << std::setfill(' ') << endl;
 
 }
 
@@ -349,28 +349,47 @@ string preview(string param) {
     string resp = "";
     scheduleall(orders, today);
     orders.sort(compare);
-    while (today <= enddate) {
-        bool flag = true;
-        for (auto &el: orders) {
-            if (el.effective_execution_date == today && !el.cancelled) {
-                if (flag) {
-                    cout << endl << today << endl;
-                }
-                cout << "* " << el.name << endl;
-                flag = false;
-                resp += execute(account_balance, el);
-                reschedule(el);
-                insert_stat2(account_balance, el.amount, today);
-            }
-        }
-        if (!flag) {
-            cout << "--------------------------------" << endl;
-            orders.sort(compare);
-        }
 
-        insert_stat(account_balance, today);
-        today = today + dd(1);
+    int num = 0;
+
+    for (auto it = orders.begin(); it != orders.end();) {
+        execute(account_balance, *it);
+        reschedule(*it);
+        auto el = it;
+        while (it->effective_execution_date > el->effective_execution_date)
+            el++;
+        //ordina anche in base ad amount
+        orders.insert(el, *it);
+        it = orders.erase(it);
+        it--;
+        num++;
+        if (num == 20)
+            break;
     }
+
+
+    //while (today <= enddate) {
+    //    bool flag = true;
+    //    for (auto &el: orders) {
+    //        if (el.effective_execution_date == today && !el.cancelled) {
+    //            if (flag) {
+    //                cout << endl << today << endl;
+    //            }
+    //            cout << "* " << el.name << endl;
+    //            flag = false;
+    //            resp += execute(account_balance, el);
+    //            reschedule(el);
+    //            insert_stat2(account_balance, el.amount, today);
+    //        }
+    //    }
+    //    if (!flag) {
+    //        cout << "--------------------------------" << endl;
+    //        orders.sort(compare);
+    //    }
+//
+    //    insert_stat(account_balance, today);
+    //    today = today + dd(1);
+    //}
 
 
     return resp;
