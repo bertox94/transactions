@@ -12,16 +12,20 @@ public class SpaceTime_Gap {
         Socket clientSocket;
         PrintWriter out;
         BufferedReader in;
-        StringBuilder resp = new StringBuilder("KO");
+        String resp = "KO";
         try {
             clientSocket = new Socket("localhost", 27017);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out.println(msg.length());
+            in.readLine();
+            out.println(msg);
+            int sz = Integer.parseInt(in.readLine());
+            out.println("OK");
+            char[] buf = new char[sz];
+            in.read(buf, 0, sz);
+            resp = String.valueOf(buf);
 
-            for (int i = 0; i < 10; i++) {
-                out.println(i);
-                System.out.println(in.readLine());
-            }
             in.close();
             out.close();
             clientSocket.close();
@@ -29,6 +33,6 @@ public class SpaceTime_Gap {
             e.printStackTrace();
         }
 
-        return resp.toString();
+        return resp;
     }
 }
