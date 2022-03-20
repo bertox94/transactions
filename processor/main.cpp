@@ -132,8 +132,7 @@ void t_handler(SOCKET ClientSocket) {
         }
     }
 
-    msg = to_string(resp.length() + 2);
-    write(ClientSocket, msg);
+    write(ClientSocket, to_string(resp.length() + 2));
     read(ClientSocket, 2, msg);
     write(ClientSocket, resp);
 
