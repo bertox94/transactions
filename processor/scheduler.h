@@ -372,12 +372,23 @@ string preview(string param) {
         reschedule(*it);
         auto el = it;
         el++;
-        while (el != orders.end() && el->effective_execution_date < it->effective_execution_date)
-            el++;
-        auto tmp = el;
-        while (el != orders.end() && el->effective_execution_date == tmp->effective_execution_date &&
-               el->amount < it->amount)
-            el++;
+        bool flag = false;
+        datetime temp;
+        while (el != orders.end()) {
+            if (el->effective_execution_date < it->effective_execution_date)
+                el++;
+            else {
+                if (!flag) {
+                    temp = el->effective_execution_date;
+                    flag = true;
+                }
+                if (el->effective_execution_date == temp && el->amount < it->amount)
+                    el++;
+                else
+                    break;
+            }
+        }
+
         orders.insert(el, *it);
         it = orders.erase(it);
     }
