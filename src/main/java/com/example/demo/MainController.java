@@ -28,19 +28,19 @@ public class MainController {
     @ResponseBody
     @PostMapping(path = "/orders")
     public String orders() {
-        String data = "";
+        StringBuilder data = new StringBuilder();
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.single_orders;");
 
             while (rs.next()) {
-                data += rs.getString(1) + "\n";
+                data.append(rs.getString(1)).append("\n");
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return data;
+        return data.toString();
     }
 
     @ResponseBody
@@ -50,9 +50,10 @@ public class MainController {
     }
 
     @ResponseBody
-    @PostMapping(path = "/prewiew")
+    @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
-        return SpaceTime_Gap.send("preview\n" + data);
+        String orders = orders();
+        return SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
     }
 
     @ResponseBody
@@ -159,22 +160,6 @@ public class MainController {
         }
 
         return true;
-    }
-
-    @GetMapping("/get")
-    @ResponseBody
-    public String get() {
-
-        String content = "";
-
-        try {
-            content = new String(Files.readAllBytes(Paths.get(pathStorage)));
-            // data = mapper.readValue(new File("c:\\test\\staff.json"), String[][].class);
-        } catch (IOException ioe) {
-
-        }
-
-        return content;
     }
 
     @PostMapping("/update")

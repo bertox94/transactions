@@ -423,18 +423,18 @@
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="previewenddate" size="10">
+                       type="text" id="previewenddate" size="10" value="31.12.2022">
             </div>
         </td>
         <td style="padding: 0 0 0 50px;">Initial balance:</td>
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="initalbalance" size="10">
+                       type="text" id="initalbalance" size="10" value="150.00">
             </div>
         </td>
-        <td style="cursor: pointer; padding:0 0 0 50px" id="reload"><img style="vertical-align:middle;" width="15px"
-                                                                         alt="Releoad picture" src=""></td>
+        <td onclick="populate2()" style="cursor: pointer; padding:0" id="reload"><img
+                style="vertical-align:middle;" width="20px" alt="Releoad picture" src="images/reload.svg"></td>
     </tr>
 </table>
 <!-- SPACING -->
@@ -523,45 +523,8 @@
     }
 
     function populate2() {
-        $.post("/preview", function (returnedData) {
-
-            let i;
-            if (returnedData === "")
-                return;
-
-            let el = $("#preview tbody");
-            el.empty();
-
-            let lines = returnedData.split("\n");
-
-            for (i = 0; i < lines.length - 1; i++) {
-                data = JSON.parse(lines[i])
-                el.append("        <tr id='" + data.id + "'>\n" +
-                    "            <td>" + data.descr + "</td>\n" +
-                    "            <td><div class=\"animate\">Loading</div></td>\n" +
-                    "            <td style = 'text-align: right'>" + data.amount + "</td>\n" +
-                    "            <td onclick='duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
-                    "            <td onclick='_delete(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
-                    "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
-                    "        </tr>"
-                )
-            }
-
-            i = 0;
-            el.find("tr").each(function () {
-                let ell = $(this).children();
-                if (ell.length > 1) {
-                    $.post("/schedule", {data: lines[i]}, function (returnedData) {
-                        ell[1].removeChild(ell[1].firstChild)
-                        ell[1].append(returnedData)
-                    })
-                    i++;
-                }
-            });
+        $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
+            $("#preview tbody").val(returnedData);
         }).fail(function () {
             console.log("error")
         })

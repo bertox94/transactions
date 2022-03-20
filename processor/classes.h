@@ -68,6 +68,8 @@ public:
      * NB: this is a non explicit constructor.
      */
 
+    period(long long _sec) : seconds(_sec) {};
+
     period(::ss _sec) : seconds(_sec.get()) {};
 
     period(::mm _mins) : minutes(_mins.get()) {};
@@ -144,7 +146,7 @@ public:
     /**
     * @return = @this + @pd
     */
-    period operator+(period &pd) const { return ss(this->to_seconds() + pd.to_seconds()); }
+    period operator+(period &pd) const { return this->to_seconds() + pd.to_seconds(); }
 
     period operator+(period &&pd) const { return this->operator+(pd); }
 
@@ -152,7 +154,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator+=(period &pd) {
-        *this = ss(this->to_seconds() + pd.to_seconds());
+        *this = this->to_seconds() + pd.to_seconds();
         return *this;
     }
 
@@ -161,7 +163,7 @@ public:
     /**
     * @return = @this - @pd
     */
-    period operator-(period &pd) const { return ss(this->to_seconds() - pd.to_seconds()); }
+    period operator-(period &pd) const { return this->to_seconds() - pd.to_seconds(); }
 
     period operator-(period &&pd) const { return this->operator-(pd); }
 
@@ -169,7 +171,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator-=(period &pd) {
-        *this = ss(this->to_seconds() - pd.to_seconds());
+        *this = this->to_seconds() - pd.to_seconds();
         return *this;
     }
 
@@ -178,7 +180,7 @@ public:
     /**
     * @return = @this * @pd
     */
-    period operator*(period &pd) const { return ss(this->to_seconds() * pd.to_seconds()); }
+    period operator*(period &pd) const { return this->to_seconds() * pd.to_seconds(); }
 
     period operator*(period &&pd) const { return this->operator*(pd); }
 
@@ -195,7 +197,7 @@ public:
     /**
     * @return = @this / @pd
     */
-    period operator/(period &pd) const { return ss(this->to_seconds() / pd.to_seconds()); }
+    period operator/(period &pd) const { return this->to_seconds() / pd.to_seconds(); }
 
     period operator/(period &&pd) const { return this->operator/(pd); }
 
@@ -212,7 +214,7 @@ public:
     /**
      * @return = @this % @pd
      */
-    period operator%(period &pd) const { return ss(this->to_seconds() % pd.to_seconds()); }
+    period operator%(period &pd) const { return this->to_seconds() % pd.to_seconds(); }
 
     period operator%(period &&pd) const { return this->operator%(pd); }
 
@@ -251,7 +253,7 @@ public:
      *                              (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
      * NB: this is a non-explicit constructor.
      */
-    period to_canonical_form() const {
+    period in_canonical_form() const {
         period pd;
         long long _seconds = this->to_seconds();
         pd.days = _seconds / 86400;
@@ -371,8 +373,8 @@ private:
             time_sec += 86400;
             _day--;
         }
-        period time = ss(time_sec);
-        time = time.to_canonical_form();
+        period time = time_sec;
+        time = time.in_canonical_form();
 
         int _month = 0;
 
@@ -517,7 +519,7 @@ public:
     /**
      * @return = @this - @dt
      */
-    period operator-(datetime &dt) const { return ss(seconds_from(dt)); }
+    period operator-(datetime &dt) const { return seconds_from(dt); }
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
@@ -682,7 +684,7 @@ public:
 /**
  * @return = -@p
  */
-period operator-(period &p) { return ss(-p.to_seconds()); }
+period operator-(period &p) { return -p.to_seconds(); }
 
 period operator-(period &&p) { return -p; }
 

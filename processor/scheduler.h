@@ -82,12 +82,13 @@ public:
     string optf;
 };
 
+void scheduleall(list<order> &list1);
+
 datetime today = datetime(6, 3, 2022);
 //double account_balance = 194.10;
 double account_balance = 1386.77;
 string filename = "file1.txt";
 datetime end(2, 1, 2023);
-list<order> orders;
 list<datetime> dates;
 list<datetime> dates2;
 list<double> balances;
@@ -107,6 +108,29 @@ bool compare(order &first, order &second) {
 }
 
 //TODO: do checks functions to check all possibilites of wrong definition of input (in parse())
+
+//suppose the JSON is valid
+std::unordered_map<string, string> JSONtomap(string json) {
+    std::unordered_map<std::string, std::string> map = {};
+    json = json.substr(1, json.length() - 2);
+
+    for (int i = 0; i < json.length(); i++) {
+        if (json[i] == '\"') {
+            string key;
+            i++;
+            for (; json[i] != '\"'; i++)
+                key += json[i];
+            string value;
+            i += 3;
+            for (; json[i] != '\"'; i++)
+                value += json[i];
+            map[key] = value;
+            i++;
+        }
+    }
+
+    return map;
+}
 
 void insert_stat(double bal) {
     dates.push_back(today);
@@ -250,12 +274,6 @@ string schedule(order &el) {
 
 };
 
-void scheduleall() {
-    //for (auto &el: orders) {
-    //    schedule(el);
-    //}
-}
-
 void reschedule(order &it) {
 
     if (it.single_order) {
@@ -295,27 +313,75 @@ void reschedule(order &it) {
 
 }
 
-void execute(double &d, order &el, ofstream &ofstream) {
+string execute(double &d, order &el) {
     d += el.amount;
     string warn = " style = \"color:  red; font-weight: bold;\"";
     string bold = " style = \"font-weight: bold;\"";
+    stringstream ss;
+    ss <<
+       "        <tr>\n" <<
+       "          <!-- <th scope=\"row\">1</th> -->\n" <<
+       "          <td" << (d < 0 ? warn : "") << ">" << el.planned_execution_date << "</td>\n" <<
+       "          <td"
+       << (d < 0 ? warn : (el.planned_execution_date != el.effective_execution_date ? bold : ""))
+       << ">" << el.effective_execution_date << "</td>\n" <<
+       "          <td" << (d < 0 ? warn : "") << ">" << el.name << "</td>\n" <<
+       "          <td" << (d < 0 ? warn : "") << ">" << fixed << std::setprecision(2) << el.amount
+       << "</td>\n" <<
+       "          <td" << (d < 0 ? warn : "") << ">" << d << "</td>\n" <<
+       "          <td" << (d < 0 ? warn : "") << ">" << ((d == 0 ? "ALERT" : (d < 0 ? "FAILURE" : "OK")))
+       << "</td>\n" <<
+       "        </tr>\n";
 
-    ofstream <<
-             "        <tr>\n" <<
-             "          <!-- <th scope=\"row\">1</th> -->\n" <<
-             "          <td" << (d < 0 ? warn : "") << ">" << el.planned_execution_date << "</td>\n" <<
-             "          <td"
-             << (d < 0 ? warn : (el.planned_execution_date != el.effective_execution_date ? bold : ""))
-             << ">" << el.effective_execution_date << "</td>\n" <<
-             "          <td" << (d < 0 ? warn : "") << ">" << el.name << "</td>\n" <<
-             "          <td" << (d < 0 ? warn : "") << ">" << fixed << std::setprecision(2) << el.amount
-             << "</td>\n" <<
-             "          <td" << (d < 0 ? warn : "") << ">" << d << "</td>\n" <<
-             "          <td" << (d < 0 ? warn : "") << ">" << ((d == 0 ? "ALERT" : (d < 0 ? "FAILURE" : "OK")))
-             << "</td>\n" <<
-             "        </tr>\n";
+    return ss.str();
+}
 
-    cout << right << setw(25) << std::setfill(' ') << "Executed " << endl;
+string preview(string param) {
+    string enddate = param.substr(0, param.find('\n'));
+    param = param.substr(param.find('\n') + 1);
+    string initialbalance = param.substr(0, param.find('\n'));
+    param = param.substr(param.find('\n') + 1);
+
+    list<order> orders;
+
+    for (; !param.empty(); param = param.substr(param.find('\n') + 1))
+        orders.emplace_back(JSONtomap(param.substr(0, param.find('\n'))));
+
+    string resp = "";
+    scheduleall(orders);
+    orders.sort(compare);
+    while (today <= ::end) {
+        bool flag = true;
+        for (auto &el: orders) {
+            if (el.effective_execution_date == today && !el.cancelled) {
+                if (flag) {
+                    cout << endl << today << endl;
+                }
+                cout << "* " << el.name << endl;
+                flag = false;
+                resp += execute(account_balance, el);
+                reschedule(el);
+                insert_stat2(account_balance, el.amount);
+            }
+        }
+        if (!flag) {
+            cout << "--------------------------------" << endl;
+            orders.sort(compare);
+        }
+
+        insert_stat(account_balance);
+        today = today + dd(1);
+    }
+
+
+    return resp;
+
+
+}
+
+void scheduleall(list<order> &list1) {
+    for (auto &el: list1)
+        schedule(el);
 }
 
 string print_formatted_balances() {
@@ -449,31 +515,31 @@ int main2() {
     //parse(filename);
 
     cout << today << endl;
-    scheduleall();
+    //scheduleall();
 
-    orders.sort(compare);
-    while (today <= ::end) {
-        bool flag = true;
-        for (auto &el: orders) {
-            if (el.effective_execution_date == today && !el.cancelled) {
-                if (flag) {
-                    cout << endl << today << endl;
-                }
-                cout << "* " << el.name << endl;
-                flag = false;
-                execute(account_balance, el, myfile);
-                reschedule(el);
-                insert_stat2(account_balance, el.amount);
-            }
-        }
-        if (!flag) {
-            cout << "--------------------------------" << endl;
-            orders.sort(compare);
-        }
+    //_orders.sort(compare);
+    //while (today <= ::end) {
+    //    bool flag = true;
+    //    for (auto &el: _orders) {
+    //        if (el.effective_execution_date == today && !el.cancelled) {
+    //            if (flag) {
+    //                cout << endl << today << endl;
+    //            }
+    //            cout << "* " << el.name << endl;
+    //            flag = false;
+    //            execute(account_balance, el);
+    //            reschedule(el);
+    //            insert_stat2(account_balance, el.amount);
+    //        }
+    //    }
+    //    if (!flag) {
+    //        cout << "--------------------------------" << endl;
+    //        _orders.sort(compare);
+    //    }
 
-        insert_stat(account_balance);
-        today = today + dd(1);
-    }
+    //    insert_stat(account_balance);
+    //    today = today + dd(1);
+    //}
 
 
     cout << endl << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
