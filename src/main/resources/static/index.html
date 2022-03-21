@@ -180,14 +180,10 @@
             <tr>
                 <th></th>
                 <th></th>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Frequency</th>
             </tr>
             <tr>
                 <th>Description</th>
                 <th>Wire Transfer</th>
-                <th>Length</th>
-                <th>Range</th>
-                <th>Options</th>
             </tr>
             </thead>
             <tbody>
@@ -207,75 +203,35 @@
                         </select>
                     </div>
                 </td>   <!-- WT -->
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800; ">
-                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
-                               dirname="" type=text onkeydown="setprev(this)" oninput="wrapperf1(this)">
-                    </div>
-                </td>   <!-- F1 -->
-                <td style="padding-left: 8px; padding-right: 8px">
-                    <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivef2(this)" style="padding: 1.8px" id="f2" name="f2">
-                            <option value="$">--Please Select--</option>
-                            <option style="color : black" value="days">Days</option>
-                            <option style="color : black" value="months">Months</option>
-                            <option style="color : black" value="years">Years</option>
-                        </select>
-                    </div>
-                </td>     <!-- F2 -->
-                <td style="padding-left: 8px; padding-right: 8px">
-                    <div style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
-                            <option style="color : black" value="default">Specific day</option>
-                            <option style="color : black" value="eom">End of month</option>
-                            <option style="color : black" value="eoy">End of year</option>
-                        </select>
-                    </div>
-                </td>     <!-- OPTIONS -->
             </tr>
             </tbody>
         </table>
         <!-- SPACING -->
-        <div style="margin: 10px"></div>
+        <div style="margin: 20px"></div>
         <table class="myclass">
             <thead>
             <tr>
-                <th></th>
-                <th></th>
                 <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Frequency</th>
+                <th></th>
+                <th></th>
             </tr>
             <tr>
-                <th>Description</th>
-                <th>Wire Transfer</th>
                 <th>Length</th>
                 <th>Range</th>
                 <th>Options</th>
+                <th>Month</th>
+                <th>Day</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
-                               size="40" type="text" name="descr">
-                    </div>
-                </td>   <!-- Desc -->
-                <td style="padding-left: 10px; padding-right: 10px">
-                    <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
-                            <option value="$">--Please Select--</option>
-                            <option style="color : black" value="true">Yes</option>
-                            <option style="color : black" value="false">No</option>
-                        </select>
-                    </div>
-                </td>   <!-- WT -->
-                <td style="padding-left: 10px; padding-right: 10px">
+                <td style="margin-left: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
                                dirname="" type=text onkeydown="setprev(this)" oninput="wrapperf1(this)">
                     </div>
                 </td>   <!-- F1 -->
-                <td style="padding-left: 8px; padding-right: 8px">
+                <td style="margin-left: 20px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="forgivef2(this)" style="padding: 1.8px" id="f2" name="f2">
                             <option value="$">--Please Select--</option>
@@ -285,7 +241,7 @@
                         </select>
                     </div>
                 </td>     <!-- F2 -->
-                <td style="padding-left: 8px; padding-right: 8px">
+                <td style="margin-left: 20px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
                             <option style="color : black" value="default">Specific day</option>
@@ -294,11 +250,68 @@
                         </select>
                     </div>
                 </td>     <!-- OPTIONS -->
+                <td style="border-spacing: 20px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <select id="10" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
+                            <option value="$">--Please Select--</option>
+                            <option style="color : black" value="1">1</option>
+                            <option style="color : black" value="2">2</option>
+                            <option style="color : black" value="3">3</option>
+                            <option style="color : black" value="4">4</option>
+                            <option style="color : black" value="5">5</option>
+                            <option style="color : black" value="6">6</option>
+                            <option style="color : black" value="7">7</option>
+                            <option style="color : black" value="8">8</option>
+                            <option style="color : black" value="9">9</option>
+                            <option style="color : black" value="10">10</option>
+                            <option style="color : black" value="11">11</option>
+                            <option style="color : black" value="12">12</option>
+                            <option style="color : black" value="13">13</option>
+                            <option style="color : black" value="14">14</option>
+                            <option style="color : black" value="15">15</option>
+                            <option style="color : black" value="16">16</option>
+                            <option style="color : black" value="17">17</option>
+                            <option style="color : black" value="18">18</option>
+                            <option style="color : black" value="19">19</option>
+                            <option style="color : black" value="20">20</option>
+                            <option style="color : black" value="21">21</option>
+                            <option style="color : black" value="22">22</option>
+                            <option style="color : black" value="23">23</option>
+                            <option style="color : black" value="24">24</option>
+                            <option style="color : black" value="25">25</option>
+                            <option style="color : black" value="26">26</option>
+                            <option style="color : black" value="27">27</option>
+                            <option style="color : black" value="28">28</option>
+                            <option style="color : black" value="29">29</option>
+                            <option style="color : black" value="30">30</option>
+                            <option style="color : black" value="31">31</option>
+                        </select>
+                    </div>
+                </td>   <!-- Day -->
+                <td style="margin-left: 20px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <select id="11" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
+                            <option value="$">--Please Select--</option>
+                            <option style="color : black" value="1">January</option>
+                            <option style="color : black" value="2">February</option>
+                            <option style="color : black" value="3">March</option>
+                            <option style="color : black" value="4">April</option>
+                            <option style="color : black" value="5">May</option>
+                            <option style="color : black" value="6">June</option>
+                            <option style="color : black" value="7">July</option>
+                            <option style="color : black" value="8">August</option>
+                            <option style="color : black" value="9">September</option>
+                            <option style="color : black" value="10">October</option>
+                            <option style="color : black" value="11">November</option>
+                            <option style="color : black" value="12">December</option>
+                        </select>
+                    </div>
+                </td>   <!-- Month -->
             </tr>
             </tbody>
         </table>
         <!-- SPACING -->
-        <div style="margin: 10px"></div>
+        <div style="margin: 20px"></div>
         <table class="myclass">
             <thead>
             <tr>
