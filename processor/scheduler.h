@@ -23,7 +23,7 @@ std::string trim(const std::string &str, const std::string &whitespace = " \t") 
 class order {
 public:
 
-    order(unordered_map<string, string> map) {
+    explicit order(unordered_map<string, string> map) {
 
         if (map.size() == 7) {
             single_order = true;
@@ -63,7 +63,6 @@ public:
 
     string name;
     bool is_wire_transfer;
-    bool end_of_month_i;
     long long initial_day;
     long long initial_month;
     long long initial_year;
@@ -83,11 +82,6 @@ public:
     string optf;
 };
 
-list<datetime> dates;
-list<datetime> dates2;
-list<double> balances;
-list<double> balances2;
-list<double> transactions;
 
 bool compare(order &first, order &second) {
     if (first.effective_execution_date < second.effective_execution_date) {
@@ -126,15 +120,29 @@ std::unordered_map<string, string> JSONtomap(string json) {
     return map;
 }
 
-void insert_stat(double bal, datetime today) {
-    dates.push_back(today);
-    balances.push_back(bal);
+void insert_in_order(list<tuple<datetime, double, double>> &records,
+                     _List_iterator<_List_val<_List_simple_types<order>>> &el, double &balance) {
+    auto back = records.back();
+    auto dd = std::get<0>(back);
+    while (dd < el->effective_execution_date) {
+        dd += ::dd(1);
+        records.emplace_back(dd, std::get<1>(back), 0);
+    }
+    records.emplace_back(el->effective_execution_date, balance, el->amount);
 }
 
-void insert_stat2(double bal, double exp, datetime today) {
-    transactions.push_back(exp);
-    balances2.push_back(bal);
-    dates2.push_back(today);
+void remove_duplicates(list<tuple<datetime, double, double>> &records) {
+    auto prev = records.begin();
+    auto curr = prev++;
+    for (; curr != records.end();) {
+        if (std::get<0>(*prev) == std::get<0>(*curr)) {
+            prev = curr;
+            curr = records.erase(curr);
+        } else {
+            prev = curr;
+            curr++;
+        }
+    }
 }
 
 double find_m() {
@@ -330,23 +338,25 @@ void reschedule(order &el) {
 
 }
 
-string execute(double &d, order &el) {
-    d += el.amount;
+string execute(double &balance, order &el, list<tuple<datetime, double, double>> &record) {
+    balance += el.amount;
+    record.emplace_back(el.effective_execution_date, balance, el.amount);
     string warn = " style = \"color:  red; font-weight: bold;\"";
     string bold = " style = \"font-weight: bold;\"";
     stringstream ss;
     ss <<
        "        <tr>\n" <<
        "          <!-- <th scope=\"row\">1</th> -->\n" <<
-       "          <td" << (d < 0 ? warn : "") << ">" << el.planned_execution_date << "</td>\n" <<
+       "          <td" << (balance < 0 ? warn : "") << ">" << el.planned_execution_date << "</td>\n" <<
        "          <td"
-       << (d < 0 ? warn : (el.planned_execution_date != el.effective_execution_date ? bold : ""))
+       << (balance < 0 ? warn : (el.planned_execution_date != el.effective_execution_date ? bold : ""))
        << ">" << el.effective_execution_date << "</td>\n" <<
-       "          <td" << (d < 0 ? warn : "") << ">" << el.name << "</td>\n" <<
-       "          <td" << (d < 0 ? warn : "") << ">" << fixed << std::setprecision(2) << el.amount
+       "          <td" << (balance < 0 ? warn : "") << ">" << el.name << "</td>\n" <<
+       "          <td" << (balance < 0 ? warn : "") << ">" << fixed << std::setprecision(2) << el.amount
        << "</td>\n" <<
-       "          <td" << (d < 0 ? warn : "") << ">" << d << "</td>\n" <<
-       "          <td" << (d < 0 ? warn : "") << ">" << ((d == 0 ? "ALERT" : (d < 0 ? "FAILURE" : "OK")))
+       "          <td" << (balance < 0 ? warn : "") << ">" << balance << "</td>\n" <<
+       "          <td" << (balance < 0 ? warn : "") << ">"
+       << ((balance == 0 ? "ALERT" : (balance < 0 ? "FAILURE" : "OK")))
        << "</td>\n" <<
        "        </tr>\n";
 
@@ -360,6 +370,7 @@ string preview(string param) {
     param = param.substr(param.find('\n') + 1);
 
     list<order> orders;
+    list<tuple<datetime, double, double>> records;
 
     for (; !param.empty(); param = param.substr(param.find('\n') + 1))
         orders.emplace_back(JSONtomap(param.substr(0, param.find('\n'))));
@@ -370,7 +381,8 @@ string preview(string param) {
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         cout << it->effective_execution_date << endl;
-        execute(account_balance, *it);
+        resp += execute(account_balance, *it, records);
+        insert_in_order(records, it, account_balance);
         reschedule(*it);
         auto el = it;
         el++;
@@ -391,35 +403,12 @@ string preview(string param) {
     }
 
 
-//while (today <= enddate) {
-//    bool flag = true;
-//    for (auto &el: orders) {
-//        if (el.effective_execution_date == today && !el.cancelled) {
-//            if (flag) {
-//                cout << endl << today << endl;
-//            }
-//            cout << "* " << el.name << endl;
-//            flag = false;
-//            resp += execute(account_balance, el);
-//            reschedule(el);
-//            insert_stat2(account_balance, el.amount, today);
-//        }
-//    }
-//    if (!flag) {
-//        cout << "--------------------------------" << endl;
-//        orders.sort(compare);
-//    }
-//
-//    insert_stat(account_balance, today);
-//    today = today + dd(1);
-//}
 
-
-    return
-            resp;
+    return resp;
 
 
 }
+
 
 string print_formatted_balances() {
     string str = "[";

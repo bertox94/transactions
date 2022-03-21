@@ -143,6 +143,16 @@ public:
 
     bool operator>=(period &&pd) const { return this->operator>=(pd); }
 
+    period operator++(int) {
+        *this += dd(1);
+        return *this;
+    };
+
+    period operator--(int) {
+        *this -= dd(1);
+        return *this;
+    };
+
     /**
     * @return = @this + @pd
     */
@@ -285,17 +295,17 @@ public:
  */
 class datetime_formatter {
 public:
-    string format = "~~~, !! @@@. ##";
+    string format = "~~~, !!.@@@.##, $$:%%:&&";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = false;
+    bool keep_original_length = true;
 };
 
 
 int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-class datetime {
-private:
+class _datetime {
+public:
     //do not use unsigned to avoid bad surprises on narrowing etc. casting!
     long long day = 0;
     long long month = 0;
@@ -303,37 +313,21 @@ private:
     long long hrs = 0;
     long long min = 0;
     long long sec = 0;
+};
 
-public:
-    datetime_formatter format;
+class datetime {
+private:
+    _datetime *curr = nullptr;
 
-    /**
-     * Construct a datetime which is the epoch time
-     */
-    datetime() = default;
-
-    /**
-     * Construct a new date which is @param seconds after epoch time.
-     */
-    explicit datetime(long long timestamp) { *this = after(timestamp); }
-
-    /**
-     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
-     */
-    datetime(long long _day, long long _month, long long _year) :
-            day(_day - 1), month(_month - 1), year(_year) {}
-
-    /**
-     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
-     */
-    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
-            datetime(_day, _month, _year) {
-        sec = _sec;
-        min = _min;
-        hrs = _hrs;
+    void _copyvalues(const datetime &dt) {
+        curr->day = dt.curr->day;
+        curr->month = dt.curr->month;
+        curr->year = dt.curr->year;
+        curr->hrs = dt.curr->hrs;
+        curr->min = dt.curr->min;
+        curr->sec = dt.curr->sec;
     }
 
-private:
     /**
      * Auxiliary function for @f.
      */
@@ -408,17 +402,80 @@ private:
         int flag = (end > *this ? 1 : -1);
         datetime dt1 = (end > *this ? *this : end);
         datetime dt2 = (end > *this ? end : *this);
-        long long dd = f(dt1.year, dt2.year) + dt2.day - dt1.day;
+        long long dd = f(dt1.curr->year, dt2.curr->year) + dt2.curr->day - dt1.curr->day;
 
-        for (int _month = 0; _month < dt1.month; _month++)
-            dd -= days_of_month(_month, dt1.year);
-        for (int _month = 0; _month < dt2.month; _month++)
-            dd += days_of_month(_month, dt2.year);
+        for (int _month = 0; _month < dt1.curr->month; _month++)
+            dd -= days_of_month(_month, dt1.curr->year);
+        for (int _month = 0; _month < dt2.curr->month; _month++)
+            dd += days_of_month(_month, dt2.curr->year);
 
-        return (dt2.sec - dt1.sec + (dt2.min - dt1.min) * 60 + (dt2.hrs - dt1.hrs) * 3600 + dd * 86400) * flag;
+        return (dt2.curr->sec - dt1.curr->sec + (dt2.curr->min - dt1.curr->min) * 60 +
+                (dt2.curr->hrs - dt1.curr->hrs) * 3600 + dd * 86400) * flag;
     }
 
 public:
+    datetime_formatter format;
+
+    /**
+     * Construct a null datetime
+     */
+    datetime() = default;
+
+    /**
+     * Construct a datetime from an existing lvalue datetime
+     */
+    datetime(const datetime &dt) {
+        curr = new _datetime();
+        _copyvalues(dt);
+    }
+
+    /**
+     * Construct a datetime from an existing rvalue datetime
+     */
+    datetime(datetime &&dt) noexcept {
+        curr = new _datetime();
+        _copyvalues(dt);
+    }
+
+    /**
+ * Construct a datetime from an existing number of seconds from epoch (1.1.1970)
+ */
+    explicit datetime(long long timestamp) {
+        curr = new _datetime();
+        *this = after(timestamp);
+    }
+
+    datetime(long long _day, long long _month, long long _year) {
+        curr = new _datetime();
+        curr->day = _day - 1;
+        curr->month = _month - 1;
+        curr->year = _year;
+    }
+
+
+    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
+            datetime(_day, _month, _year) {
+        curr->sec = _sec;
+        curr->min = _min;
+        curr->hrs = _hrs;
+    }
+
+    ~datetime() {
+        delete curr;
+    }
+
+    datetime &operator=(const datetime &dt) {
+        if (&dt == this) {
+            return *this;
+        }
+        _copyvalues(dt);
+        return *this;
+    }
+
+    datetime &operator=(datetime &&dt) noexcept {
+        _copyvalues(dt);
+        return *this;
+    }
 
     /**
      * @return = @this == @dt
@@ -428,6 +485,11 @@ public:
     bool operator==(datetime &&dt) const { return *this == dt; }
 
     /**
+ * @return = @this.curr == @ptr
+ */
+    bool operator==(_datetime *ptr) const { return curr == ptr; }
+
+    /**
      * @return = @this != @dt
      */
     bool operator!=(datetime &dt) const { return !(*this == dt); }
@@ -435,14 +497,20 @@ public:
     bool operator!=(datetime &&dt) const { return *this != dt; }
 
     /**
+* @return = @this.curr == @ptr
+*/
+    bool operator!=(_datetime *ptr) const { return curr != ptr; }
+
+    /**
      * @return = @this < @dt
      */
     bool operator<(datetime &dt) const {
-        return year < dt.year || year == dt.year && (
-                month < dt.month || month == dt.month && (
-                        day < dt.day || day == dt.day && (
-                                hrs < dt.hrs || hrs == dt.hrs && (
-                                        min < dt.min || min == dt.min && sec < dt.sec
+        return curr->year < dt.curr->year || curr->year == dt.curr->year && (
+                curr->month < dt.curr->month || curr->month == dt.curr->month && (
+                        curr->day < dt.curr->day || curr->day == dt.curr->day && (
+                                curr->hrs < dt.curr->hrs || curr->hrs == dt.curr->hrs && (
+                                        curr->min < dt.curr->min || curr->min == dt.curr->min &&
+                                                                    curr->sec < dt.curr->sec
                                 )
                         )
                 )
@@ -455,11 +523,12 @@ public:
      * @return = @this > @dt
      */
     bool operator>(const datetime &dt) const {
-        return year > dt.year || year == dt.year && (
-                month > dt.month || month == dt.month && (
-                        day > dt.day || day == dt.day && (
-                                hrs > dt.hrs || hrs == dt.hrs && (
-                                        min > dt.min || min == dt.min && sec > dt.sec
+        return curr->year > dt.curr->year || curr->year == dt.curr->year && (
+                curr->month > dt.curr->month || curr->month == dt.curr->month && (
+                        curr->day > dt.curr->day || curr->day == dt.curr->day && (
+                                curr->hrs > dt.curr->hrs || curr->hrs == dt.curr->hrs && (
+                                        curr->min > dt.curr->min || curr->min == dt.curr->min &&
+                                                                    curr->sec > dt.curr->sec
                                 )
                         )
                 )
@@ -481,6 +550,16 @@ public:
     bool operator>=(datetime &d2) const { return !(*this < d2); }
 
     bool operator>=(datetime &&d2) const { return this->operator>=(d2); }
+
+    datetime operator++(int) {
+        *this += dd(1);
+        return *this;
+    };
+
+    datetime operator--(int) {
+        *this -= dd(1);
+        return *this;
+    };
 
     /**
      * @return = @this + @p
@@ -524,30 +603,30 @@ public:
     period operator-(datetime &&dt) const { return operator-(dt); }
 
     bool isOK() const {
-        return !(month < 0 || month >= 12) &&
-               !(day < 0 || day >= days_of_this_month()) &&
-               !(hrs < 0 || hrs >= 60) &&
-               !(min < 0 || min >= 60) &&
-               !(sec < 0 || sec >= 60);
+        return !(curr->month < 0 || curr->month >= 12) &&
+               !(curr->day < 0 || curr->day >= days_of_this_month()) &&
+               !(curr->hrs < 0 || curr->hrs >= 60) &&
+               !(curr->min < 0 || curr->min >= 60) &&
+               !(curr->sec < 0 || curr->sec >= 60);
     }
 
     datetime fix(bool _default = true) const {
         datetime dt = *this;
-        dt.hrs = 0;
-        dt.min = 0;
-        dt.sec = 0;
+        dt.curr->hrs = 0;
+        dt.curr->min = 0;
+        dt.curr->sec = 0;
 
-        dt.year += dt.month / 12;
-        dt.month %= 12;
+        dt.curr->year += dt.curr->month / 12;
+        dt.curr->month %= 12;
 
-        if (dt.day >= dt.days_of_this_month()) {
-            long long _day = dt.day;
-            dt.day = dt.days_of_this_month() - 1;
+        if (dt.curr->day >= dt.days_of_this_month()) {
+            long long _day = dt.curr->day;
+            dt.curr->day = dt.days_of_this_month() - 1;
             if (!_default)
                 dt += dd(_day - dt.days_of_this_month() + 1);
-        } else if (dt.day < 0) {
-            long long _day = dt.day;
-            dt.day = 0;
+        } else if (dt.curr->day < 0) {
+            long long _day = dt.curr->day;
+            dt.curr->day = 0;
             if (!_default)
                 dt += dd(_day);
         }
@@ -559,23 +638,52 @@ public:
     /**
      * Getter functions.
      */
-    long long int getSec() const { return sec; }
+    long long int getSec() const { return curr->sec; }
 
-    long long int getMin() const { return min; }
+    long long int getMin() const { return curr->min; }
 
-    long long int getHrs() const { return hrs; }
+    long long int getHrs() const { return curr->hrs; }
 
-    long long int getDay() const { return day + 1; }
+    long long int getDay() const { return curr->day + 1; }
 
-    long long int getMonth() const { return month + 1; }
+    long long int getMonth() const { return curr->month + 1; }
 
-    long long int getYear() const { return year; }
+    long long int getYear() const { return curr->year; }
+
+    /**
+ * Setter functions.
+ */
+    void setDay(long long int _day) {
+        curr->day = _day - 1;
+    }
+
+    void setMonth(long long int _month) {
+        curr->month = _month - 1;
+    }
+
+    void setYear(long long int _year) {
+        curr->year = _year;
+    }
+
+    void setHrs(long long int _hrs) {
+        curr->hrs = _hrs;
+    }
+
+    void setMin(long long int _min) {
+        curr->min = _min;
+    }
+
+    void setSec(long long int _sec) {
+        curr->sec = _sec;
+    }
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
      * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
      */
-    long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
+    long long months_between(datetime &dt) const {
+        return 12 * (dt.curr->year - curr->year) + dt.curr->month - curr->month;
+    }
 
     /**
      * @return =  @this after @param n years. The obtained date is not checked against overflows,
@@ -583,17 +691,17 @@ public:
      */
     datetime after_months(long long n) const {
         datetime dt = *this;
-        dt.year += n / 12;
-        dt.month += n % 12; // NOLINT(cppcoreguidelines-narrowing-conversions)
+        dt.curr->year += n / 12;
+        dt.curr->month += n % 12; // NOLINT(cppcoreguidelines-narrowing-conversions)
 
-        if (dt.month > 11) {
-            dt.year++;
-            dt.month -= 12;
+        if (dt.curr->month > 11) {
+            dt.curr->year++;
+            dt.curr->month -= 12;
         }
 
-        if (dt.month < 0) {
-            dt.year--;
-            dt.month += 12;
+        if (dt.curr->month < 0) {
+            dt.curr->year--;
+            dt.curr->month += 12;
         }
         return dt;
     }
@@ -602,7 +710,7 @@ public:
      * @return is the number of years from @this and @param dt regardless of the dd,
      * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
      */
-    long long years_between(datetime &dt) const { return dt.year - year; }
+    long long years_between(datetime &dt) const { return dt.curr->year - curr->year; }
 
     /**
      * @return =  @this after @param n years. The obtained date is not checked against overflows,
@@ -610,7 +718,7 @@ public:
      */
     datetime after_years(long long n) const {
         datetime dt = *this;
-        dt.year += n;
+        dt.curr->year += n;
         return dt;
     }
 
@@ -645,15 +753,17 @@ public:
     /**
      * @return the number of dd of @this year.
      */
-    int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
+    int days_of_this_year() const {
+        return 365 + ((curr->year % 400 == 0) || (curr->year % 4 == 0 && curr->year % 100 != 0));
+    }
 
     /**
      * @return the number of dd of @this month.
      */
     int days_of_this_month() const {
         return ( //if leap year add 1 day to the normal number of dd of February.
-                       month == 1 && ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
-               ) + days_of_months[month];
+                       curr->month == 1 && ((curr->year % 400 == 0) || (curr->year % 4 == 0 && curr->year % 100 != 0))
+               ) + days_of_months[curr->month];
     }
 
     /**
@@ -661,23 +771,29 @@ public:
      */
     datetime end_of_month() const {
         datetime dt = *this;
-        dt.day = dt.days_of_this_month() - 1;
+        dt.curr->day = dt.days_of_this_month() - 1;
         return dt;
     }
 
     /**
      * @return the ss from @epoch to @this.
      */
-    long long to_timestamp() const { return seconds_from(datetime()); }
+    long long to_timestamp() const {
+        auto dtt = datetime(1, 1, 1970);
+        return seconds_from(dtt);
+    }
 
     /**
      * @return the ss from @d2 to @this.
      */
-    long long seconds_from(const datetime &d2) const { return d2.seconds_to(*this); }
+    long long seconds_from(const datetime &d2) const {
+        return d2.seconds_to(*this);
+    }
 
     period extract_time_of_day() const {
-        return {hh(hrs), mm(min), ss(sec)};
+        return {hh(curr->hrs), mm(curr->min), ss(curr->sec)};
     }
+
 
 };
 
