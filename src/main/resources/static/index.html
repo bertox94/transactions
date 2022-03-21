@@ -180,10 +180,14 @@
             <tr>
                 <th></th>
                 <th></th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Frequency</th>
             </tr>
             <tr>
                 <th>Description</th>
                 <th>Wire Transfer</th>
+                <th>Length</th>
+                <th>Range</th>
+                <th>Options</th>
             </tr>
             </thead>
             <tbody>
@@ -203,37 +207,6 @@
                         </select>
                     </div>
                 </td>   <!-- WT -->
-            </tr>
-            </tbody>
-        </table>
-        <!-- SPACING -->
-        <div style="margin: 10px"></div>
-        <table class="myclass">
-            <thead>
-            <tr>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="2">Frequency</th>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Initial Date</th>
-                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Final Date</th>
-                <th style="font-size:0;"></th>
-                <th style="font-size:0;"></th>
-            </tr>
-            <tr>
-                <th></th>
-                <th></th>
-                <th>Options</th>
-                <th>Day</th>
-                <th>Month</th>
-                <th>Year</th>
-                <th>Options</th>
-                <th>Day</th>
-                <th>Month</th>
-                <th>Year</th>
-                <th>Amount</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
                 <td style="padding-left: 10px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
                         <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
@@ -250,6 +223,105 @@
                         </select>
                     </div>
                 </td>     <!-- F2 -->
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
+                            <option style="color : black" value="default">Specific day</option>
+                            <option style="color : black" value="eom">End of month</option>
+                            <option style="color : black" value="eoy">End of year</option>
+                        </select>
+                    </div>
+                </td>     <!-- OPTIONS -->
+            </tr>
+            </tbody>
+        </table>
+        <!-- SPACING -->
+        <div style="margin: 10px"></div>
+        <table class="myclass">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="3">Frequency</th>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <th>Wire Transfer</th>
+                <th>Length</th>
+                <th>Range</th>
+                <th>Options</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                               size="40" type="text" name="descr">
+                    </div>
+                </td>   <!-- Desc -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
+                            <option value="$">--Please Select--</option>
+                            <option style="color : black" value="true">Yes</option>
+                            <option style="color : black" value="false">No</option>
+                        </select>
+                    </div>
+                </td>   <!-- WT -->
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <div style="border: 2px solid #c7a800; ">
+                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
+                               dirname="" type=text onkeydown="setprev(this)" oninput="wrapperf1(this)">
+                    </div>
+                </td>   <!-- F1 -->
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="forgivef2(this)" style="padding: 1.8px" id="f2" name="f2">
+                            <option value="$">--Please Select--</option>
+                            <option style="color : black" value="days">Days</option>
+                            <option style="color : black" value="months">Months</option>
+                            <option style="color : black" value="years">Years</option>
+                        </select>
+                    </div>
+                </td>     <!-- F2 -->
+                <td style="padding-left: 8px; padding-right: 8px">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
+                            <option style="color : black" value="default">Specific day</option>
+                            <option style="color : black" value="eom">End of month</option>
+                            <option style="color : black" value="eoy">End of year</option>
+                        </select>
+                    </div>
+                </td>     <!-- OPTIONS -->
+            </tr>
+            </tbody>
+        </table>
+        <!-- SPACING -->
+        <div style="margin: 10px"></div>
+        <table class="myclass">
+            <thead>
+            <tr>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Initial Date</th>
+                <th style="border-bottom: 2px solid #c7a800; text-align: center" colspan="4">Final Date</th>
+                <th style="font-size:0;"></th>
+                <th style="font-size:0;"></th>
+            </tr>
+            <tr>
+                <th>Options</th>
+                <th>Day</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Options</th>
+                <th>Day</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
                 <td style="padding-left: 8px; padding-right: 8px">
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate(this)" style="padding: 1.8px" id="1k" name="opt1">
@@ -691,6 +763,14 @@
     }
 
     function wrapperf1(k) {
+        //fix
+        let regex = /^0+/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            k.value = k.value.replace(regex, '');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
         if (!/^([1-9][0-9]*)?$/.test(k.value))
             [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
@@ -1027,8 +1107,8 @@
             flag += check4(el.find("[name = year1]"));
         } else if (el.find("[name = opt1] :selected").val() === "eom") {
             if (el.find("[name = f2] :selected").val() === "days") {
-                el.find("[name = opt1] :selected").css("color", "red");
-                el.find("[name = f2] :selected").css("color", "red");
+                el.find("[name = opt1]").css("color", "red");
+                el.find("[name = f2]").css("color", "red");
                 flag++;
             }
             flag += check3(el.find("[name = month1]"));
@@ -1036,8 +1116,8 @@
             flag += check4(el.find("[name = year1]"));
         } else if (el.find("[name = opt1] :selected").val() === "eoy") {
             if (el.find("[name = f2] :selected").val() !== "years") {
-                el.find("[name = opt1] :selected").css("color", "red");
-                el.find("[name = f2] :selected").css("color", "red");
+                el.find("[name = opt1]").css("color", "red");
+                el.find("[name = f2]").css("color", "red");
                 flag++;
             }
             flag += check1(el.find("[name = year1]"));

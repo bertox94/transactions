@@ -402,11 +402,7 @@ string preview(string param) {
         it = orders.erase(it);
     }
 
-
-
     return resp;
-
-
 }
 
 
