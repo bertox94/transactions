@@ -272,15 +272,17 @@ void scheduleall(list<order> &orders, datetime &today) {
     for (auto it = orders.begin(); it != orders.end();) {
         schedule(*it, today);
         auto el = orders.begin();
-        while (el != orders.end() && el->scheduled && el->effective_execution_date < it->effective_execution_date) {
+        while (el != orders.end() && el->scheduled && el->effective_execution_date < it->effective_execution_date)
             el++;
-        }
         auto el2 = el;
-        el2++;
-        while (el2 != orders.end() && el2->scheduled && el2->effective_execution_date == el->effective_execution_date &&
-               el2->amount > it->amount) {
-            el++;
+        while (el2 != orders.end()) {
             el2++;
+            if (el2 != orders.end() && el2->scheduled &&
+                el2->effective_execution_date == it->effective_execution_date &&
+                el2->amount < it->amount)
+                el++;
+            else
+                break;
         }
 
         it->scheduled = true;
@@ -372,53 +374,47 @@ string preview(string param) {
         reschedule(*it);
         auto el = it;
         el++;
-        bool flag = false;
-        datetime temp;
-        while (el != orders.end()) {
-            if (el->effective_execution_date < it->effective_execution_date)
+        while (el != orders.end() && el->effective_execution_date < it->effective_execution_date)
+            el++;
+        auto el2 = el;
+        while (el2 != orders.end()) {
+            el2++;
+            if (el2->effective_execution_date == it->effective_execution_date && el2->amount < it->amount)
                 el++;
-            else {
-                if (!flag) {
-                    temp = el->effective_execution_date;
-                    flag = true;
-                }
-                if (el->effective_execution_date == temp && el->amount < it->amount)
-                    el++;
-                else
-                    break;
-            }
+            else
+                break;
         }
-
         orders.insert(el, *it);
         it = orders.erase(it);
     }
 
 
-    //while (today <= enddate) {
-    //    bool flag = true;
-    //    for (auto &el: orders) {
-    //        if (el.effective_execution_date == today && !el.cancelled) {
-    //            if (flag) {
-    //                cout << endl << today << endl;
-    //            }
-    //            cout << "* " << el.name << endl;
-    //            flag = false;
-    //            resp += execute(account_balance, el);
-    //            reschedule(el);
-    //            insert_stat2(account_balance, el.amount, today);
-    //        }
-    //    }
-    //    if (!flag) {
-    //        cout << "--------------------------------" << endl;
-    //        orders.sort(compare);
-    //    }
+//while (today <= enddate) {
+//    bool flag = true;
+//    for (auto &el: orders) {
+//        if (el.effective_execution_date == today && !el.cancelled) {
+//            if (flag) {
+//                cout << endl << today << endl;
+//            }
+//            cout << "* " << el.name << endl;
+//            flag = false;
+//            resp += execute(account_balance, el);
+//            reschedule(el);
+//            insert_stat2(account_balance, el.amount, today);
+//        }
+//    }
+//    if (!flag) {
+//        cout << "--------------------------------" << endl;
+//        orders.sort(compare);
+//    }
 //
-    //    insert_stat(account_balance, today);
-    //    today = today + dd(1);
-    //}
+//    insert_stat(account_balance, today);
+//    today = today + dd(1);
+//}
 
 
-    return resp;
+    return
+            resp;
 
 
 }
