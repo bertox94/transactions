@@ -354,7 +354,7 @@ string execute(double &d, order &el) {
 }
 
 string preview(string param) {
-    datetime enddate(31, 12, 2022);//param.substr(0, param.find('\n'));
+    datetime enddate(31, 12, 2022);
     param = param.substr(param.find('\n') + 1);
     double account_balance = stod(param.substr(0, param.find('\n')));
     param = param.substr(param.find('\n') + 1);
@@ -379,11 +379,13 @@ string preview(string param) {
         auto el2 = el;
         while (el2 != orders.end()) {
             el2++;
-            if (el2->effective_execution_date == it->effective_execution_date && el2->amount < it->amount)
+            if (el2 != orders.end() && el2->effective_execution_date == it->effective_execution_date &&
+                el2->amount < it->amount)
                 el++;
             else
                 break;
         }
+
         orders.insert(el, *it);
         it = orders.erase(it);
     }
