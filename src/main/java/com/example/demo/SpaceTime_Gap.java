@@ -20,7 +20,7 @@ public class SpaceTime_Gap {
             out.println(msg.length());
             in.readLine();
             out.println(msg);
-            int sz = Integer.parseInt(in.readLine());
+            int sz = Integer.parseInt(in.readLine()) + 2;
             out.println("OK");
             char[] buf = new char[sz];
             in.read(buf, 0, sz);

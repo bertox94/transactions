@@ -72,7 +72,7 @@ void cleaner() {
     }
 }
 
-int read(SOCKET ClientSocket, int howmuch, string &msg) {
+int raw_read(SOCKET ClientSocket, int howmuch, string &msg) {
     char *buf = new char[howmuch + 2];
     int ires = recv(ClientSocket, buf, howmuch + 2, 0);
     msg = string(buf).substr(0, ires - 2);
@@ -80,7 +80,7 @@ int read(SOCKET ClientSocket, int howmuch, string &msg) {
     return ires;
 }
 
-int write(SOCKET ClientSocket, string &msg) {
+int raw_write(SOCKET ClientSocket, string &msg) {
     int ires = send(ClientSocket, (msg + "\r\n").c_str(), msg.length() + 2, 0);
 
     if (ires == SOCKET_ERROR) {
@@ -89,16 +89,28 @@ int write(SOCKET ClientSocket, string &msg) {
     return ires;
 }
 
-int write(SOCKET ClientSocket, string &&msg) {
-    return write(ClientSocket, msg);
+int raw_write(SOCKET ClientSocket, string &&msg) {
+    return raw_write(ClientSocket, msg);
+}
+
+int read(SOCKET ClientSocket, string &msg) {
+    raw_read(ClientSocket, 10, msg);
+    raw_write(ClientSocket, "OK");
+    raw_read(ClientSocket, stol(msg), msg);
+    return 0;
+}
+
+int write(SOCKET ClientSocket, string &msg) {
+    raw_write(ClientSocket, to_string(msg.length()));
+    raw_read(ClientSocket, 2, msg);
+    raw_write(ClientSocket, msg);
+    return 0;
 }
 
 void t_handler(SOCKET ClientSocket) {
 
     string msg;
-    read(ClientSocket, 10, msg);
-    write(ClientSocket, "OK");
-    read(ClientSocket, stol(msg), msg);
+    read(ClientSocket, msg);
     string resp;
 
     // check if the process should close ...
@@ -132,8 +144,6 @@ void t_handler(SOCKET ClientSocket) {
         }
     }
 
-    write(ClientSocket, to_string(resp.length() + 2));
-    read(ClientSocket, 2, msg);
     write(ClientSocket, resp);
 
     {
