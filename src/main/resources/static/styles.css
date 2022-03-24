@@ -8,11 +8,16 @@ body {
     table-layout: auto !important;
 }
 
+select, input {
+    outline: none;
+    padding-left: 20px;
+    padding-right: 20px;
+
+}
+
 .myclass th, .myclass td, .myclass thead th, .myclass tbody td, .myclass tfoot td, .myclass tfoot th {
     width: auto !important;
     text-align: left;
-    padding-left: 10px;
-    padding-right: 10px;
     color: #bfbfbf;
 }
 
@@ -21,14 +26,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes load {
-    0%{
+    0% {
         opacity: 0.08;
         /*         font-size: 10px; */
         /* 				font-weight: 400; */
         filter: blur(5px);
         letter-spacing: 3px;
     }
-    100%{
+    100% {
         /*         opacity: 1; */
         /*         font-size: 12px; */
         /* 				font-weight:600; */
@@ -37,10 +42,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate {
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
-    height:100%;
+    height: 100%;
     margin: auto;
     /* 	width: 350px; */
     /* 	font-size:26px; */
