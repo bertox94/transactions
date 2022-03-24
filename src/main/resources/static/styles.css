@@ -10,15 +10,14 @@ body {
 
 select, input {
     outline: none;
-    padding-left: 20px;
-    padding-right: 20px;
-
 }
 
 .myclass th, .myclass td, .myclass thead th, .myclass tbody td, .myclass tfoot td, .myclass tfoot th {
     width: auto !important;
     text-align: left;
     color: #bfbfbf;
+    padding-left:  20px;
+    padding-right: 20px;
 }
 
 h1, h2, h3, h4, h5, h6 {
