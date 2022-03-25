@@ -250,7 +250,7 @@
                 <!-- OPTIONS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdate2(this)" style="padding: 1.8px" id="kkk" name="opt1">
+                        <select onchange="adaptdate2(this)" style="padding: 1.8px" id="kkk" name="kkk">
                             <option style="color : black" value="$">--Please select--</option>
                             <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
@@ -261,7 +261,7 @@
                 <!-- Day -->
                 <td style="border-spacing: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="dd" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
+                        <select id="dd" onchange="forgiveday(this)" style="padding: 1.8px" name="dd">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -300,7 +300,7 @@
                 <!-- Month -->
                 <td style="margin-left: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="mm" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
+                        <select id="mm" onchange="wrappermonth(this)" name="mm" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -741,14 +741,15 @@
             wt: k.find("[name = wt] :selected").val(),
             f1: k.find("[name = f1]").val(),
             f2: k.find("[name = f2] :selected").val(),
+            opt: k.find("[name = kkk] :selected").val(),
+            dd: k.find("[name = dd] :selected").val(),
+            mm: k.find("[name = mm] :selected").val(),
             day: k.find("[name = day] :selected").val(),
             month: k.find("[name = month] :selected").val(),
             year: k.find("[name = year]").val(),
-            opt1: k.find("[name = opt1] :selected").val(),
             day1: k.find("[name = day1] :selected").val(),
             month1: k.find("[name = month1] :selected").val(),
             year1: k.find("[name = year1]").val(),
-            opt2: k.find("[name = opt2] :selected").val(),
             day2: k.find("[name = day2] :selected").val(),
             month2: k.find("[name = month2] :selected").val(),
             year2: k.find("[name = year2]").val(),
@@ -1206,14 +1207,12 @@
             el.find("[name = f2]").val("$");
 
             el.find("[name = opt1]").val("default");
-            adaptdate(el.find("[name = opt1]")[0]);
             el.find("[name = year1]").val("");
             el.find("[name = month1]").val("$");
             el.find("[name = day1]").val("$");
             setdays(el.find("[name = day1]")[0]);
 
             el.find("[name = opt2]").val("default");
-            adaptdate(el.find("[name = opt2]")[0]);
             el.find("[name = year2]").val("");
             el.find("[name = month2]").val("$");
             el.find("[name = day2]").val("$");
