@@ -145,7 +145,7 @@ void remove_duplicates(list<tuple<datetime, double, double>> &records) {
     }
 }
 
-double find_m() {
+double find_m(std::list<double> &balances) {
     double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
     int i = 0;
 
@@ -167,7 +167,7 @@ double find_m() {
 
 }
 
-double find_q() {
+double find_q(std::list<double> &balances) {
     double v1 = 0, v2 = 0;
     int i = 0;
     for (auto el: balances) {
@@ -175,7 +175,7 @@ double find_q() {
         v2 += i;
         i++;
     }
-    v2 *= find_m();
+    v2 *= find_m(balances);
 
     return ((double) 1 / balances.size()) * (v1 - v2);
 
@@ -310,7 +310,7 @@ void reschedule(order &el) {
     if (el.f2 == "days") {
         el.planned_execution_date += dd(el.f1);
     } else if (el.f2 == "months") {
-        if (el.end_of_month_i) {
+        if (true) {//end_of_month) {
             el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix().end_of_month();
         } else {
             el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
@@ -406,7 +406,7 @@ string preview(string param) {
 }
 
 
-string print_formatted_balances() {
+string print_formatted_balances(list<double> &balances) {
     string str = "[";
 
     for (auto el: balances) {
@@ -419,7 +419,7 @@ string print_formatted_balances() {
     return str;
 }
 
-string print_formatted_balances2() {
+string print_formatted_balances2(list<double> &balances2) {
     string str = "[";
 
     for (auto el: balances2) {
@@ -432,12 +432,12 @@ string print_formatted_balances2() {
     return str;
 }
 
-string print_formatted_expenses() {
+string print_formatted_expenses(list<double> &expenses) {
     string str = "[";
 
-    for (auto el: transactions) {
+    for (const auto &el: expenses) {
         str += "'";
-        str += to_string(el);
+        str += el;
         str += "', ";
     }
 
@@ -445,9 +445,9 @@ string print_formatted_expenses() {
     return str;
 }
 
-string print_formatted_interpolation() {
-    double m = find_m();
-    double q = find_q();
+string print_formatted_interpolation(list<double> &balances) {
+    double m = find_m(balances);
+    double q = find_q(balances);
     string str = "[";
 
     long x = 0;
@@ -462,7 +462,7 @@ string print_formatted_interpolation() {
     return str;
 }
 
-string print_formatted_dates() {
+string print_formatted_dates(list<datetime> &dates) {
     string sttt;
     std::stringstream str(sttt);
     str << "[";
@@ -477,7 +477,7 @@ string print_formatted_dates() {
     return str.str();
 }
 
-string print_formatted_dates2() {
+string print_formatted_dates2(list<datetime> dates2) {
     string sttt;
     std::stringstream str(sttt);
     str << "[";
@@ -563,8 +563,10 @@ int main2() {
     //    today = today + dd(1);
     //}
 
+    list<double> balances;
+    list<datetime> dates;
 
-    cout << endl << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
+    cout << endl << "Done: " << "m: " << find_m(balances) << ", q: " << find_q(balances) << endl;
 
     myfile << "      </tbody>\n"
               "    </table>\n"
@@ -578,17 +580,17 @@ int main2() {
            "    const myChart = new Chart(ctx, {\n" <<
            "        type: 'line',\n" <<
            "        data: {\n" <<
-           "            labels: " + print_formatted_dates() + ",\n" <<
+           "            labels: " + print_formatted_dates(dates) + ",\n" <<
            "            datasets: [{\n" <<
            "                label: 'Balance',\n" <<
-           "                data: " + print_formatted_balances() + ",\n" <<
+           "                data: " + print_formatted_balances(balances) + ",\n" <<
            "                backgroundColor: 'rgba(255, 206, 86, 0.2)',\n" <<
            "                borderColor: 'rgba(255, 206, 86, 1)',\n"
            "                borderWidth: 1\n"
            "            },\n"
            "            {\n" <<
            "                label: 'Interpolation',\n" <<
-           "                data: " + print_formatted_interpolation() + ",\n" <<
+           "                data: " + print_formatted_interpolation(balances) + ",\n" <<
            "                borderColor: \"orange\",\n"
            "                fill: false,\n"
            "                borderWidth: 2\n"
@@ -620,11 +622,11 @@ int main2() {
            "    const myChart2 = new Chart(ctx2, {\n" <<
            "        type: 'line',\n" <<
            "        data: {\n" <<
-           "            labels: " + print_formatted_dates2() + ",\n" <<
+           "            labels: " + print_formatted_dates2(dates) + ",\n" <<
            "            datasets: ["
            "            {\n" <<
            "                label: 'Transactions',\n" <<
-           "                data: " + print_formatted_expenses() + ",\n" <<
+           "                data: " + print_formatted_expenses(balances) + ",\n" <<
            "                borderColor: \"orange\",\n"
            "                backgroundColor: 'rgba(255, 206, 86, 0.2)',\n"
            "                fill: false,\n"
@@ -634,7 +636,7 @@ int main2() {
            "            },"
            "            {\n" <<
            "                label: 'Balances',\n" <<
-           "                data: " + print_formatted_balances2() + ",\n" <<
+           "                data: " + print_formatted_balances2(balances) + ",\n" <<
            "                borderColor: \"violet\",\n"
            "                fill: false,\n"
            "                borderWidth: 1\n"
