@@ -249,6 +249,7 @@
                 <td>
                     <div style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate2(this)" style="padding: 1.8px" id="kkk" name="opt1">
+                            <option style="color : black" value="$">--Please select--</option>
                             <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
                             <option style="color : black" value="eoy">End of year</option>
@@ -439,7 +440,7 @@
                             <option style="color : black" value="28">28</option>
                             <option style="color : black" value="29">29</option>
                             <option style="color : black" value="30">30</option>
-                            <option style="color : black" value="31">31</option>
+                            <option selected style="color : black" value="31">31</option>
                         </select>
                     </div>
                 </td>
@@ -458,7 +459,7 @@
                             <option style="color : black" value="9">September</option>
                             <option style="color : black" value="10">October</option>
                             <option style="color : black" value="11">November</option>
-                            <option style="color : black" value="12">December</option>
+                            <option selected style="color : black" value="12">December</option>
                         </select>
                     </div>
                 </td>
@@ -788,28 +789,44 @@
 
     const adaptdate2 = function (k) {
 
-        if ($("#f2 :selected").val() === "days") {
+        $("#f2 [value = '$']").remove();
+
+        let f2s = $("#f2 :selected").val();
+        let kkk = $("#kkk");
+        let kkks = $("#kkk :selected");
+        if (f2s === "days") {
             $('#dd').hide(1200);
             $('#mm').hide(1200);
-        } else if ($("#f2 :selected").val() === "months") {
-            if ($("#kkk :selected").val() === "default") {
+            kkk.empty();
+            kkk.append("<option value=\"default\">Specific day</option>");
+        } else if (f2s === "months") {
+            if (kkks.val() === "default") {
                 $('#dd').show(1200);
                 $('#mm').hide(1200);
-            } else if ($("#kkk :selected").val() === "eom") {
+            } else if (kkks.val() === "eom") {
                 $('#dd').hide(1200);
                 $('#mm').hide(1200);
             }
-        } else if ($("#f2 :selected").val() === "years") {
-            if ($("#kkk :selected").val() === "default") {
+            kkk.empty();
+            kkk.append("<option value=\"default\">Specific day</option>");
+            kkk.append("<option value=\"eom\">End of month</option>");
+            $("#kkk [value = " + kkks.val() + "]").attr("selected", true)
+        } else if (f2s === "years") {
+            if (kkks.val() === "default") {
                 $('#dd').show(1200);
                 $('#mm').show(1200);
-            } else if ($("#kkk :selected").val() === "eom") {
+            } else if (kkks.val() === "eom") {
                 $('#dd').hide(1200);
                 $('#mm').show(1200);
-            } else if ($("#kkk :selected").val() === "eoy") {
+            } else if (kkks.val() === "eoy") {
                 $('#dd').hide(1200);
                 $('#mm').hide(1200);
             }
+            kkk.empty();
+            kkk.append("<option value=\"default\">Specific day</option>");
+            kkk.append("<option value=\"eom\">End of month</option>");
+            kkk.append("<option value=\"eoy\">End of year</option>");
+            $("#kkk [value = " + kkks.val() + "]").attr("selected", true)
         }
 
         forgivef2(k)
@@ -1001,7 +1018,7 @@
         day.innerText = null;
         let el = $("#" + day.id);
 
-        el.append("<option value=\"$\">--Please Select--</option>");
+        //el.append("<option value=\"$\">--Please Select--</option>");
         let i = 1;
         for (i = 1; i <= res; i++)
             el.append("<option style=\"color : black\" value=\"" + i + "\">" + i + "</option>");
