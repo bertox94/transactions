@@ -175,7 +175,7 @@
         </tr>
     </table>
     <div id="id12346" style="display:none; float: left; padding-bottom: 3px;">
-        <!-- SECOND LINE -->
+        <!-- FIRST LINE -->
         <table class="myclass">
             <thead>
             <tr>
@@ -223,8 +223,9 @@
                 <th>Length</th>
                 <th>Range</th>
                 <th>Options</th>
-                <th>Month</th>
                 <th>Day</th>
+                <th>Month</th>
+                <th>Limitedness</th>
             </tr>
             </thead>
             <tbody>
@@ -314,6 +315,15 @@
                             <option style="color : black" value="10">October</option>
                             <option style="color : black" value="11">November</option>
                             <option style="color : black" value="12">December</option>
+                        </select>
+                    </div>
+                </td>
+                <!-- LIMITEDNESS -->
+                <td>
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="" style="padding: 1.8px" id="kkkk" name="kkkk">
+                            <option style="color : black" value="limited">Limited</option>
+                            <option style="color : black" value="unlimited">Unlimited</option>
                         </select>
                     </div>
                 </td>
@@ -743,6 +753,7 @@
             f2: k.find("[name = f2] :selected").val(),
             opt: k.find("[name = kkk] :selected").val(),
             dd: k.find("[name = dd] :selected").val(),
+            limitedness : k.find("[name = kkkk] :selected").val(),
             mm: k.find("[name = mm] :selected").val(),
             day: k.find("[name = day] :selected").val(),
             month: k.find("[name = month] :selected").val(),
@@ -814,7 +825,7 @@
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
             kkk.append("<option value=\"eom\">End of month</option>");
-            $("#kkk [value = " + kkks.val() + "]").attr("selected", true)
+            $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
         } else if (f2s === "years") {
             if (kkks.val() === "default") {
                 $('#dd').show(1200);
@@ -830,7 +841,7 @@
             kkk.append("<option value=\"default\">Specific day</option>");
             kkk.append("<option value=\"eom\">End of month</option>");
             kkk.append("<option value=\"eoy\">End of year</option>");
-            $("#kkk [value = " + kkks.val() + "]").attr("selected", true)
+            $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
         }
 
         forgivef2(k)
@@ -1208,14 +1219,14 @@
 
             el.find("[name = opt1]").val("default");
             el.find("[name = year1]").val("");
-            el.find("[name = month1]").val("$");
-            el.find("[name = day1]").val("$");
+            el.find("[name = month1]").val("1");
+            el.find("[name = day1]").val("1");
             setdays(el.find("[name = day1]")[0]);
 
             el.find("[name = opt2]").val("default");
             el.find("[name = year2]").val("");
-            el.find("[name = month2]").val("$");
-            el.find("[name = day2]").val("$");
+            el.find("[name = month2]").val("12");
+            el.find("[name = day2]").val("31");
             setdays(el.find("[name = day2]")[0]);
 
             el.find("[name = amount]").val("");

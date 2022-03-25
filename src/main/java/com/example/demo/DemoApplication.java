@@ -54,10 +54,10 @@ public class DemoApplication {
 
     public static boolean initialize_DB_connection() {
         try {
-            String url = "jdbc:postgresql://otto.db.elephantsql.com/olkpwuzc";
+            String url = "jdbc:postgresql://localhost/postgres";
             Properties props = new Properties();
-            props.setProperty("user", "olkpwuzc");
-            props.setProperty("password", "spguWftorvG2mqQgEZ55ySvwWlld_5AS");
+            props.setProperty("user", "postgres");
+            props.setProperty("password", "admin");
             props.setProperty("ssl", "false");
             MainController.connection = DriverManager.getConnection(url, props);
         } catch (SQLException throwables) {
