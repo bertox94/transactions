@@ -85,21 +85,23 @@ bool compare(order &first, order &second) {
 
 void insert_in_order(list<tuple<datetime, double, double>> &records,
                      _List_iterator<_List_val<_List_simple_types<order>>> &el, double &balance) {
-    auto back = records.back();
-    auto dd = std::get<0>(back);
-    while (dd < el->effective_execution_date) {
-        dd += ::dd(1);
-        records.emplace_back(dd, std::get<1>(back), 0);
+    if (!records.empty()) {
+        auto back = records.back();
+        auto dd = std::get<0>(back);
+        while (dd < el->effective_execution_date) {
+            dd += ::dd(1);
+            records.emplace_back(dd, std::get<1>(back), 0);
+        }
     }
     records.emplace_back(el->effective_execution_date, balance, el->amount);
 }
 
 void remove_duplicates(list<tuple<datetime, double, double>> &records) {
     auto prev = records.begin();
-    auto curr = prev++;
+    auto curr = records.begin();
+    curr++;
     for (; curr != records.end();) {
         if (std::get<0>(*prev) == std::get<0>(*curr)) {
-            prev = curr;
             curr = records.erase(curr);
         } else {
             prev = curr;
@@ -144,6 +146,82 @@ double find_q(std::list<double> &balances) {
 
 }
 
+string print_formatted_balances(list<tuple<struct datetime, double, double>> records) {
+    string str = "[";
+
+    for (auto &el: records) {
+        str += "\"";
+        str += to_string(std::get<1>(el));
+        str += "\", ";
+    }
+
+    str.pop_back();
+    str.pop_back();
+
+    str += "]";
+    return str;
+}
+
+string print_formatted_expenses(list<tuple<struct datetime, double, double>> records) {
+    string str = "[";
+
+    for (const auto &el: records) {
+        str += "\"";
+        str += to_string(std::get<1>(el));
+        str += "\", ";
+    }
+
+    str.pop_back();
+    str.pop_back();
+
+    str += "]";
+    return str;
+}
+
+string print_formatted_interpolation(list<tuple<struct datetime, double, double>> records) {
+
+    list<double> balances;
+
+    for (auto &el: records)
+        balances.push_back(std::get<2>(el));
+
+
+    double m = find_m(balances);
+    double q = find_q(balances);
+    string str = "[";
+
+    long x = 0;
+    for (auto el: records) {
+        str += "\"";
+        str += to_string(m * x + q);
+        str += "\", ";
+        x++;
+    }
+
+    str.pop_back();
+    str.pop_back();
+
+    str += "]";
+    return str;
+}
+
+string print_formatted_dates(list<tuple<struct datetime, double, double>> records) {
+    string sttt;
+    std::stringstream str(sttt);
+    str << "[";
+
+    for (const auto &el: records) {
+        str << "\"";
+        str << std::get<0>(el);
+        str << "\", ";
+    }
+
+    string s = str.str();
+    s.pop_back();
+    s.pop_back();
+    s += "]";
+    return s;
+}
 
 string schedule(order &el, datetime today) {
     if (el.repeated) {
@@ -290,9 +368,9 @@ void reschedule(order &el) {
 
 }
 
-string execute(double &balance, order &el, list<tuple<datetime, double, double>> &record) {
+string execute(double &balance, order &el) {
     balance += el.amount;
-    record.emplace_back(el.effective_execution_date, balance, el.amount);
+    //record.emplace_back(el.effective_execution_date, balance, el.amount);
     string warn = " style = \"color:  red; font-weight: bold;\"";
     string bold = " style = \"font-weight: bold;\"";
     stringstream ss;
@@ -319,12 +397,14 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
 
     list<tuple<datetime, double, double>> records;
     datetime today(20, 3, 2022);
-    string resp;
+    string resp = "{\"html\":\"";
     scheduleall(orders, today);
+
+    records.emplace_back(today, 0, account_balance);
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         cout << it->effective_execution_date << endl;
-        resp += execute(account_balance, *it, records);
+        resp += execute(account_balance, *it);
         insert_in_order(records, it, account_balance);
         reschedule(*it);
         auto el = it;
@@ -345,97 +425,20 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
         it = orders.erase(it);
     }
 
+    resp += "\",";
+    resp = "{\"dates2\":" + print_formatted_dates(records) + ", ";
+    resp += "\"amounts\":" + print_formatted_expenses(records) + ", ";
+    resp += "\"balances2\":" + print_formatted_balances(records) + ", ";
+    remove_duplicates(records);
+    resp += "\"dates1\":" + print_formatted_dates(records) + ", ";
+    resp += "\"balances1\":" + print_formatted_balances(records) + ", ";
+    resp += "\"interpolation\":" + print_formatted_interpolation(records) + "}";
+
+
     return resp;
 }
 
-
-string print_formatted_balances(list<double> &balances) {
-    string str = "[";
-
-    for (auto el: balances) {
-        str += "'";
-        str += to_string(el);
-        str += "', ";
-    }
-
-    str += "]";
-    return str;
-}
-
-string print_formatted_balances2(list<double> &balances2) {
-    string str = "[";
-
-    for (auto el: balances2) {
-        str += "'";
-        str += to_string(el);
-        str += "', ";
-    }
-
-    str += "]";
-    return str;
-}
-
-string print_formatted_expenses(list<double> &expenses) {
-    string str = "[";
-
-    for (const auto &el: expenses) {
-        str += "'";
-        str += el;
-        str += "', ";
-    }
-
-    str += "]";
-    return str;
-}
-
-string print_formatted_interpolation(list<double> &balances) {
-    double m = find_m(balances);
-    double q = find_q(balances);
-    string str = "[";
-
-    long x = 0;
-    for (auto el: balances) {
-        str += "'";
-        str += to_string(x * m + q);
-        str += "', ";
-        x++;
-    }
-
-    str += "]";
-    return str;
-}
-
-string print_formatted_dates(list<datetime> &dates) {
-    string sttt;
-    std::stringstream str(sttt);
-    str << "[";
-
-    for (auto el: dates) {
-        str << "'";
-        str << el;
-        str << "', ";
-    }
-
-    str << "]";
-    return str.str();
-}
-
-string print_formatted_dates2(list<datetime> dates2) {
-    string sttt;
-    std::stringstream str(sttt);
-    str << "[";
-
-    for (auto el: dates2) {
-        str << "'";
-        str << el;
-        str << "', ";
-    }
-
-    str << "]";
-    return str.str();
-}
-
-
+/*
 int main2() {
 
     ofstream myfile;
@@ -565,7 +568,7 @@ int main2() {
            "    const myChart2 = new Chart(ctx2, {\n" <<
            "        type: 'line',\n" <<
            "        data: {\n" <<
-           "            labels: " + print_formatted_dates2(dates) + ",\n" <<
+           "            labels: " + print_formatted_dates(dates) + ",\n" <<
            "            datasets: ["
            "            {\n" <<
            "                label: 'Transactions',\n" <<
@@ -579,7 +582,7 @@ int main2() {
            "            },"
            "            {\n" <<
            "                label: 'Balances',\n" <<
-           "                data: " + print_formatted_balances2(balances) + ",\n" <<
+           "                data: " + print_formatted_balances(balances) + ",\n" <<
            "                borderColor: \"violet\",\n"
            "                fill: false,\n"
            "                borderWidth: 1\n"
@@ -606,5 +609,5 @@ int main2() {
 
     return 0;
 }
-
+*/
 

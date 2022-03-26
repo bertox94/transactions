@@ -301,10 +301,10 @@ public:
  */
 class datetime_formatter {
 public:
-    string format = "~~~, !!.@@@.##, $$:%%:&&";
+    string format = "~~~, !!.@@@.##";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = true;
+    bool keep_original_length = false;
 };
 
 
@@ -431,16 +431,20 @@ public:
      * Construct a datetime from an existing lvalue datetime
      */
     datetime(const datetime &dt) {
-        curr = new _datetime();
-        _copyvalues(dt);
+        if (dt.curr != nullptr) {
+            curr = new _datetime();
+            _copyvalues(dt);
+        }
     }
 
     /**
      * Construct a datetime from an existing rvalue datetime
      */
     datetime(datetime &&dt) noexcept {
-        curr = new _datetime();
-        _copyvalues(dt);
+        if (dt.curr != nullptr) {
+            curr = new _datetime();
+            _copyvalues(dt);
+        }
     }
 
     /**
@@ -471,16 +475,39 @@ public:
     datetime &operator=(const datetime &dt) {
         if (&dt == this)
             return *this;
-        delete curr;
-        curr = new _datetime;
-        _copyvalues(dt);
+
+        if (curr != nullptr) {
+            if (dt.curr != nullptr) {
+                _copyvalues(dt);
+            } else {
+                delete curr;
+                curr = nullptr;
+            }
+        } else {
+            if (dt.curr != nullptr) {
+                curr = new _datetime();
+                _copyvalues(dt);
+            }
+        }
+
         return *this;
     }
 
     datetime &operator=(datetime &&dt) noexcept {
-        delete curr;
-        curr = new _datetime;
-        _copyvalues(dt);
+        if (curr != nullptr) {
+            if (dt.curr != nullptr) {
+                _copyvalues(dt);
+            } else {
+                delete curr;
+                curr = nullptr;
+            }
+        } else {
+            if (dt.curr != nullptr) {
+                curr = new _datetime();
+                _copyvalues(dt);
+            }
+        }
+
         return *this;
     }
 
