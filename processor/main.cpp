@@ -140,7 +140,7 @@ void t_handler(SOCKET ClientSocket) {
             order o(JSONtomap(msg));
             resp = schedule(o, datetime(20, 3, 2022));
         } else if (cmd == "preview") {
-            resp = preview(msg.substr(msg.find('\n') + 1));
+            //resp = preview(msg.substr(msg.find('\n') + 1));
         }
     }
 

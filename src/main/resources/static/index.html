@@ -192,14 +192,15 @@
                 <!-- Desc -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input id="rdesc" onkeyup="forgivedesc(this)"
+                               style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>
                 <!-- WT -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
+                        <select id="rwt" onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -233,13 +234,13 @@
                 <!-- F1 -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" id="f1" name="f1" size="3"
+                        <input id="rf1" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px" name="f1" size="3"
                                dirname="" type=text onkeydown="setprev(this)" oninput="wrapperf1(this)">
                     </div>
                 </td>
                 <!-- F2 -->
                 <td>
-                    <div style="border: 2px solid #c7a800;">
+                    <div id="rf2" style="border: 2px solid #c7a800;">
                         <select onchange="adaptdate2(this)" style="padding: 1.8px" id="f2" name="f2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="days">Days</option>
@@ -251,7 +252,7 @@
                 <!-- OPTIONS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdate2(this)" style="padding: 1.8px" id="kkk" name="kkk">
+                        <select id="rf3" onchange="adaptdate2(this)" style="padding: 1.8px" name="kkk">
                             <option style="color : black" value="$">--Please select--</option>
                             <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
@@ -262,7 +263,7 @@
                 <!-- Day -->
                 <td style="border-spacing: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="dd" onchange="forgiveday(this)" style="padding: 1.8px" name="dd">
+                        <select id="rdd" onchange="forgiveday(this)" style="padding: 1.8px" name="dd">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -301,7 +302,7 @@
                 <!-- Month -->
                 <td style="margin-left: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="mm" onchange="wrappermonth(this)" name="mm" style="padding: 1.8px">
+                        <select id="rmm" onchange="wrappermonth(this)" name="mm" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -321,7 +322,7 @@
                 <!-- LIMITEDNESS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="" style="padding: 1.8px" id="kkkk" name="kkkk">
+                        <select id="rlim" onchange="" style="padding: 1.8px" name="kkkk">
                             <option style="color : black" value="limited">Limited</option>
                             <option style="color : black" value="unlimited">Unlimited</option>
                         </select>
@@ -357,7 +358,7 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="10" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
+                        <select id="rinitdd" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -395,7 +396,7 @@
                 <!-- Month -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="11" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
+                        <select id="rinitmm" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -414,7 +415,7 @@
                 <!-- Year -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="12" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="rinityy" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year1" size="3">
                     </div>
@@ -422,7 +423,7 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="20" onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
+                        <select id="rfindd" onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -460,7 +461,7 @@
                 <!-- Month -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="21" onchange="wrappermonth(this)" name="month2" style="padding: 1.8px">
+                        <select id="rfinmm" onchange="wrappermonth(this)" name="month2" style="padding: 1.8px">
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -479,7 +480,7 @@
                 <!-- Year -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="22" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
+                        <input id="rfinyy" dirname="" onkeydown="setprev(this)" oninput="wrapperyear(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                type="text" name="year2" size="3">
                     </div>
@@ -487,9 +488,9 @@
                 <!-- Amount -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input dirname="" onkeydown="setprev(this)" oninput="wrapperamount(this)"
+                        <input id="ram" dirname="" onkeydown="setprev(this)" oninput="wrapperamount(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
-                               type="text" name="amount" id="amount2" size="11">
+                               type="text" name="amount" size="11">
                     </div>
                 </td>
                 <td>
@@ -743,29 +744,6 @@
 
     function setprev(k) {
         k.dirName = JSON.stringify([k.value, k.selectionEnd, k.selectionEnd]);
-    }
-
-    function preparetosend(k) {
-        return {
-            descr: k.find("[name = descr]").val(),
-            wt: k.find("[name = wt] :selected").val(),
-            f1: k.find("[name = f1]").val(),
-            f2: k.find("[name = f2] :selected").val(),
-            opt: k.find("[name = kkk] :selected").val(),
-            dd: k.find("[name = dd] :selected").val(),
-            limitedness : k.find("[name = kkkk] :selected").val(),
-            mm: k.find("[name = mm] :selected").val(),
-            day: k.find("[name = day] :selected").val(),
-            month: k.find("[name = month] :selected").val(),
-            year: k.find("[name = year]").val(),
-            day1: k.find("[name = day1] :selected").val(),
-            month1: k.find("[name = month1] :selected").val(),
-            year1: k.find("[name = year1]").val(),
-            day2: k.find("[name = day2] :selected").val(),
-            month2: k.find("[name = month2] :selected").val(),
-            year2: k.find("[name = year2]").val(),
-            amount: k.find("[name = amount]").val()
-        };
     }
 
     const forgivedesc = function (k) {
@@ -1210,8 +1188,29 @@
         if (flag > 0)
             return;
 
+        let k = el;
+
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
-        $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
+        $.post("/addnew", {
+            data: JSON.stringify({
+                repeated: "true",
+                descr: $("#rdesc").val(),
+                wt: $("#rwt :selected").val(),
+                f1: $("#rf1 :selected").val(),
+                f2: $("#rf2 :selected").val(),
+                f3: $("#rf3 :selected").val(),
+                rdd: $("#rdd :selected").val(),
+                rmm: $("#rmm :selected").val(),
+                rlim: $("#rlim :selected").val(),
+                rinitdd: $("#rinitdd :selected").val(),
+                rinitmm: $("#rinitmm :selected").val(),
+                rinityy: $("#rinityy").val(),
+                rfindd: $("#rfindd :selected").val(),
+                rfinmm: $("#rfinmm :selected").val(),
+                rfinyy: $("#rfinyy").val(),
+                amount: $("#ram").val()
+            })
+        }, function (returnedData) {
             el.find("[name = descr]").val("");
             el.find("[name = wt]").val("$");
             el.find("[name = f1]").val("");

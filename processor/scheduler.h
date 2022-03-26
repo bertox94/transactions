@@ -26,60 +26,44 @@ public:
     explicit order(unordered_map<string, string> map) {
 
         if (map.size() == 7) {
-            single_order = true;
-            name = map["descr"];
-            is_wire_transfer = map["wt"] == "true";
+            repeated = false;
+            descr = map["descr"];
+            wt = map["wt"] == "true";
             amount = stol(map["amount"]);
             planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
-        } else if (map.size() == 14) {
-            single_order = false;
-            name = map["descr"];
-            f1 = stoi(map["f1"]);
-            is_wire_transfer = map["wt"] == "true";
+        } else if (map.size() == 17) {
+            repeated = map["repeated"] == "true";
+            descr = map["descr"];
+            wt = map["wt"] == "true";
+            f1 = stol(map["f1"]);
             f2 = map["f2"];
-            opti = map["opt1"];
-            if (map["opt1"] == "default") {
-                initial_day = stol(map["day1"]);
-                initial_month = stol(map["month1"]);
-            } else if (map["opt1"] == "eom")
-                initial_month = stol(map["month1"]);
-            initial_year = stol(map["year1"]);
-            optf = map["opt2"];
-            if (map["day2"] == "$" && map["month2"] == "$" && map["year2"].empty()) {
-                repeated_order_with_final_date = false;
-            } else {
-                repeated_order_with_final_date = true;
-                if (map["opt2"] == "default") {
-                    final_day = stol(map["day2"]);
-                    final_month = stol(map["month2"]);
-                } else if (map["opt2"] == "eom")
-                    final_month = stol(map["month2"]);
-                final_year = stol(map["year2"]);
-            }
-            amount = stol(map["amount"]);
+            f3 = map["f3"];
+            rdd = stoi(map["rdd"]);
+            rmm = stoi(map["rmm"]);
+            rlim = map["rlim"] == "limited";
+            rinitdt = datetime(stoi(map["rinitdd"]), stoi(map["rinitmm"]), stol(map["rinityy"]));
+            if (rlim)
+                rfindt = datetime(stoi(map["rfindd"]), stoi(map["rfinmm"]), stol(map["rfinyy"]));
+            amount = stod(map["amount"]);
         }
     }
 
 
-    string name;
-    bool is_wire_transfer;
-    long long initial_day;
-    long long initial_month;
-    long long initial_year;
-    long long final_day;
-    long long final_month;
-    long long final_year;
     datetime planned_execution_date;
     datetime effective_execution_date;
-    bool repeated_order_with_final_date = false;
-    bool single_order = false;
-    bool cancelled = false;
-    bool scheduled = false;
-    int f1;
+
+    bool repeated;
+    string descr;
+    bool wt;
+    long f1;
     string f2;
+    string f3;
+    int rdd;
+    int rmm;
+    bool rlim;
+    datetime rinitdt;
+    datetime rfindt;
     double amount;
-    string opti;
-    string optf;
 };
 
 
@@ -97,7 +81,7 @@ bool compare(order &first, order &second) {
 
 //TODO: do checks functions to check all possibilites of wrong definition of input (in parse())
 
-//suppose the JSON is valid
+//suppose the JSON is valid, not array and only string as values
 std::unordered_map<string, string> JSONtomap(string json) {
     std::unordered_map<std::string, std::string> map = {};
     json = json.substr(1, json.length() - 2);
@@ -193,7 +177,89 @@ datetime get_date(string opt, long long day, long long month, long long year) {
 }
 
 string schedule(order &el, datetime today) {
-    if (!el.single_order) {
+    if (el.repeated) {
+        datetime initial_date = el.rinitdt;
+        if (initial_date >= today) {
+            el.planned_execution_date = initial_date;
+        } else {
+            if (el.f2 == "days") {
+                period pd = today - initial_date;
+                datetime dtt = initial_date + (pd / dd(el.f1)) * dd(el.f1) +
+                               (pd % dd(el.f1) == 0 ? dd(0) : dd(el.f1));
+                el.planned_execution_date = dtt;
+            } else if (el.f2 == "months") {
+                long long mm = initial_date.months_between(today);
+                datetime dtt = initial_date.after_months(
+                        (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
+                if (el.f3 == "eom") {
+                    el.planned_execution_date = dtt.end_of_month();
+                } else {
+                    el.planned_execution_date = dtt;
+                    if (el.wt)
+                        dtt = dtt.first_working_day();
+
+                    if (dtt.getYear() == today.getYear())
+                        if (dtt.getMonth() == today.getMonth())
+                            if (dtt.getDay() < today.getDay())
+                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
+                }
+            } else if (el.f2 == "years") {
+                long long yy = initial_date.years_between(today);
+                datetime dtt = initial_date.after_years(
+                        (yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1));
+                if (el.opti == "eoy") {
+                    el.planned_execution_date = datetime(31, 12, dtt.getYear());
+                } else if (el.opti == "eom") {
+                    el.planned_execution_date = dtt.end_of_month();
+                }
+                el.planned_execution_date = dtt;
+
+                if (el.is_wire_transfer)
+                    dtt = dtt.first_working_day();
+
+                if (dtt.getYear() == today.getYear())
+                    if (dtt.getMonth() == today.getMonth())
+                        if (dtt.getDay() < today.getDay())
+                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1).fix();
+            }
+        }
+    }
+
+    el.effective_execution_date = el.planned_execution_date;
+    if (el.is_wire_transfer)
+        el.effective_execution_date = el.effective_execution_date.first_working_day();
+
+    if (el.repeated) {
+        if (el.effective_execution_date < today) {
+            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
+            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
+            el.cancelled = true;
+            return "Expired";
+        }
+    }
+
+    datetime final_date = get_date(el.optf, el.final_day, el.final_month, el.final_year);
+    if (el.repeated_order_with_final_date) {
+        if (el.effective_execution_date > final_date) {
+            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
+            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
+            el.cancelled = true;
+            return "Expired";
+        }
+    }
+
+    //cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.repeated ? "     " : " (R) ")
+    //     << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
+    //     << std::setfill(' ') << endl;
+
+    stringstream ss;
+    ss << el.effective_execution_date;
+    return ss.str();
+
+};
+
+string schedule2(order &el, datetime today) {
+    if (!el.repeated) {
         datetime initial_date = get_date(el.opti, el.initial_day, el.initial_month, el.initial_year);
         if (initial_date >= today) {
             el.planned_execution_date = initial_date;
@@ -247,10 +313,10 @@ string schedule(order &el, datetime today) {
     if (el.is_wire_transfer)
         el.effective_execution_date = el.effective_execution_date.first_working_day();
 
-    if (el.single_order) {
+    if (el.repeated) {
         if (el.effective_execution_date < today) {
             //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-            //     << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
+            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
             el.cancelled = true;
             return "Expired";
         }
@@ -260,13 +326,13 @@ string schedule(order &el, datetime today) {
     if (el.repeated_order_with_final_date) {
         if (el.effective_execution_date > final_date) {
             //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-            //     << (el.single_order ? "     " : " (R) ") << setw(24) << el.name << endl;
+            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
             el.cancelled = true;
             return "Expired";
         }
     }
 
-    //cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.single_order ? "     " : " (R) ")
+    //cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.repeated ? "     " : " (R) ")
     //     << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
     //     << std::setfill(' ') << endl;
 
@@ -301,7 +367,7 @@ void scheduleall(list<order> &orders, datetime &today) {
 
 void reschedule(order &el) {
 
-    if (el.single_order) {
+    if (el.repeated) {
         //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
         el.cancelled = true;
         return;
