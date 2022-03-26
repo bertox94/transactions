@@ -53,7 +53,28 @@ public class MainController {
     @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
         String orders = orders();
-        return SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+        String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+
+        String[] lines = resp.split("\n");
+
+        for (String line :
+                lines) {
+            String[] tokens = line.split(",");
+
+        }
+
+        Statement stmt = null;
+        try {
+            stmt = connection.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        stmt.executeUpdate(
+                "INSERT INTO public.single_orders (id, encoded) " +
+                        "VALUES(" + _SUB_Q_ID + ", '{\"id\":'|| '\"' || " + _SUB_Q_ID + "|| '\"," + data.substring(1) + "');");
+
+
+        return resp;
     }
 
     @ResponseBody

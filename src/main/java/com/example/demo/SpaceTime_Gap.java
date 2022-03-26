@@ -25,6 +25,7 @@ public class SpaceTime_Gap {
             char[] buf = new char[sz];
             in.read(buf, 0, sz);
             resp = String.valueOf(buf);
+            resp = resp.substring(0, resp.length() - 2);
             in.close();
             out.close();
             clientSocket.close();

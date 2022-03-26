@@ -68,48 +68,6 @@ public:
     bool scheduled;
 };
 
-
-bool compare(order &first, order &second) {
-    if (first.effective_execution_date < second.effective_execution_date) {
-        return true;
-    }
-    if (first.effective_execution_date == second.effective_execution_date) {
-        if (first.amount < second.amount)
-            return true;
-        else return false;
-    }
-    return false;
-}
-
-//TODO: do checks functions to check all possibilites of wrong definition of input (in parse())
-
-void insert_in_order(list<tuple<datetime, double, double>> &records,
-                     _List_iterator<_List_val<_List_simple_types<order>>> &el, double &balance) {
-    if (!records.empty()) {
-        auto back = records.back();
-        auto dd = std::get<0>(back);
-        while (dd < el->effective_execution_date) {
-            dd += ::dd(1);
-            records.emplace_back(dd, std::get<1>(back), 0);
-        }
-    }
-    records.emplace_back(el->effective_execution_date, balance, el->amount);
-}
-
-void remove_duplicates(list<tuple<datetime, double, double>> &records) {
-    auto prev = records.begin();
-    auto curr = records.begin();
-    curr++;
-    for (; curr != records.end();) {
-        if (std::get<0>(*prev) == std::get<0>(*curr)) {
-            curr = records.erase(curr);
-        } else {
-            prev = curr;
-            curr++;
-        }
-    }
-}
-
 double find_m(std::list<double> &balances) {
     double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
     int i = 0;
@@ -395,17 +353,15 @@ string execute(double &balance, order &el) {
 
 string preview(list<order> &orders, datetime enddate, double account_balance) {
 
-    list<tuple<datetime, double, double>> records;
+    list<tuple<string, datetime, datetime, double, double>> records;
     datetime today(20, 3, 2022);
-    string resp = "{\"html\":\"";
     scheduleall(orders, today);
-
-    records.emplace_back(today, 0, account_balance);
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         cout << it->effective_execution_date << endl;
-        resp += execute(account_balance, *it);
-        insert_in_order(records, it, account_balance);
+        execute(account_balance, *it);
+        records.emplace_back(it->descr, it->planned_execution_date, it->effective_execution_date, it->amount,
+                             account_balance);
         reschedule(*it);
         auto el = it;
         el++;
@@ -425,189 +381,18 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
         it = orders.erase(it);
     }
 
-    resp += "\",";
-    resp = "{\"dates2\":" + print_formatted_dates(records) + ", ";
-    resp += "\"amounts\":" + print_formatted_expenses(records) + ", ";
-    resp += "\"balances2\":" + print_formatted_balances(records) + ", ";
-    remove_duplicates(records);
-    resp += "\"dates1\":" + print_formatted_dates(records) + ", ";
-    resp += "\"balances1\":" + print_formatted_balances(records) + ", ";
-    resp += "\"interpolation\":" + print_formatted_interpolation(records) + "}";
+    string resp;
 
+    for (auto &el: records) {
+        stringstream ss;
+        ss << std::get<0>(el) << ", ";
+        ss << std::get<1>(el) << ", ";
+        ss << std::get<2>(el) << ", ";
+        ss << std::get<3>(el) << ", ";
+        ss << std::get<4>(el) << endl;
+        resp += ss.str();
+    }
+    resp.pop_back();
 
     return resp;
 }
-
-/*
-int main2() {
-
-    ofstream myfile;
-    myfile.open("scheduleall.html");
-
-    myfile << "<!doctype html>\n"
-              "<html lang=\"en\">\n"
-              "  <head>\n"
-              "    <!-- Required meta tags -->\n"
-              "    <meta charset=\"utf-8\">\n"
-              "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-              "\n"
-              "    <!-- Bootstrap CSS -->\n"
-              "    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.mins.css\" rel=\"stylesheet\" integrity=\"sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3\" crossorigin=\"anonymous\">\n"
-              "\t<!-- Option 1: Bootstrap Bundle with Popper -->\n"
-              "\t<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.mins.js\" integrity=\"sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p\" crossorigin=\"anonymous\"></script>\n"
-              "    \n"
-              "\t<!-- Chart.js -->\n"
-              "\t<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js\"></script>\n"
-              "    \n"
-              "\t<title>Estratto conto</title>\n"
-              "  </head>\n"
-              "  <body>\n"
-              "    <!--    <h1>Hello, world!</h1>  -->\n"
-              "\t\n"
-              "\t\n"
-              "    <table class=\"table\">\n"
-              "      <thead>\n"
-              "        <tr>\n"
-              "          <!--  <th scope=\"col\">#</th> -->\n"
-              "          <th scope=\"col\">Planned date</th>\n"
-              "          <th scope=\"col\">Execution date</th>\n"
-              "          <th scope=\"col\">Description</th>\n"
-              "          <th scope=\"col\">Amount</th>\n"
-              "          <th scope=\"col\">Balance</th>\n"
-              "          <th scope=\"col\">Inspection</th>\n"
-              "        </tr>\n"
-              "      </thead>\n"
-              "      <tbody>\n";
-
-
-    //parse(filename);
-
-    //cout << today << endl;
-    //scheduleall();
-
-    //_orders.sort(compare);
-    //while (today <= ::end) {
-    //    bool flag = true;
-    //    for (auto &el: _orders) {
-    //        if (el.effective_execution_date == today && !el.cancelled) {
-    //            if (flag) {
-    //                cout << endl << today << endl;
-    //            }
-    //            cout << "* " << el.name << endl;
-    //            flag = false;
-    //            execute(account_balance, el);
-    //            reschedule(el);
-    //            insert_stat2(account_balance, el.amount);
-    //        }
-    //    }
-    //    if (!flag) {
-    //        cout << "--------------------------------" << endl;
-    //        _orders.sort(compare);
-    //    }
-
-    //    insert_stat(account_balance);
-    //    today = today + dd(1);
-    //}
-
-    list<double> balances;
-    list<datetime> dates;
-
-    cout << endl << "Done: " << "m: " << find_m(balances) << ", q: " << find_q(balances) << endl;
-
-    myfile << "      </tbody>\n"
-              "    </table>\n"
-              "\n";
-    myfile << "    <div style=\"page-break-inside:avoid;page-break-after:always\">\n"
-              "    </div>\n"
-              "    \n"
-              "    <canvas id=\"myChart\" style=\"width:100%;max-width:100%\"></canvas>\n" <<
-           "    <script>\n" <<
-           "    const ctx = document.getElementById('myChart');\n" <<
-           "    const myChart = new Chart(ctx, {\n" <<
-           "        type: 'line',\n" <<
-           "        data: {\n" <<
-           "            labels: " + print_formatted_dates(dates) + ",\n" <<
-           "            datasets: [{\n" <<
-           "                label: 'Balance',\n" <<
-           "                data: " + print_formatted_balances(balances) + ",\n" <<
-           "                backgroundColor: 'rgba(255, 206, 86, 0.2)',\n" <<
-           "                borderColor: 'rgba(255, 206, 86, 1)',\n"
-           "                borderWidth: 1\n"
-           "            },\n"
-           "            {\n" <<
-           "                label: 'Interpolation',\n" <<
-           "                data: " + print_formatted_interpolation(balances) + ",\n" <<
-           "                borderColor: \"orange\",\n"
-           "                fill: false,\n"
-           "                borderWidth: 2\n"
-           "            }\n"
-           "            ]\n"
-           "        },\n"
-           "        options: {\n" <<
-           "            elements: {\n"
-           "                point: {\n"
-           "                    radius: 0\n"
-           "                }\n"
-           "            },\n"
-           "            scales: {\n" <<
-           "                y: {\n" <<
-           "                    beginAtZero: true\n" <<
-           "                }\n" <<
-           "            }\n" <<
-           "        }\n" <<
-           "    });\n" <<
-           "    </script>\n" <<
-           "    \n";
-
-    myfile << "    <div style=\"page-break-inside:avoid;page-break-after:always\">\n"
-              "    </div>\n"
-              "    \n"
-              "    <canvas id=\"myChart2\" style=\"width:100%;max-width:100%\"></canvas>\n" <<
-           "    <script>\n" <<
-           "    const ctx2 = document.getElementById('myChart2');\n" <<
-           "    const myChart2 = new Chart(ctx2, {\n" <<
-           "        type: 'line',\n" <<
-           "        data: {\n" <<
-           "            labels: " + print_formatted_dates(dates) + ",\n" <<
-           "            datasets: ["
-           "            {\n" <<
-           "                label: 'Transactions',\n" <<
-           "                data: " + print_formatted_expenses(balances) + ",\n" <<
-           "                borderColor: \"orange\",\n"
-           "                backgroundColor: 'rgba(255, 206, 86, 0.2)',\n"
-           "                fill: false,\n"
-           "                borderWidth: 1,\n"
-           "                stack: 'combined',\n"
-           "                type:'bar'\n"
-           "            },"
-           "            {\n" <<
-           "                label: 'Balances',\n" <<
-           "                data: " + print_formatted_balances(balances) + ",\n" <<
-           "                borderColor: \"violet\",\n"
-           "                fill: false,\n"
-           "                borderWidth: 1\n"
-           "            }\n"
-           "            ]\n"
-           "        },\n"
-           "        options: {\n"
-           "            elements: {\n"
-           "                point: {\n"
-           "                    radius: 1.5\n"
-           "                }\n"
-           "            }, scales: {\n"
-           "                y: {\n"
-           "                    beginAtZero: true\n"
-           "                }\n"
-           "            }\n"
-           "        }\n"
-           "    });\n"
-           "</script>";
-
-    myfile << "  </body>\n"
-              "</html>";
-    myfile.close();
-
-    return 0;
-}
-*/
-
