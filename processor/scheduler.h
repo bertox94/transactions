@@ -181,16 +181,11 @@ string schedule(order &el, datetime today) {
                     el.planned_execution_date = datetime(31, 12, dtt.getYear());
                 } else if (el.f2 == "eom") {
                     el.planned_execution_date = dtt.end_of_month();
+                } else {
+                    if (el.rmm < today.getMonth() || el.rmm == today.getMonth() && el.rdd < today.getDay())
+                        dtt = dtt.after_years(el.f1).fix();
+                    el.planned_execution_date = dtt.setMonth(el.rmm).setDay(el.rdd).fix();
                 }
-                el.planned_execution_date = dtt.setMonth(el.rmm).setDay(el.rdd).fix();
-
-                if (el.wt)
-                    dtt = dtt.first_working_day();
-
-                if (dtt.getYear() == today.getYear())
-                    if (dtt.getMonth() == today.getMonth())
-                        if (dtt.getDay() < today.getDay())
-                            el.planned_execution_date = el.planned_execution_date.after_years(el.f1).fix();
             }
         }
     }
@@ -323,7 +318,7 @@ string execute(double &balance, order &el, list<tuple<datetime, double, double>>
 string preview(list<order> &orders, datetime enddate, double account_balance) {
 
     list<tuple<datetime, double, double>> records;
-    datetime today(20, 03, 2022);
+    datetime today(20, 3, 2022);
     string resp;
     scheduleall(orders, today);
 
