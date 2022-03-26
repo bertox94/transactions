@@ -12,6 +12,7 @@
 #include <regex>
 #include <unordered_map>
 #include "scheduler.h"
+#include "utils.h"
 
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -102,7 +103,8 @@ int read(SOCKET ClientSocket, string &msg) {
 
 int write(SOCKET ClientSocket, string &msg) {
     raw_write(ClientSocket, to_string(msg.length()));
-    raw_read(ClientSocket, 2, msg);
+    string ack;
+    raw_read(ClientSocket, 2, ack);
     raw_write(ClientSocket, msg);
     return 0;
 }
@@ -140,7 +142,19 @@ void t_handler(SOCKET ClientSocket) {
             order o(JSONtomap(msg));
             resp = schedule(o, datetime(20, 3, 2022));
         } else if (cmd == "preview") {
-            //resp = preview(msg.substr(msg.find('\n') + 1));
+            msg = msg.substr(msg.find('\n') + 1);
+
+            std::vector<std::string> tokens = split(msg.substr(0, msg.find('\n')), '.');
+            datetime enddate(stoi(tokens[0]), stoi(tokens[1]), stol(tokens[2]));
+
+            msg = msg.substr(msg.find('\n') + 1);
+            double amount = stod(msg.substr(0, msg.find('\n')));
+            msg = msg.substr(msg.find('\n') + 1);
+
+            list<order> orders;
+            for (; !msg.empty(); msg = msg.substr(msg.find('\n') + 1))
+                orders.emplace_back(JSONtomap(msg.substr(0, msg.find('\n'))));
+            resp = preview(orders, enddate, amount);
         }
     }
 
