@@ -74,15 +74,15 @@ void cleaner() {
 }
 
 int raw_read(SOCKET ClientSocket, int howmuch, string &msg) {
-    char *buf = new char[howmuch + 2];
-    int ires = recv(ClientSocket, buf, howmuch + 2, 0);
-    msg = string(buf).substr(0, ires - 2);
+    char *buf = new char[howmuch];
+    int ires = recv(ClientSocket, buf, howmuch, 0);
+    msg = string(buf, howmuch);
     delete[] buf;
     return ires;
 }
 
 int raw_write(SOCKET ClientSocket, string &msg) {
-    int ires = send(ClientSocket, (msg + "\r\n").c_str(), msg.length() + 2, 0);
+    int ires = send(ClientSocket, msg.c_str(), msg.length(), 0);
 
     if (ires == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
@@ -97,12 +97,14 @@ int raw_write(SOCKET ClientSocket, string &&msg) {
 int read(SOCKET ClientSocket, string &msg) {
     raw_read(ClientSocket, 10, msg);
     raw_write(ClientSocket, "OK");
-    raw_read(ClientSocket, stol(msg), msg);
+    raw_read(ClientSocket, stoi(msg), msg);
     return 0;
 }
 
 int write(SOCKET ClientSocket, string &msg) {
-    raw_write(ClientSocket, to_string(msg.length()));
+    char len[11];
+    snprintf(len, 11, "%010d", msg.length());
+    raw_write(ClientSocket, string(len));
     string ack;
     raw_read(ClientSocket, 2, ack);
     raw_write(ClientSocket, msg);
