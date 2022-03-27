@@ -68,6 +68,19 @@ public:
     bool scheduled;
 };
 
+void insert_in_order(list<tuple<std::string, struct datetime, struct datetime, double, double>> &records,
+                     order &el, double &balance) {
+    if (!records.empty()) {
+        auto back = records.back();
+        auto dd = std::get<2>(back) + ::dd(1);
+        while (dd < el.effective_execution_date) {
+            records.emplace_back("", datetime(), dd, 0, balance);
+            dd += ::dd(1);
+        }
+    }
+    records.emplace_back(el.descr, el.planned_execution_date, el.effective_execution_date, el.amount, balance);
+}
+
 double find_m(std::list<double> &balances) {
     double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
     int i = 0;
@@ -360,8 +373,7 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         cout << it->effective_execution_date << endl;
         execute(account_balance, *it);
-        records.emplace_back(it->descr, it->planned_execution_date, it->effective_execution_date, it->amount,
-                             account_balance);
+        insert_in_order(records, *it, account_balance);
         reschedule(*it);
         auto el = it;
         el++;
@@ -385,10 +397,10 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
 
     for (auto &el: records) {
         stringstream ss;
-        ss << std::get<0>(el) << ", ";
-        ss << std::get<1>(el) << ", ";
-        ss << std::get<2>(el) << ", ";
-        ss << std::get<3>(el) << ", ";
+        ss << std::get<0>(el) << "; ";
+        ss << std::get<1>(el) << "; ";
+        ss << std::get<2>(el) << "; ";
+        ss << std::get<3>(el) << "; ";
         ss << std::get<4>(el) << endl;
         resp += ss.str();
     }

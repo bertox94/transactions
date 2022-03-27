@@ -14,6 +14,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Objects;
 
 @Controller
 public class MainController {
@@ -56,22 +57,24 @@ public class MainController {
         String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
 
         String[] lines = resp.split("\n");
-
+        String VALUES = "";
         for (String line :
                 lines) {
-            String[] tokens = line.split(",");
-
+            String[] tokens = line.split(";");
+            VALUES += "('" + tokens[0] + "'," + (Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'") +
+                    ", " + (Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'") + ", " + tokens[3] + ", " + tokens[4] + "),";
         }
+        VALUES = VALUES.substring(0, VALUES.length() - 1);
+        VALUES += ";";
 
-        Statement stmt = null;
         try {
-            stmt = connection.createStatement();
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(
+                    "INSERT INTO public.preview (descr, planneddate, executiondate, amount, balance) VALUES " + VALUES);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        stmt.executeUpdate(
-                "INSERT INTO public.single_orders (id, encoded) " +
-                        "VALUES(" + _SUB_Q_ID + ", '{\"id\":'|| '\"' || " + _SUB_Q_ID + "|| '\"," + data.substring(1) + "');");
 
 
         return resp;
