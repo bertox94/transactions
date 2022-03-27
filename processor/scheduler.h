@@ -70,13 +70,11 @@ public:
 
 void insert_in_order(list<tuple<std::string, struct datetime, struct datetime, double, double>> &records,
                      order &el, double &balance) {
-    if (!records.empty()) {
-        auto back = records.back();
-        auto dd = std::get<2>(back) + ::dd(1);
-        while (dd < el.effective_execution_date) {
-            records.emplace_back("", datetime(), dd, 0, balance);
-            dd += ::dd(1);
-        }
+    auto back = records.back();
+    auto dd = std::get<2>(back) + ::dd(1);
+    while (dd < el.effective_execution_date) {
+        records.emplace_back("", datetime(), dd, 0, std::get<4>(back));
+        dd += ::dd(1);
     }
     records.emplace_back(el.descr, el.planned_execution_date, el.effective_execution_date, el.amount, balance);
 }
@@ -369,6 +367,8 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
     list<tuple<string, datetime, datetime, double, double>> records;
     datetime today(20, 3, 2022);
     scheduleall(orders, today);
+
+    records.emplace_back("", datetime(), today, 0, account_balance);
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         cout << it->effective_execution_date << endl;
