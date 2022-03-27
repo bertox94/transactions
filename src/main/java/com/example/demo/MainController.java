@@ -69,6 +69,7 @@ public class MainController {
 
         try {
             Statement stmt = connection.createStatement();
+            stmt.executeUpdate("DELETE FROM public.preview;");
             stmt.executeUpdate(
                     "INSERT INTO public.preview (descr, planneddate, executiondate, amount, balance) VALUES " + VALUES);
 
