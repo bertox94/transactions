@@ -4,10 +4,8 @@ from preview p
 where planneddate is not null;
 
 -- QUERIES FOR THE FIRST CHART
-select executiondate
-from preview p
-group by executiondate
-order by executiondate;
+select distinct executiondate
+from preview p;
 
 select sum(balance) as balance
 from preview p
