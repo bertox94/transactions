@@ -15,11 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 public class MainController {
 
     static Connection connection;
+    static AtomicInteger preview_id = new AtomicInteger(0);
 
     // private String path = "C:\\Users\\tiraboschi\\Desktop\\folder1\\export.xml";
     private String path = "./export.xml";
@@ -55,23 +57,44 @@ public class MainController {
     public String preview(@RequestParam String data) {
         String orders = orders();
         String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
-
-        String[] lines = resp.split("\n");
-        String VALUES = "";
-        for (String line :
-                lines) {
-            String[] tokens = line.split(";");
-            VALUES += "('" + tokens[0] + "'," + (Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'") +
-                    ", " + (Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'") + ", " + tokens[3] + ", " + tokens[4] + "),";
-        }
-        VALUES = VALUES.substring(0, VALUES.length() - 1);
-        VALUES += ";";
-
+        String TABLENAME = "public.preview" + preview_id.incrementAndGet();
         try {
+
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate("DELETE FROM public.preview;");
+            stmt.executeUpdate("CREATE TABLE " + TABLENAME + " ( " +
+                    " executiondate date NULL UNIQUE, " +
+                    " planneddate date NULL, " +
+                    " descr varchar NULL, " +
+                    " amount numeric NULL, " +
+                    " balance numeric NULL " +
+                    ");");
+
+            String[] lines = resp.split("\n");
+            StringBuilder VALUES = new StringBuilder();
+            for (String line :
+                    lines) {
+                String[] tokens = line.split(";");
+                VALUES.append("('").append(tokens[0]).append("',")
+                        .append(Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'").append(", ")
+                        .append(Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'").append(", ")
+                        .append(tokens[3]).append(", ")
+                        .append(tokens[4]).append("),");
+            }
+            VALUES = new StringBuilder(VALUES.substring(0, VALUES.length() - 1));
+            VALUES.append(";");
+
             stmt.executeUpdate(
-                    "INSERT INTO public.preview (descr, planneddate, executiondate, amount, balance) VALUES " + VALUES);
+                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, balance) VALUES " + VALUES);
+
+            //QUERY FOR THE TABLE
+            stmt.executeQuery("select *\n" +
+                    "from " + TABLENAME + " \n" +
+                    "where planneddate is not null;");
+
+            //QUERIES FOR THE FIRST CHART
+            stmt.executeQuery("select distinct executiondate\n" +
+                    "from " + TABLENAME + ";");
+
 
         } catch (SQLException e) {
             e.printStackTrace();
