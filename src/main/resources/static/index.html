@@ -533,9 +533,9 @@
     <thead>
     <tr>
         <!--  <th scope="col">#</th> -->
-        <th scope="col">Description</th>
         <th scope="col">Planned date</th>
         <th scope="col">Execution date</th>
+        <th scope="col">Description</th>
         <th scope="col">Amount</th>
         <th scope="col">Balance</th>
         <th scope="col">Inspection</th>
@@ -563,6 +563,16 @@
 
 <!-- FUNCTIONS  -->
 <script>
+
+    function formatdate(date) {
+
+        let wday = new Date().toLocaleDateString('en-us', {weekday: 'short'})
+        let day = new Date().toLocaleDateString('en-us', {day: 'numeric'})
+        let month = new Date().toLocaleDateString('en-us', {month: 'short'})
+        let year = new Date().toLocaleDateString('en-us', {year: 'numeric'})
+        return `${wday}, ${day} ${month} ${year}`;
+    }
+
     function populate1() {
         $.post("/orders", function (returnedData) {
 
@@ -616,7 +626,24 @@
         $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
             let obj = JSON.parse(returnedData);
             $("#preview tbody").empty();
-            $("#preview tbody").append(obj.html);
+
+
+            let hhtml;
+            let warn = " style = \"color:  red; font-weight: bold;\"";
+            let bold = " style = \"font-weight: bold;\"";
+            for (let i = 0; i < obj.html.length; i++) {
+                let khtml = obj.html[i];
+                hhtml = "<tr>\n";
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.amount + "</td>\n"
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.balance + "</td>\n"
+                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + (khtml.balance == 0 ? "ALERT" : (khtml.balance < 0 ? "FAILURE" : "OK")) + "</td>\n"
+                hhtml += "</tr>\n";
+                $("#preview tbody").append(hhtml);
+            }
+
             chart1(obj.dates1, obj.balances1, obj.interpolation)
             chart2(obj.dates2, obj.amounts, obj.balances2)
 
