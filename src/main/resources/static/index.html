@@ -513,18 +513,18 @@
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="previewenddate" size="10" value="31.12.2025">
+                       type="text" id="previewenddate" onkeyup="populate2()" size="10" value="31.12.2025">
             </div>
         </td>
         <td style="padding: 0 0 0 50px;">Initial balance:</td>
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="initalbalance" size="10" value="150.00">
+                       type="text" id="initalbalance" onkeyup="populate2()" size="10" value="150.00">
             </div>
         </td>
         <td onclick="populate2()" style="cursor: pointer; padding:0" id="reload"><img
-                style="vertical-align:middle;" width="20px" alt="Releoad picture" src="images/reload.svg"></td>
+                style="vertical-align:middle;" width="20px" alt="Reload picture" src="images/reload.svg"></td>
     </tr>
 </table>
 <!-- SPACING -->
@@ -566,10 +566,10 @@
 
     function formatdate(date) {
 
-        let wday = new Date().toLocaleDateString('en-us', {weekday: 'short'})
-        let day = new Date().toLocaleDateString('en-us', {day: 'numeric'})
-        let month = new Date().toLocaleDateString('en-us', {month: 'short'})
-        let year = new Date().toLocaleDateString('en-us', {year: 'numeric'})
+        let wday = new Date(date).toLocaleDateString('en-us', {weekday: 'short'})
+        let day = new Date(date).toLocaleDateString('en-us', {day: 'numeric'})
+        let month = new Date(date).toLocaleDateString('en-us', {month: 'short'})
+        let year = new Date(date).toLocaleDateString('en-us', {year: 'numeric'})
         return `${wday}, ${day} ${month} ${year}`;
     }
 
@@ -634,12 +634,12 @@
             for (let i = 0; i < obj.html.length; i++) {
                 let khtml = obj.html[i];
                 hhtml = "<tr>\n";
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.amount + "</td>\n"
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + khtml.balance + "</td>\n"
-                hhtml += "  <td " + (khtml.balance < 0 ? warn : '') + ">" + (khtml.balance == 0 ? "ALERT" : (khtml.balance < 0 ? "FAILURE" : "OK")) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.amount).toFixed(2) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.balance).toFixed(2) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + (parseFloat(khtml.balance) === 0 ? "ALERT" : (parseFloat(khtml.balance) < 0 ? "FAILURE" : "OK")) + "</td>\n"
                 hhtml += "</tr>\n";
                 $("#preview tbody").append(hhtml);
             }

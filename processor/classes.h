@@ -970,19 +970,19 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
         h = to_string(dd.getHrs());
     }
     if (!keep_original_length)
-        h.insert(0, num - h.length(), '0');
+        h.insert(0, (num > h.length() ? num - h.length() : 0), '0');
     replace(output, std::string(num, '$'), h);
 
     num = output.find_last_of('%') - output.find('%') + 1;
     std::string m = to_string(dd.getMin());
     if (!keep_original_length)
-        m.insert(0, num - m.length(), '0');
+        m.insert(0, (num > m.length() ? num - m.length() : 0), '0');
     replace(output, std::string(num, '%'), m);
 
     num = output.find_last_of('&') - output.find('&') + 1;
     std::string s = to_string(dd.getSec());
     if (!keep_original_length)
-        s.insert(0, num - s.length(), '0');
+        s.insert(0, (num > s.length() ? num - s.length() : 0), '0');
     replace(output, std::string(num, '&'), s);
 
     return os << output;

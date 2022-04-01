@@ -16,12 +16,16 @@ select, input {
     width: auto !important;
     text-align: left;
     color: #bfbfbf;
-    padding-left:  15px;
+    padding-left: 15px;
     padding-right: 15px;
 }
 
 h1, h2, h3, h4, h5, h6 {
     color: #bfbfbf;
+}
+
+#preview td, #preview tbody td, #preview tfoot td, #preview tfoot th {
+    font-family: Consolas, monaco, monospace;
 }
 
 @keyframes load {

@@ -371,7 +371,6 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
     records.emplace_back("", datetime(), today, 0, account_balance);
 
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
-        cout << it->effective_execution_date << endl;
         execute(account_balance, *it);
         insert_in_order(records, *it, account_balance);
         reschedule(*it);
