@@ -513,18 +513,18 @@
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="previewenddate" onkeyup="populate2()" size="10" value="31.12.2025">
+                       type="text" id="previewenddate" onkeydown="setprev(this)" oninput="wrapperprevd(this)" dirname=""
+                       size="10" value="31.12.2025">
             </div>
         </td>
         <td style="padding: 0 0 0 50px;">Initial balance:</td>
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="initalbalance" onkeyup="populate2()" size="10" value="150.00">
+                       type="text" id="initalbalance" onkeydown="setprev(this)" oninput="wrapperprevb(this)" dirname=""
+                       size="10" value="150.00">
             </div>
         </td>
-        <td onclick="populate2()" style="cursor: pointer; padding:0" id="reload"><img
-                style="vertical-align:middle;" width="20px" alt="Reload picture" src="images/reload.svg"></td>
     </tr>
 </table>
 <!-- SPACING -->
@@ -563,6 +563,96 @@
 
 <!-- FUNCTIONS  -->
 <script>
+
+    function wrapperprevd(k) {
+
+        let invalid = true;
+
+        //test
+        if (/^(\d?\d?.\d?\d?.\d?\d?\d?\d?)$/.test(k.value))
+            invalid = false;
+
+        if (invalid) {
+            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
+            return;
+        }
+
+        populate2();
+    }
+
+    function wrapperprevb(k) {
+        let invalid = true;
+
+        //fix
+        let regex = /^(-?)0+(0\.[0-9]*)/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        regex = /^(-?)0+([1-9][0-9]*\.[0-9]*)/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        regex = /^(-?)0+(0[1-9][0-9]*$)/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        regex = /^(-?)0+(0)$/;
+        if (k.value.match(regex)) {
+            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
+            if (caret === 0 && k.value[0] === "-")
+                caret += 1;
+            k.value = k.value.replace(regex, '$1$2');
+            k.selectionStart = k.selectionEnd = caret;
+        }
+
+        let pos = k.value.indexOf(".");
+        if (pos > -1 && !JSON.parse(k.dirName)[0].includes(".")) {
+            let caret = k.selectionStart;
+            if (k.value[0] === "-") {
+                if (pos === 1) {
+                    k.value = "-0" + k.value.slice(1, pos + 3);
+                    k.selectionStart = k.selectionEnd = 3;
+                } else {
+                    k.value = k.value.slice(0, pos + 3);
+                    k.selectionStart = k.selectionEnd = caret;
+                }
+            } else {
+                if (pos === 0) {
+                    k.value = "0" + k.value.slice(0, pos + 3);
+                    k.selectionStart = k.selectionEnd = 2;
+                } else {
+                    k.value = k.value.slice(0, pos + 3);
+                    k.selectionStart = k.selectionEnd = caret;
+                }
+            }
+        }
+
+        //test
+        if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(k.value))
+            invalid = false;
+
+        if (invalid) {
+            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
+            return;
+        }
+
+        populate2();
+    }
 
     function formatdate(date) {
 
