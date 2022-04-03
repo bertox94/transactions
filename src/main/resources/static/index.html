@@ -260,7 +260,7 @@
                 <!-- F2 -->
                 <td>
                     <div id="rf2" style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdate2(this)" style="padding: 1.8px" id="f2" name="f2">
+                        <select onchange="adaptdates2(this)" style="padding: 1.8px" id="f2" name="f2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="days">Days</option>
                             <option style="color : black" value="months">Months</option>
@@ -271,7 +271,7 @@
                 <!-- OPTIONS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rf3" onchange="adaptdate2(this)" style="padding: 1.8px" name="kkk">
+                        <select id="rf3" onchange="adaptdates2(this)" style="padding: 1.8px" name="kkk">
                             <option style="color : black" value="$">--Please select--</option>
                             <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
@@ -341,7 +341,7 @@
                 <!-- LIMITEDNESS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rlim" onchange="" style="padding: 1.8px" name="kkkk">
+                        <select id="rlim" onchange="adaptdates2()" style="padding: 1.8px" name="kkkk">
                             <option style="color : black" value="limited">Limited</option>
                             <option style="color : black" value="unlimited">Unlimited</option>
                         </select>
@@ -781,11 +781,6 @@
     }
 
     function updatechart(chart, arr1, arr2, arr3) {
-        //chart.data.labels.pop();
-        //chart.data.datasets.forEach((dataset) => {
-        //    dataset.data.pop();
-        //});
-
         chart.data.labels = arr1;
         chart.data.datasets[0].data = arr2;
         chart.data.datasets[1].data = arr3;
@@ -877,9 +872,15 @@
             k.style.removeProperty("color");
     }
 
-    const adaptdate2 = function (k) {
+    const adaptdates2 = function () {
 
         $("#f2 [value = '$']").remove();
+
+        if ($("#rlim :selected").val() === 'limited') {
+            $("#rfindd").show(1200);
+            $("#rfinmm").show(1200);
+            $("#rfinyy").show(1200);
+        }
 
         let f2s = $("#f2 :selected").val();
         let kkk = $("#rf3");
@@ -924,6 +925,13 @@
                 $('#rdd').hide(1200);
                 $('#rmm').hide(1200);
             }
+
+            if ($("#rlim :selected").val() === 'unlimited') {
+                $("#rfindd").hide(1200);
+                $("#rfinmm").hide(1200);
+                $("#rfinyy").hide(1200);
+            }
+
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
             kkk.append("<option value=\"eom\">End of month</option>");
@@ -931,7 +939,7 @@
             $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
         }
 
-        forgivef2(k)
+        forgivef2($("#f2"))
     }
 
     const adaptdate = function (k) {
