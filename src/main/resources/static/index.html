@@ -259,8 +259,8 @@
                 </td>
                 <!-- F2 -->
                 <td>
-                    <div id="rf2" style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdates2(this)" style="padding: 1.8px" id="f2" name="f2">
+                    <div style="border: 2px solid #c7a800;">
+                        <select onchange="adaptdates2(this)" style="padding: 1.8px" name="f2" id="rf2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="days">Days</option>
                             <option style="color : black" value="months">Months</option>
@@ -271,7 +271,7 @@
                 <!-- OPTIONS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rf3" onchange="adaptdates2(this)" style="padding: 1.8px" name="kkk">
+                        <select onchange="adaptdates2(this)" style="padding: 1.8px" name="kkk" id="rf3">
                             <option style="color : black" value="$">--Please select--</option>
                             <option style="color : black" value="default">Specific day</option>
                             <option style="color : black" value="eom">End of month</option>
@@ -341,7 +341,7 @@
                 <!-- LIMITEDNESS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rlim" onchange="adaptdates2()" style="padding: 1.8px" name="kkkk">
+                        <select id="rlim" onchange="adaptdates2(this)" style="padding: 1.8px" name="kkkk">
                             <option style="color : black" value="limited">Limited</option>
                             <option style="color : black" value="unlimited">Unlimited</option>
                         </select>
@@ -872,33 +872,41 @@
             k.style.removeProperty("color");
     }
 
-    const adaptdates2 = function () {
+    const adaptdates2 = function (k) {
 
-        $("#f2 [value = '$']").remove();
+        if (k === $("#rf2")[0])
+            $("#rf2 [value = '$']").remove();
 
-        if ($("#rlim :selected").val() === 'limited') {
-            $("#rfindd").show(1200);
-            $("#rfinmm").show(1200);
-            $("#rfinyy").show(1200);
-        }
-
-        let f2s = $("#f2 :selected").val();
+        let f2s = $("#rf2 :selected").val();
         let kkk = $("#rf3");
         let kkks = $("#rf3 :selected");
         if (f2s === "days") {
             $('#rdd').hide(1200);
             $('#rmm').hide(1200);
             $("#rinitdd").show(1200);
-            $("#rfindd").show(1200);
             $("#rinitmm").show(1200);
-            $("#rfinmm").show(1200);
+            if ($("#rlim :selected").val() === 'limited') {
+                $("#rfindd").show(1200);
+                $("#rfinmm").show(1200);
+                $("#rfinyy").show(1200);
+            } else if ($("#rlim :selected").val() === 'unlimited') {
+                $("#rfindd").hide(1200);
+                $("#rfinmm").hide(1200);
+                $("#rfinyy").hide(1200);
+            }
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
         } else if (f2s === "months") {
             $("#rinitdd").hide(1200);
-            $("#rfindd").hide(1200);
             $("#rinitmm").show(1200);
-            $("#rfinmm").show(1200);
+            $("#rfindd").hide(1200);
+            if ($("#rlim :selected").val() === 'limited') {
+                $("#rfinmm").show(1200);
+                $("#rfinyy").show(1200);
+            } else if ($("#rlim :selected").val() === 'unlimited') {
+                $("#rfinmm").hide(1200);
+                $("#rfinyy").hide(1200);
+            }
             if (kkks.val() === "default") {
                 $('#rdd').show(1200);
                 $('#rmm').hide(1200);
@@ -909,12 +917,16 @@
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
             kkk.append("<option value=\"eom\">End of month</option>");
-            $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
+            $("#rf3 [value = " + kkks.val() + "]").attr("selected", true)
         } else if (f2s === "years") {
             $("#rinitdd").hide(1200);
-            $("#rfindd").hide(1200);
             $("#rinitmm").hide(1200);
             $("#rfinmm").hide(1200);
+            if ($("#rlim :selected").val() === 'limited') {
+                $("#rfinyy").show(1200);
+            } else if ($("#rlim :selected").val() === 'unlimited') {
+                $("#rfinyy").hide(1200);
+            }
             if (kkks.val() === "default") {
                 $('#rdd').show(1200);
                 $('#rmm').show(1200);
@@ -926,20 +938,21 @@
                 $('#rmm').hide(1200);
             }
 
-            if ($("#rlim :selected").val() === 'unlimited') {
-                $("#rfindd").hide(1200);
-                $("#rfinmm").hide(1200);
-                $("#rfinyy").hide(1200);
-            }
-
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
             kkk.append("<option value=\"eom\">End of month</option>");
             kkk.append("<option value=\"eoy\">End of year</option>");
-            $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
+            $("#rf3 [value = " + kkks.val() + "]").attr("selected", true)
         }
 
-        forgivef2($("#f2"))
+        if ($("#rlim :selected").val() === 'unlimited') {
+            $("#rfindd").hide(1200);
+            $("#rfinmm").hide(1200);
+            $("#rfinyy").hide(1200);
+        }
+
+
+        forgivef2($("#rf2")[0])
     }
 
     const adaptdate = function (k) {
