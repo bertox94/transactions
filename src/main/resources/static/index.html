@@ -738,8 +738,13 @@
                 $("#preview tbody").append(hhtml);
             }
 
-            chart1(obj.dates1, obj.balances1, obj.interpolation)
-            chart2(obj.dates2, obj.amounts, obj.balances2)
+            let arr3 = [];
+            for (let i = 0; i < obj.arr1.length; i++) {
+                arr3[i] = parseFloat(obj.m) * i + parseFloat(obj.q);
+            }
+
+            chart1(obj.arr1, obj.arr2, arr3)
+            chart2(obj.arr4, obj.arr5, obj.arr6)
 
         }).fail(function () {
             console.log("error")
