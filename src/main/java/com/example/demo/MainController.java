@@ -229,8 +229,35 @@ public class MainController {
                     "               ) as sub7 " +
                     "      ) as sub14; ");
 
-            if (rs.next())
-                resp += "\"m\":\"" + rs.getString(1) + "\", \"q\":\"" + rs.getString(2) + "\", ";
+
+            rs = stmt.executeQuery("SELECT COUNT(*) " +
+                    " FROM (" +
+                    "   select distinct executiondate " +
+                    "   FROM " + TABLENAME +
+                    "   ) as subq1");
+
+            long num = 0L;
+            if (rs.next()) {
+                num = rs.getLong(1);
+            }
+
+
+            double m = 0;
+            double q = 0;
+
+            if (rs.next()) {
+                m = rs.getDouble(1);
+                q = rs.getDouble(2);
+            }
+
+
+            resp += "\"arr3\":[";
+
+            resp += "\"" + q + "\"";
+            for (long i = 1; i < num; i++) {
+                resp += ",\"" + m * i + q + "\"";
+            }
+            resp += "], ";
 
             //QUERIES FOR THE SECOND CHART
             rs = stmt.executeQuery(" select executiondate " +
