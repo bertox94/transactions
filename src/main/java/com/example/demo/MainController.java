@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.plaf.nimbus.State;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -135,17 +136,35 @@ public class MainController {
                 resp += "\"amount\":\"" + rs.getString(4) + "\",";
                 resp += "\"balance\":\"" + rs.getString(5) + "\"}";
             }
-            resp += "]}";
+            resp += "], ";
 
             //QUERIES FOR THE FIRST CHART
-            stmt.executeQuery(" select distinct executiondate " +
-                    " from " + TABLENAME + ";");
+            rs = stmt.executeQuery(" select distinct executiondate " +
+                    " from " + TABLENAME +
+                    " ORDER BY executiondate ASC;");
 
-            stmt.executeQuery(" select sum(balance) as balance " +
+            resp += "\"arr1\":[";
+            if (rs.next())
+                resp += "\"" + rs.getString(1) + "\"";
+            while (rs.next()) {
+                resp += ",\"" + rs.getString(1) + "\"";
+            }
+            resp += "], ";
+
+            rs = stmt.executeQuery(" select sum(balance) as balance " +
                     " from " + TABLENAME + " " +
                     " group by executiondate " +
                     " order by executiondate; ");
-            stmt.executeQuery(" select m, " +
+
+            resp += "\"arr2\":[";
+            if (rs.next())
+                resp += "\"" + rs.getString(1) + "\"";
+            while (rs.next()) {
+                resp += ",\"" + rs.getString(1) + "\"";
+            }
+            resp += "], ";
+
+            rs = stmt.executeQuery(" select m, " +
                     "        (select avg(balance) " +
                     "         from (select sum(balance) as balance " +
                     "               from " + TABLENAME + " " +
@@ -159,7 +178,7 @@ public class MainController {
                     "                      ) as subq2 " +
                     "        ) as q " +
                     " from ( " +
-                    "          select _num / _denom as m " +
+                    "          select _num / nullif(_denom,0) as m " +
                     "          from ( " +
                     "                   select sum(balance_a * x_a) as _num " +
                     "                   from ( " +
@@ -210,18 +229,50 @@ public class MainController {
                     "               ) as sub7 " +
                     "      ) as sub14; ");
 
-            //QUERIES FOR THE SECOND CHART
-            stmt.executeQuery(" select executiondate " +
-                    " from " + TABLENAME + " " +
-                    " where planneddate is not null;");
-            stmt.executeQuery(" select amount " +
-                    " from " + TABLENAME + " " +
-                    " where planneddate is not null;");
-            stmt.executeQuery(" select balance " +
-                    " from " + TABLENAME + " " +
-                    " where planneddate is not null;");
+            if (rs.next())
+                resp += "\"m\":\"" + rs.getString(1) + "\", \"q\":\"" + rs.getString(2) + "\", ";
 
-            stmt.executeUpdate("drop table " + TABLENAME + " ;");
+            //QUERIES FOR THE SECOND CHART
+            rs = stmt.executeQuery(" select executiondate " +
+                    " from " + TABLENAME + " " +
+                    " where planneddate is not null" +
+                    " order by executiondate;");
+
+            resp += "\"arr4\":[";
+            if (rs.next())
+                resp += "\"" + rs.getString(1) + "\"";
+            while (rs.next()) {
+                resp += ",\"" + rs.getString(1) + "\"";
+            }
+            resp += "], ";
+
+            rs = stmt.executeQuery(" select amount " +
+                    " from " + TABLENAME + " " +
+                    " where planneddate is not null " +
+                    "order by executiondate;");
+
+            resp += "\"arr5\":[";
+            if (rs.next())
+                resp += "\"" + rs.getString(1) + "\"";
+            while (rs.next()) {
+                resp += ",\"" + rs.getString(1) + "\"";
+            }
+            resp += "], ";
+
+            rs = stmt.executeQuery(" select balance " +
+                    " from " + TABLENAME + " " +
+                    " where planneddate is not null" +
+                    " order by executiondate;");
+
+            resp += "\"arr6\":[";
+            if (rs.next())
+                resp += "\"" + rs.getString(1) + "\"";
+            while (rs.next()) {
+                resp += ",\"" + rs.getString(1) + "\"";
+            }
+            resp += "]}";
+
+            stmt.executeUpdate("DROP TABLE " + TABLENAME + " ;");
 
         } catch (SQLException e) {
             e.printStackTrace();
