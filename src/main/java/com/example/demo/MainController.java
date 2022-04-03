@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainController {
 
     static Connection connection;
-    static AtomicInteger preview_id = new AtomicInteger(0);
     static Vector<Integer> vec = new Vector<>();
     static final Object lock = new Object();
 
@@ -60,7 +59,7 @@ public class MainController {
         StringBuilder data = new StringBuilder();
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.single_orders;");
+            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.orders;");
 
             while (rs.next()) {
                 data.append(rs.getString(1)).append("\n");
@@ -315,17 +314,17 @@ public class MainController {
                     "                  SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
                     "                  FROM ( " +
                     "                      SELECT id    " +
-                    "                      FROM single_orders " +
+                    "                      FROM orders " +
                     "                      UNION ALL  " +
                     "                      SELECT COALESCE(MAX(id),2) AS id   " +
-                    "                      FROM single_orders         " +
+                    "                      FROM orders         " +
                     "                  ) AS sub1" +
                     "               ) AS sub2       " +
                     "               WHERE ROW_NUMBER != id      " +
                     "               LIMIT 1) ";
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(
-                    "INSERT INTO public.single_orders (id, encoded) " +
+                    "INSERT INTO public.orders (id, encoded) " +
                             "VALUES(" + _SUB_Q_ID + ", '{\"id\":'|| '\"' || " + _SUB_Q_ID + "|| '\"," + data.substring(1) + "');");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -335,11 +334,33 @@ public class MainController {
     }
 
     @ResponseBody
+    @PostMapping(path = "/get")
+    public String get(@RequestParam String id) {
+        String resp = "";
+        try {
+
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT encoded " +
+                            " FROM public.orders " +
+                            " WHERE id = " + id + ";");
+
+            if (rs.next())
+                resp = rs.getString(1);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "KO";
+        }
+        return resp;
+    }
+
+    @ResponseBody
     @PostMapping(path = "/delete")
     public String delete(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate("DELETE FROM public.single_orders WHERE id = " + data + ";");
+            stmt.executeUpdate("DELETE FROM public.orders WHERE id = " + data + ";");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "KO";
@@ -353,22 +374,22 @@ public class MainController {
         try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(
-                    "INSERT INTO public.single_orders (id, encoded) " +
+                    "INSERT INTO public.orders (id, encoded) " +
                             "SELECT (" +
                             "       SELECT ROW_NUMBER " +
                             "       FROM( " +
                             "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
                             "           FROM (  " +
                             "               SELECT id " +
-                            "               FROM single_orders " +
+                            "               FROM orders " +
                             "               UNION ALL " +
                             "               SELECT COALESCE(MAX(id),2) AS id " +
-                            "               FROM single_orders " +
+                            "               FROM orders " +
                             "           ) AS sub1 " +
                             "       ) AS sub2 " +
                             "       WHERE ROW_NUMBER != id " +
                             "       LIMIT 1 ),encoded " +
-                            "FROM public.single_orders " +
+                            "FROM public.orders " +
                             "WHERE id = " + data + ";");
 
         } catch (SQLException throwables) {

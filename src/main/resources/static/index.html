@@ -61,6 +61,7 @@
                 <th>Year</th>
                 <th>Amount</th>
                 <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -151,10 +152,28 @@
                                type="text" name="amount" size="11">
                     </div>
                 </td>   <!-- Amount -->
+                <!-- Buttons -->
                 <td>
-                    <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
-                         src="images/plus.svg">
-                </td>                                                   <!-- Button add -->
+                    <!-- Add -->
+                    <div style="display: inline-block; margin-right: 10px">
+                        <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
+                             src="images/plus.svg">
+                    </div>
+                    <!-- Save -->
+                    <div style="display: none; margin-right: 10px" id="savebtn123parent">
+                        <img onclick="confirmupdate()" style="cursor: pointer; vertical-align:middle;"
+                             width="20px" alt="Save" src="images/save.svg" id="savebtn123">
+                    </div>
+                    <!-- Cancel -->
+                    <div style="display: none" id="cancelbtn123parent">
+                        <img onclick="cancelupdate()" style=" cursor: pointer; vertical-align:middle;"
+                             width="20px" alt="Cancel" src="images/cancel.svg" id="cancelbtn123">
+                    </div>
+                </td>
+                <td>
+                    <div style="display:none" id="id">
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -688,9 +707,9 @@
                     "            <td>" + data.descr + "</td>\n" +
                     "            <td style = 'text-align: right'><div class=\"animate\">Loading</div></td>\n" +
                     "            <td style = 'text-align: right'>" + data.amount + "</td>\n" +
-                    "            <td onclick='duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "            <td onclick='_duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
-                    "            <td style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "            <td onclick='_update(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
                     "            <td onclick='_delete(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
                     "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
@@ -1209,10 +1228,6 @@
         return flag;
     }
 
-</script>
-
-<!-- CALLS TO SERVER -->
-<script>
     function _delete(_id) {
         $.post("/delete", {data: _id}, function (returnedData) {
             $("#" + _id).remove();
@@ -1222,13 +1237,34 @@
         })
     }
 
-    function duplicate(_id) {
+    function _duplicate(_id) {
         $.post("/duplicate", {data: _id}, function (returnedData) {
             populate1();
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
         })
+    }
+
+    function _update(_id) {
+        $("#savebtn123parent").css("display", "inline-block");
+        $("#cancelbtn123parent").css("display", "inline-block");
+        let sel = $("#id12345");
+        if (!sel.is(':visible')) {
+            sel.slideDown(1500, function () {
+                $("#clickme1").children().attr("src", "images/minus.png")
+            });
+        }
+        $("#singleordernew [name = id]").val(_id);
+    }
+
+    function confirmupdate(_id) {
+
+    }
+
+    function cancelupdate() {
+        $("#singleordernew [name = descr]").val("");
+        $("#singleordernew [name = id]").val("");
     }
 
     function addnews() {
