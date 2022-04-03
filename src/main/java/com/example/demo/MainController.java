@@ -142,20 +142,20 @@ public class MainController {
                     " from " + TABLENAME + ";");
 
             stmt.executeQuery(" select sum(balance) as balance " +
-                    " from preview p " +
+                    " from " + TABLENAME + " " +
                     " group by executiondate " +
                     " order by executiondate; ");
             stmt.executeQuery(" select m, " +
                     "        (select avg(balance) " +
                     "         from (select sum(balance) as balance " +
-                    "               from preview p " +
+                    "               from " + TABLENAME + " " +
                     "               group by executiondate " +
                     "               order by executiondate " +
                     "              ) as subq_b " +
                     "        ) - m * (select (count(*) + 1) / 2.0 " +
                     "                 from ( " +
                     "                          select distinct executiondate " +
-                    "                          from preview p " +
+                    "                          from " + TABLENAME + " " +
                     "                      ) as subq2 " +
                     "        ) as q " +
                     " from ( " +
@@ -166,14 +166,14 @@ public class MainController {
                     "                            select balance - (select avg(balance) " +
                     "                                              from ( " +
                     "                                                       select sum(balance) as balance " +
-                    "                                                       from preview p " +
+                    "                                                       from " + TABLENAME + " " +
                     "                                                       group by executiondate " +
                     "                                                       order by executiondate " +
                     "                                                   ) as subq1) as balance_a, " +
                     "                                   x_a " +
                     "                            from ( " +
                     "                                     select sum(balance) as balance, executiondate " +
-                    "                                     from preview p " +
+                    "                                     from " + TABLENAME + " " +
                     "                                     group by executiondate " +
                     "                                     order by executiondate " +
                     "                                 ) as subq2 " +
@@ -181,13 +181,13 @@ public class MainController {
                     "                                select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
                     "                                                                                     from ( " +
                     "                                                                                              select distinct executiondate " +
-                    "                                                                                              from preview p " +
+                    "                                                                                              from " + TABLENAME + " " +
                     "                                                                                          ) as subq2 " +
                     "                                ) as x_a, " +
                     "                                       executiondate " +
                     "                                from ( " +
                     "                                         select distinct executiondate " +
-                    "                                         from preview p " +
+                    "                                         from " + TABLENAME + " " +
                     "                                     ) as subq1 " +
                     "                            ) as subq3 on subq2.executiondate = subq3.executiondate " +
                     "                            where subq2.executiondate is not null " +
@@ -200,11 +200,11 @@ public class MainController {
                     "                            select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
                     "                                                                                 from ( " +
                     "                                                                                          select distinct executiondate " +
-                    "                                                                                          from preview p " +
+                    "                                                                                          from " + TABLENAME + " " +
                     "                                                                                      ) as subq2) as x_a " +
                     "                            from ( " +
                     "                                     select distinct executiondate " +
-                    "                                     from preview p " +
+                    "                                     from " + TABLENAME + " " +
                     "                                 ) as subq1 " +
                     "                        ) as subq5 " +
                     "               ) as sub7 " +
@@ -212,13 +212,13 @@ public class MainController {
 
             //QUERIES FOR THE SECOND CHART
             stmt.executeQuery(" select executiondate " +
-                    " from preview p " +
+                    " from " + TABLENAME + " " +
                     " where planneddate is not null;");
             stmt.executeQuery(" select amount " +
-                    " from preview p " +
+                    " from " + TABLENAME + " " +
                     " where planneddate is not null;");
             stmt.executeQuery(" select balance " +
-                    " from preview p " +
+                    " from " + TABLENAME + " " +
                     " where planneddate is not null;");
 
             stmt.executeUpdate("drop table " + TABLENAME + " ;");

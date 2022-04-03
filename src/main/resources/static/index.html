@@ -625,12 +625,12 @@
     function populate2() {
         $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
 
+            let obj = JSON.parse(returnedData);
+
             if ($("#previewenddate").val() !== obj.enddate || $("#initalbalance").val() !== obj.initialbal)
                 return;
 
-            let obj = JSON.parse(returnedData);
             $("#preview tbody").empty();
-
 
             let hhtml;
             let warn = " style = \"color:  red; font-weight: bold;\"";
