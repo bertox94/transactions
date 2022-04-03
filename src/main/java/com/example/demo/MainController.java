@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Objects;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
@@ -22,11 +23,35 @@ public class MainController {
 
     static Connection connection;
     static AtomicInteger preview_id = new AtomicInteger(0);
+    static Vector<Integer> vec = new Vector<>();
+    static final Object lock = new Object();
 
     // private String path = "C:\\Users\\tiraboschi\\Desktop\\folder1\\export.xml";
     private String path = "./export.xml";
     private String pathStorage = "./data.json";
     private ObjectMapper mapper = new ObjectMapper();
+
+    private Integer getvalue() {
+        int i = 0;
+        synchronized (lock) {
+            for (Integer el :
+                    vec) {
+                if (el == null) {
+                    vec.insertElementAt(i, i);
+                    return i;
+                }
+                i++;
+            }
+            vec.add(i);
+        }
+        return i;
+    }
+
+    private void deletevalue(Integer i) {
+        synchronized (lock) {
+            vec.set(i, null);
+        }
+    }
 
     @ResponseBody
     @PostMapping(path = "/orders")
@@ -57,7 +82,8 @@ public class MainController {
     public String preview(@RequestParam String data) {
         String orders = orders();
         String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
-        String TABLENAME = "public.preview" + preview_id.incrementAndGet();
+        int val = getvalue();
+        String TABLENAME = "public.preview" + val;
         try {
 
             Statement stmt = connection.createStatement();
@@ -93,7 +119,7 @@ public class MainController {
                     " from " + TABLENAME +
                     " where planneddate is not null; ");
 
-            resp = "{\"html\":[";
+            resp = "{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":[";
 
             if (rs.next()) {
                 resp += "{\"executiondate\":\"" + rs.getString(1) + "\",";
@@ -196,12 +222,12 @@ public class MainController {
                     " where planneddate is not null;");
 
             stmt.executeUpdate("drop table " + TABLENAME + " ;");
-            preview_id.decrementAndGet();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        deletevalue(val);
 
         return resp;
     }

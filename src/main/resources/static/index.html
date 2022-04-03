@@ -624,6 +624,10 @@
 
     function populate2() {
         $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
+
+            if ($("#previewenddate").val() !== obj.enddate || $("#initalbalance").val() !== obj.initialbal)
+                return;
+
             let obj = JSON.parse(returnedData);
             $("#preview tbody").empty();
 
@@ -649,7 +653,10 @@
 
         }).fail(function () {
             console.log("error")
-        })
+        }).done(function () {
+            //$("#previewenddate").prop("disabled", false);
+            //$("#initalbalance").prop("disabled", false);
+        });
     }
 
     function chart1(arr1, arr2, arr3) {
