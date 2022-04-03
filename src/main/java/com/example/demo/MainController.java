@@ -82,7 +82,7 @@ public class MainController {
     @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
         String orders = orders();
-        String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+        StringBuilder resp = new StringBuilder(SpaceTime_Gap.send("preview\n" + data + "\n" + orders));
         int val = getvalue();
         String TABLENAME = "public.preview" + val;
         try {
@@ -98,7 +98,7 @@ public class MainController {
                     " balance numeric NULL " +
                     ");");
 
-            String[] lines = resp.split("\n");
+            String[] lines = resp.toString().split("\n");
             StringBuilder VALUES = new StringBuilder();
             for (String line :
                     lines) {
@@ -120,49 +120,49 @@ public class MainController {
                     " from " + TABLENAME +
                     " where planneddate is not null; ");
 
-            resp = "{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":[";
+            resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":[");
 
             if (rs.next()) {
-                resp += "{\"executiondate\":\"" + rs.getString(1) + "\",";
-                resp += "\"planneddate\":\"" + rs.getString(2) + "\",";
-                resp += "\"descr\":\"" + rs.getString(3) + "\",";
-                resp += "\"amount\":\"" + rs.getString(4) + "\",";
-                resp += "\"balance\":\"" + rs.getString(5) + "\"}";
+                resp.append("{\"executiondate\":\"").append(rs.getString(1)).append("\",");
+                resp.append("\"planneddate\":\"").append(rs.getString(2)).append("\",");
+                resp.append("\"descr\":\"").append(rs.getString(3)).append("\",");
+                resp.append("\"amount\":\"").append(rs.getString(4)).append("\",");
+                resp.append("\"balance\":\"").append(rs.getString(5)).append("\"}");
             }
             while (rs.next()) {
-                resp += ",{\"executiondate\":\"" + rs.getString(1) + "\",";
-                resp += "\"planneddate\":\"" + rs.getString(2) + "\",";
-                resp += "\"descr\":\"" + rs.getString(3) + "\",";
-                resp += "\"amount\":\"" + rs.getString(4) + "\",";
-                resp += "\"balance\":\"" + rs.getString(5) + "\"}";
+                resp.append(",{\"executiondate\":\"").append(rs.getString(1)).append("\",");
+                resp.append("\"planneddate\":\"").append(rs.getString(2)).append("\",");
+                resp.append("\"descr\":\"").append(rs.getString(3)).append("\",");
+                resp.append("\"amount\":\"").append(rs.getString(4)).append("\",");
+                resp.append("\"balance\":\"").append(rs.getString(5)).append("\"}");
             }
-            resp += "], ";
+            resp.append("], ");
 
             //QUERIES FOR THE FIRST CHART
             rs = stmt.executeQuery(" select distinct executiondate " +
                     " from " + TABLENAME +
                     " ORDER BY executiondate ASC;");
 
-            resp += "\"arr1\":[";
+            resp.append("\"arr1\":[");
             if (rs.next())
-                resp += "\"" + rs.getString(1) + "\"";
+                resp.append("\"").append(rs.getString(1)).append("\"");
             while (rs.next()) {
-                resp += ",\"" + rs.getString(1) + "\"";
+                resp.append(",\"").append(rs.getString(1)).append("\"");
             }
-            resp += "], ";
+            resp.append("], ");
 
             rs = stmt.executeQuery(" select sum(balance) as balance " +
                     " from " + TABLENAME + " " +
                     " group by executiondate " +
                     " order by executiondate; ");
 
-            resp += "\"arr2\":[";
+            resp.append("\"arr2\":[");
             if (rs.next())
-                resp += "\"" + rs.getString(1) + "\"";
+                resp.append("\"").append(rs.getString(1)).append("\"");
             while (rs.next()) {
-                resp += ",\"" + rs.getString(1) + "\"";
+                resp.append(",\"").append(rs.getString(1)).append("\"");
             }
-            resp += "], ";
+            resp.append("], ");
 
             rs = stmt.executeQuery("SELECT COUNT(*) " +
                     " FROM (" +
@@ -248,12 +248,12 @@ public class MainController {
                 q = rs.getDouble(2);
             }
 
-            resp += "\"arr3\":[";
-            resp += "\"" + q + "\"";
+            resp.append("\"arr3\":[");
+            resp.append("\"").append(q).append("\"");
             for (long i = 1; i < num; i++) {
-                resp += ",\"" + (m * i + q) + "\"";
+                resp.append(",\"").append(m * i + q).append("\"");
             }
-            resp += "], ";
+            resp.append("], ");
 
             //QUERIES FOR THE SECOND CHART
             rs = stmt.executeQuery(" select executiondate " +
@@ -261,39 +261,39 @@ public class MainController {
                     " where planneddate is not null" +
                     " order by executiondate;");
 
-            resp += "\"arr4\":[";
+            resp.append("\"arr4\":[");
             if (rs.next())
-                resp += "\"" + rs.getString(1) + "\"";
+                resp.append("\"").append(rs.getString(1)).append("\"");
             while (rs.next()) {
-                resp += ",\"" + rs.getString(1) + "\"";
+                resp.append(",\"").append(rs.getString(1)).append("\"");
             }
-            resp += "], ";
+            resp.append("], ");
 
             rs = stmt.executeQuery(" select amount " +
                     " from " + TABLENAME + " " +
                     " where planneddate is not null " +
                     "order by executiondate;");
 
-            resp += "\"arr5\":[";
+            resp.append("\"arr5\":[");
             if (rs.next())
-                resp += "\"" + rs.getString(1) + "\"";
+                resp.append("\"").append(rs.getString(1)).append("\"");
             while (rs.next()) {
-                resp += ",\"" + rs.getString(1) + "\"";
+                resp.append(",\"").append(rs.getString(1)).append("\"");
             }
-            resp += "], ";
+            resp.append("], ");
 
             rs = stmt.executeQuery(" select balance " +
                     " from " + TABLENAME + " " +
                     " where planneddate is not null" +
                     " order by executiondate;");
 
-            resp += "\"arr6\":[";
+            resp.append("\"arr6\":[");
             if (rs.next())
-                resp += "\"" + rs.getString(1) + "\"";
+                resp.append("\"").append(rs.getString(1)).append("\"");
             while (rs.next()) {
-                resp += ",\"" + rs.getString(1) + "\"";
+                resp.append(",\"").append(rs.getString(1)).append("\"");
             }
-            resp += "]}";
+            resp.append("]}");
 
             stmt.executeUpdate("DROP TABLE " + TABLENAME + " ;");
 
@@ -303,7 +303,7 @@ public class MainController {
 
         deletevalue(val);
 
-        return resp;
+        return resp.toString();
     }
 
     @ResponseBody
