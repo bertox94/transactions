@@ -948,20 +948,20 @@
         $("#f2 [value = '$']").remove();
 
         let f2s = $("#f2 :selected").val();
-        let kkk = $("#kkk");
-        let kkks = $("#kkk :selected");
+        let kkk = $("#rf3");
+        let kkks = $("#rf3 :selected");
         if (f2s === "days") {
-            $('#dd').hide(1200);
-            $('#mm').hide(1200);
+            $('#rdd').hide(1200);
+            $('#rmm').hide(1200);
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
         } else if (f2s === "months") {
             if (kkks.val() === "default") {
-                $('#dd').show(1200);
-                $('#mm').hide(1200);
+                $('#rdd').show(1200);
+                $('#rmm').hide(1200);
             } else if (kkks.val() === "eom") {
-                $('#dd').hide(1200);
-                $('#mm').hide(1200);
+                $('#rdd').hide(1200);
+                $('#rmm').hide(1200);
             }
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
@@ -969,14 +969,14 @@
             $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
         } else if (f2s === "years") {
             if (kkks.val() === "default") {
-                $('#dd').show(1200);
-                $('#mm').show(1200);
+                $('#rdd').show(1200);
+                $('#rmm').show(1200);
             } else if (kkks.val() === "eom") {
-                $('#dd').hide(1200);
-                $('#mm').show(1200);
+                $('#rdd').hide(1200);
+                $('#rmm').show(1200);
             } else if (kkks.val() === "eoy") {
-                $('#dd').hide(1200);
-                $('#mm').hide(1200);
+                $('#rdd').hide(1200);
+                $('#rmm').hide(1200);
             }
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
