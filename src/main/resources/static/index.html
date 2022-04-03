@@ -564,6 +564,9 @@
 <!-- FUNCTIONS  -->
 <script>
 
+    let myChart;
+    let myChart2;
+
     function wrapperprevd(k) {
 
         let invalid = true;
@@ -738,20 +741,17 @@
                 $("#preview tbody").append(hhtml);
             }
 
-            chart1(obj.arr1, obj.arr2, obj.arr3)
-            chart2(obj.arr4, obj.arr5, obj.arr6)
+            updatechart(myChart, obj.arr1, obj.arr2, obj.arr3)
+            updatechart(myChart2, obj.arr4, obj.arr5, obj.arr6)
 
         }).fail(function () {
             console.log("error")
-        }).done(function () {
-            //$("#previewenddate").prop("disabled", false);
-            //$("#initalbalance").prop("disabled", false);
         });
     }
 
     function chart1(arr1, arr2, arr3) {
         const ctx = document.getElementById('myChart');
-        const myChart = new Chart(ctx, {
+        myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: arr1,
@@ -789,7 +789,7 @@
 
     function chart2(arr1, arr2, arr3) {
         const ctx2 = document.getElementById('myChart2');
-        const myChart2 = new Chart(ctx2, {
+        myChart2 = new Chart(ctx2, {
             type: 'line',
             data: {
                 labels: arr1,
@@ -826,12 +826,27 @@
             }
         });
     }
+
+    function updatechart(chart, arr1, arr2, arr3) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+        });
+
+        chart.data.labels = arr1;
+        chart.data.datasets[0].data = arr2;
+        chart.data.datasets[1].data = arr3;
+        chart.update();
+    }
+
 </script>
 
 <!-- INITIALIZER SCRIPT-->
 <script>
     $("#l111").attr("width", $("#id12345").width())
     $("#l222").attr("width", $("#id12346").width())
+    chart1([], [], []);
+    chart2([], [], []);
     populate1();
     populate2();
 
