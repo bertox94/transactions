@@ -603,75 +603,9 @@
     }
 
     function wrapperprevb(k) {
-        let invalid = true;
-
-        //fix
-        let regex = /^(-?)0+(0\.[0-9]*)/;
-        if (k.value.match(regex)) {
-            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
-            if (caret === 0 && k.value[0] === "-")
-                caret += 1;
-            k.value = k.value.replace(regex, '$1$2');
-            k.selectionStart = k.selectionEnd = caret;
-        }
-
-        regex = /^(-?)0+([1-9][0-9]*\.[0-9]*)/;
-        if (k.value.match(regex)) {
-            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
-            if (caret === 0 && k.value[0] === "-")
-                caret += 1;
-            k.value = k.value.replace(regex, '$1$2');
-            k.selectionStart = k.selectionEnd = caret;
-        }
-
-        regex = /^(-?)0+(0[1-9][0-9]*$)/;
-        if (k.value.match(regex)) {
-            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
-            if (caret === 0 && k.value[0] === "-")
-                caret += 1;
-            k.value = k.value.replace(regex, '$1$2');
-            k.selectionStart = k.selectionEnd = caret;
-        }
-
-        regex = /^(-?)0+(0)$/;
-        if (k.value.match(regex)) {
-            let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
-            if (caret === 0 && k.value[0] === "-")
-                caret += 1;
-            k.value = k.value.replace(regex, '$1$2');
-            k.selectionStart = k.selectionEnd = caret;
-        }
-
-        let pos = k.value.indexOf(".");
-        if (pos > -1 && !JSON.parse(k.dirName)[0].includes(".")) {
-            let caret = k.selectionStart;
-            if (k.value[0] === "-") {
-                if (pos === 1) {
-                    k.value = "-0" + k.value.slice(1, pos + 3);
-                    k.selectionStart = k.selectionEnd = 3;
-                } else {
-                    k.value = k.value.slice(0, pos + 3);
-                    k.selectionStart = k.selectionEnd = caret;
-                }
-            } else {
-                if (pos === 0) {
-                    k.value = "0" + k.value.slice(0, pos + 3);
-                    k.selectionStart = k.selectionEnd = 2;
-                } else {
-                    k.value = k.value.slice(0, pos + 3);
-                    k.selectionStart = k.selectionEnd = caret;
-                }
-            }
-        }
-
-        //test
-        if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(k.value))
-            invalid = false;
-
-        if (invalid) {
-            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
+        let valid = f111(k);
+        if (!valid)
             return;
-        }
 
         populate2();
     }
@@ -1052,7 +986,7 @@
         //setdays(k);
     }
 
-    const wrapperamount = function (k) {
+    function f111(k) {
         let invalid = true;
 
         //fix
@@ -1121,6 +1055,10 @@
         if (invalid)
             [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
 
+        return !invalid;
+    }
+
+    function f112(k) {
         //forgive
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
@@ -1130,7 +1068,11 @@
 
         if (Number(k.value) !== 0)
             k.style.removeProperty("color");
+    }
 
+    function wrapperamount(k) {
+        f111(k);
+        f112(k);
     }
 
     /*
