@@ -164,6 +164,17 @@ public class MainController {
             }
             resp += "], ";
 
+            rs = stmt.executeQuery("SELECT COUNT(*) " +
+                    " FROM (" +
+                    "   select distinct executiondate " +
+                    "   FROM " + TABLENAME +
+                    "   ) as subq1");
+
+            long num = 0L;
+            if (rs.next()) {
+                num = rs.getLong(1);
+            }
+
             rs = stmt.executeQuery(" select m, " +
                     "        (select avg(balance) " +
                     "         from (select sum(balance) as balance " +
@@ -229,19 +240,6 @@ public class MainController {
                     "               ) as sub7 " +
                     "      ) as sub14; ");
 
-
-            rs = stmt.executeQuery("SELECT COUNT(*) " +
-                    " FROM (" +
-                    "   select distinct executiondate " +
-                    "   FROM " + TABLENAME +
-                    "   ) as subq1");
-
-            long num = 0L;
-            if (rs.next()) {
-                num = rs.getLong(1);
-            }
-
-
             double m = 0;
             double q = 0;
 
@@ -250,12 +248,10 @@ public class MainController {
                 q = rs.getDouble(2);
             }
 
-
             resp += "\"arr3\":[";
-
             resp += "\"" + q + "\"";
             for (long i = 1; i < num; i++) {
-                resp += ",\"" + m * i + q + "\"";
+                resp += ",\"" + (m * i + q) + "\"";
             }
             resp += "], ";
 
