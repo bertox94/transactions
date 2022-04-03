@@ -155,19 +155,19 @@
                 <!-- Buttons -->
                 <td>
                     <!-- Add -->
-                    <div style="display: inline-block; margin-right: 10px">
+                    <div style="display: inline-block; margin-right: 10px" id="addnewsingleorderbtn123parent">
                         <img onclick="addnews()" style="cursor: pointer; vertical-align:middle;" width="20px" alt="Plus"
-                             src="images/plus.svg">
+                             src="images/plus.svg" id="addnewsingleorderbtn123">
                     </div>
                     <!-- Save -->
-                    <div style="display: none; margin-right: 10px" id="savebtn123parent">
+                    <div style="display: none; margin-right: 10px" id="confirmupdatesingleorderbtn123parent">
                         <img onclick="confirmupdate()" style="cursor: pointer; vertical-align:middle;"
-                             width="20px" alt="Save" src="images/save.svg" id="savebtn123">
+                             width="20px" alt="Save" src="images/save.svg" id="confirmupdatesingleorderbtn123">
                     </div>
                     <!-- Cancel -->
-                    <div style="display: none" id="cancelbtn123parent">
+                    <div style="display: none" id="cancelsingleorderbtn123parent">
                         <img onclick="cancelupdate()" style=" cursor: pointer; vertical-align:middle;"
-                             width="20px" alt="Cancel" src="images/cancel.svg" id="cancelbtn123">
+                             width="20px" alt="Cancel" src="images/cancel.svg" id="cancelsingleorderbtn123">
                     </div>
                 </td>
                 <td>
@@ -1247,8 +1247,9 @@
     }
 
     function _update(_id) {
-        $("#savebtn123parent").css("display", "inline-block");
-        $("#cancelbtn123parent").css("display", "inline-block");
+        $("#addnewsingleorderbtn123parent").css("display", "none");
+        $("#confirmupdatesingleorderbtn123parent").css("display", "inline-block");
+        $("#cancelsingleorderbtn123parent").css("display", "inline-block");
         let sel = $("#id12345");
         if (!sel.is(':visible')) {
             sel.slideDown(1500, function () {
@@ -1265,6 +1266,11 @@
     function cancelupdate() {
         $("#singleordernew [name = descr]").val("");
         $("#singleordernew [name = id]").val("");
+
+        $("#addnewsingleorderbtn123parent").css("display", "inline-block");
+        $("#confirmupdatesingleorderbtn123parent").css("display", "none");
+        $("#cancelsingleorderbtn123parent").css("display", "none");
+
     }
 
     function addnews() {
