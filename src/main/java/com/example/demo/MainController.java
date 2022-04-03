@@ -335,7 +335,7 @@ public class MainController {
 
     @ResponseBody
     @PostMapping(path = "/get")
-    public String get(@RequestParam String id) {
+    public String get(@RequestParam String _id) {
         String resp = "";
         try {
 
@@ -343,7 +343,7 @@ public class MainController {
             ResultSet rs = stmt.executeQuery(
                     "SELECT encoded " +
                             " FROM public.orders " +
-                            " WHERE id = " + id + ";");
+                            " WHERE id = " + _id + ";");
 
             if (rs.next())
                 resp = rs.getString(1);

@@ -161,12 +161,12 @@
                     </div>
                     <!-- Save -->
                     <div style="display: none; margin-right: 10px" id="confirmupdatesingleorderbtn123parent">
-                        <img onclick="confirmupdate()" style="cursor: pointer; vertical-align:middle;"
+                        <img onclick="confirmupdatesingleorder()" style="cursor: pointer; vertical-align:middle;"
                              width="20px" alt="Save" src="images/save.svg" id="confirmupdatesingleorderbtn123">
                     </div>
                     <!-- Cancel -->
                     <div style="display: none" id="cancelsingleorderbtn123parent">
-                        <img onclick="cancelupdate()" style=" cursor: pointer; vertical-align:middle;"
+                        <img onclick="cancelupdatesingleorder()" style=" cursor: pointer; vertical-align:middle;"
                              width="20px" alt="Cancel" src="images/cancel.svg" id="cancelsingleorderbtn123">
                     </div>
                 </td>
@@ -847,10 +847,10 @@
     }
 
     function updatechart(chart, arr1, arr2, arr3) {
-        chart.data.labels.pop();
-        chart.data.datasets.forEach((dataset) => {
-            dataset.data.pop();
-        });
+        //chart.data.labels.pop();
+        //chart.data.datasets.forEach((dataset) => {
+        //    dataset.data.pop();
+        //});
 
         chart.data.labels = arr1;
         chart.data.datasets[0].data = arr2;
@@ -1247,23 +1247,38 @@
     }
 
     function _update(_id) {
-        $("#addnewsingleorderbtn123parent").css("display", "none");
-        $("#confirmupdatesingleorderbtn123parent").css("display", "inline-block");
-        $("#cancelsingleorderbtn123parent").css("display", "inline-block");
-        let sel = $("#id12345");
-        if (!sel.is(':visible')) {
-            sel.slideDown(1500, function () {
-                $("#clickme1").children().attr("src", "images/minus.png")
-            });
-        }
-        $("#singleordernew [name = id]").val(_id);
+
+        $.post("/get", {_id: _id}, function (returnedData) {
+            let o = JSON.parse(returnedData);
+            if (!o.repeated) {
+                $("#addnewsingleorderbtn123parent").css("display", "none");
+                $("#confirmupdatesingleorderbtn123parent").css("display", "inline-block");
+                $("#cancelsingleorderbtn123parent").css("display", "inline-block");
+                let sel = $("#id12345");
+                if (!sel.is(':visible')) {
+                    sel.slideDown(1500, function () {
+                        $("#clickme1").children().attr("src", "images/minus.png")
+                    });
+                }
+                $("#singleordernew [name = id]").val(_id);
+                $("#singleordernew [name = amount]").val(o.amount);
+                $("#singleordernew [name = descr]").val(o.descr);
+            } else {
+
+
+            }
+
+        }).fail(function () {
+            console.log("error")
+        })
+
     }
 
-    function confirmupdate(_id) {
+    function confirmupdatesingleorder() {
 
     }
 
-    function cancelupdate() {
+    function cancelupdatesingleorder() {
         $("#singleordernew [name = descr]").val("");
         $("#singleordernew [name = id]").val("");
 
