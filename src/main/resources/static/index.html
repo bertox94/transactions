@@ -887,9 +887,17 @@
         if (f2s === "days") {
             $('#rdd').hide(1200);
             $('#rmm').hide(1200);
+            $("#rinitdd").show(1200);
+            $("#rfindd").show(1200);
+            $("#rinitmm").show(1200);
+            $("#rfinmm").show(1200);
             kkk.empty();
             kkk.append("<option value=\"default\">Specific day</option>");
         } else if (f2s === "months") {
+            $("#rinitdd").hide(1200);
+            $("#rfindd").hide(1200);
+            $("#rinitmm").show(1200);
+            $("#rfinmm").show(1200);
             if (kkks.val() === "default") {
                 $('#rdd').show(1200);
                 $('#rmm').hide(1200);
@@ -902,6 +910,10 @@
             kkk.append("<option value=\"eom\">End of month</option>");
             $("#kkk [value = '" + kkks.val() + "']").attr("selected", true)
         } else if (f2s === "years") {
+            $("#rinitdd").hide(1200);
+            $("#rfindd").hide(1200);
+            $("#rinitmm").hide(1200);
+            $("#rfinmm").hide(1200);
             if (kkks.val() === "default") {
                 $('#rdd').show(1200);
                 $('#rmm').show(1200);
