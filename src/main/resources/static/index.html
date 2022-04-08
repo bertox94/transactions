@@ -271,7 +271,7 @@
                 <!-- OPTIONS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdates2(this)" style="display:none;padding: 1.8px" name="kkk" id="rf3">
+                        <select onchange="fffff2(this)" style="display:none;padding: 1.8px" name="kkk" id="rf3">
                             <option style="color : black" value="$">--Please Select--</option>
                         </select>
                     </div>
@@ -966,25 +966,7 @@
         }
     }
 
-    const fffff3 = function (k) {
-
-        if ($("#rlim :selected").val() === "unlimited") {
-            $("#rfindd").hide(1200);
-            $("#rfinmm").hide(1200);
-            $("#rfinyy").hide(1200);
-        } else if ($("#rlim :selected").val() === "limited") {
-            if ($("#rf2 :selected").val() === "days") {
-                $("#rfindd").show(1200);
-                $("#rfinmm").show(1200);
-            } else if ($("#rf2 :selected").val() === "months") {
-                $("#rfinmm").show(1200);
-            }
-            $("#rfinyy").show(1200);
-        }
-
-    }
-
-    const adaptdates2 = function (k) {
+    const fffff2 = function (k) {
 
         let rf2selected = $("#rf2 :selected").val();
         let rf3 = $("#rf3");
@@ -1018,6 +1000,24 @@
         }
 
         forgivef2($("#rf2")[0])
+    }
+
+    const fffff3 = function (k) {
+
+        if ($("#rlim :selected").val() === "unlimited") {
+            $("#rfindd").hide(1200);
+            $("#rfinmm").hide(1200);
+            $("#rfinyy").hide(1200);
+        } else if ($("#rlim :selected").val() === "limited") {
+            if ($("#rf2 :selected").val() === "days") {
+                $("#rfindd").show(1200);
+                $("#rfinmm").show(1200);
+            } else if ($("#rf2 :selected").val() === "months") {
+                $("#rfinmm").show(1200);
+            }
+            $("#rfinyy").show(1200);
+        }
+
     }
 
     const adaptdate = function (k) {
