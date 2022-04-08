@@ -339,8 +339,7 @@
                 <td>
                     <div style="border: 2px solid #c7a800;">
                         <select id="rlim" onchange="fffff3(this)" style="padding: 1.8px" name="kkkk">
-                            <option style="color : black" value="$">--Please Select--</option>
-                            <option style="color : black" value="limited">Limited</option>
+                            <option selected style="color : black" value="limited">Limited</option>
                             <option style="color : black" value="unlimited">Unlimited</option>
                         </select>
                     </div>
@@ -897,8 +896,6 @@
             $("#rfindd :selected").prop('selected', false);
             $("#rfinmm").hide(1200);
             $("#rfinmm :selected").prop('selected', false);
-            $("#rfinyy").hide(1200);
-            $("#rfinyy :selected").prop('selected', false);
         } else if (rf2selected === "days") {
             $("#rf3").hide(1200);
 
@@ -1087,7 +1084,9 @@
     function f111(k) {
         let invalid = true;
 
-        //fix
+        //allow number like -09987, since maybe you want to do -0.9987 -> -0.99
+
+        //000.4 -> 0.4
         let regex = /^(-?)0+(0\.[0-9]*)/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
@@ -1097,6 +1096,7 @@
             k.selectionStart = k.selectionEnd = caret;
         }
 
+        //001.4 -> 1.4
         regex = /^(-?)0+([1-9][0-9]*\.[0-9]*)/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
@@ -1106,7 +1106,8 @@
             k.selectionStart = k.selectionEnd = caret;
         }
 
-        regex = /^(-?)0+(0[1-9][0-9]*$)/;
+        //0006 -> 06
+        regex = /^(-?)0+(0[1-9][0-9]*)$/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
             if (caret === 0 && k.value[0] === "-")
@@ -1115,6 +1116,7 @@
             k.selectionStart = k.selectionEnd = caret;
         }
 
+        //0000 -> 0
         regex = /^(-?)0+(0)$/;
         if (k.value.match(regex)) {
             let caret = k.selectionStart === 0 ? 0 : k.selectionStart - 1;
@@ -1124,6 +1126,14 @@
             k.selectionStart = k.selectionEnd = caret;
         }
 
+        //45.89 -> 45.896 -> 45.96
+
+        //45.89 -> 45.389 -> 45.38
+
+        // fix like this: 12345.67 -> 12.345.67 -> 12.34
+
+        // 12345 -> 12.345 -> 12.34
+        //-. -> -0.
         let pos = k.value.indexOf(".");
         if (pos > -1 && !JSON.parse(k.dirName)[0].includes(".")) {
             let caret = k.selectionStart;
@@ -1147,6 +1157,7 @@
         }
 
         //test
+        // -.?? it is fixed above, but the test should be more precise
         if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(k.value))
             invalid = false;
 
