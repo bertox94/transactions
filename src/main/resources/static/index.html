@@ -1126,13 +1126,6 @@
             k.selectionStart = k.selectionEnd = caret;
         }
 
-        //45.89 -> 45.896 -> 45.96
-        if (k.value.splice(k.value.indexOf(".") - 1).length === 3) {
-            console.log(222222)
-        }
-
-        //45.89 -> 45.389 -> 45.38
-
         // 12345 -> 12.345 -> 12.34
         //-. -> -0.
         let pos = k.value.indexOf(".");
@@ -1156,6 +1149,20 @@
                 }
             }
         }
+
+        //45.89 -> 45.896 -> 45.96
+        //45.89 -> 45.389 -> 45.38
+        pos = k.value.indexOf(".");
+        if (pos > -1 && (k.value.substring(pos + 1).length === 3)) {
+            let pre = k.value.substring(0, pos);
+            let post = k.value.substring(pos + 1);
+            if (k.selectionStart === k.value.length) {
+                k.value = pre + '.' + post.substring(1);
+            } else if (k.selectionStart === pos) {
+                k.value = pre + '.' + post.substring(0, 2);
+            }
+        }
+
 
         //test
         // -.?? it is fixed above, but the test should be more precise
