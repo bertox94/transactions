@@ -1127,15 +1127,16 @@
         }
 
         //45.89 -> 45.896 -> 45.96
+        if (k.value.splice(k.value.indexOf(".") - 1).length === 3) {
+            console.log(222222)
+        }
 
         //45.89 -> 45.389 -> 45.38
-
-        // fix like this: 12345.67 -> 12.345.67 -> 12.34
 
         // 12345 -> 12.345 -> 12.34
         //-. -> -0.
         let pos = k.value.indexOf(".");
-        if (pos > -1 && !JSON.parse(k.dirName)[0].includes(".")) {
+        if (pos > -1) {
             let caret = k.selectionStart;
             if (k.value[0] === "-") {
                 if (pos === 1) {
