@@ -260,7 +260,7 @@
                 <!-- F2 -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="adaptdates2(this)" style="padding: 1.8px" name="f2" id="rf2">
+                        <select onchange="ffff1(this)" style="padding: 1.8px" name="f2" id="rf2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="days">Days</option>
                             <option style="color : black" value="months">Months</option>
@@ -279,7 +279,7 @@
                 <!-- Day -->
                 <td style="border-spacing: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rdd" onchange="forgiveday(this)" style="padding: 1.8px" name="dd">
+                        <select id="rdd" onchange="forgiveday(this)" style="display:none; padding: 1.8px" name="dd">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -318,7 +318,7 @@
                 <!-- Month -->
                 <td style="margin-left: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rmm" onchange="wrappermonth(this)" name="mm" style="padding: 1.8px">
+                        <select id="rmm" onchange="wrappermonth(this)" name="mm" style="display:none; padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
@@ -338,7 +338,7 @@
                 <!-- LIMITEDNESS -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rlim" onchange="adaptdates2(this)" style="padding: 1.8px" name="kkkk">
+                        <select id="rlim" onchange="fffff3(this)" style="padding: 1.8px" name="kkkk">
                             <option style="color : black" value="$">--Please Select--</option>
                             <option style="color : black" value="limited">Limited</option>
                             <option style="color : black" value="unlimited">Unlimited</option>
@@ -375,7 +375,8 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rinitdd" onchange="forgiveday(this)" style="padding: 1.8px" name="day1">
+                        <select id="rinitdd" onchange="forgiveday(this)" style="display:none;padding: 1.8px"
+                                name="day1">
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -413,7 +414,8 @@
                 <!-- Month -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rinitmm" onchange="wrappermonth(this)" name="month1" style="padding: 1.8px">
+                        <select id="rinitmm" onchange="wrappermonth(this)" name="month1"
+                                style="display:none;padding: 1.8px">
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -440,7 +442,7 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rfindd" onchange="forgiveday(this)" style="padding: 1.8px" name="day2">
+                        <select id="rfindd" onchange="forgiveday(this)" style="display:none;padding: 1.8px" name="day2">
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -478,7 +480,8 @@
                 <!-- Month -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rfinmm" onchange="wrappermonth(this)" name="month2" style="padding: 1.8px">
+                        <select id="rfinmm" onchange="wrappermonth(this)" name="month2"
+                                style="display:none;padding: 1.8px">
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -870,116 +873,139 @@
             k.style.removeProperty("color");
     }
 
+    const ffff1 = function (k) {
+        let rf2selected = $("#rf2 :selected").val();
+
+        let shouldrfindd = false;
+        let shouldrfinmm = false;
+        let shouldrfinyy = false;
+
+        if (rf2selected === "$") {
+            $("#rf3").hide(1200);
+
+            $("#rdd").hide(1200);
+            $("#rdd :selected").prop('selected', false);
+            $("#rmm").hide(1200);
+            $("#rmm :selected").prop('selected', false);
+
+            $("#rinitdd").hide(1200);
+            $("#rinitdd :selected").prop('selected', false);
+            $("#rinitmm").hide(1200);
+            $("#rinitmm :selected").prop('selected', false);
+
+            $("#rfindd").hide(1200);
+            $("#rfindd :selected").prop('selected', false);
+            $("#rfinmm").hide(1200);
+            $("#rfinmm :selected").prop('selected', false);
+            $("#rfinyy").hide(1200);
+            $("#rfinyy :selected").prop('selected', false);
+        } else if (rf2selected === "days") {
+            $("#rf3").hide(1200);
+
+            $("#rdd").hide(1200);
+            $("#rdd :selected").prop('selected', false);
+            $("#rmm").hide(1200);
+            $("#rmm :selected").prop('selected', false);
+
+            $("#rinitdd").show(1200);
+            $("#rinitmm").show(1200);
+
+            $("#rfindd").show(1200);
+            $("#rfinmm").show(1200);
+        } else if (rf2selected === "months") {
+            $("#rf3").empty();
+            $("#rf3").append("<option value=\"$\">--Please Select--</option>");
+            $("#rf3").append("<option value=\"default\">Specific day</option>");
+            $("#rf3").append("<option value=\"eom\">End of month</option>")
+            $("#rf3").show(1200);
+
+            $("#rdd").hide(1200);
+            $("#rdd :selected").prop('selected', false);
+            $("#rmm").hide(1200);
+            $("#rmm :selected").prop('selected', false);
+
+            $("#rinitdd").hide(1200);
+            $("#rinitdd :selected").prop('selected', false);
+            $("#rinitmm").show(1200);
+
+            $("#rfindd").hide(1200);
+            $("#rfindd :selected").prop('selected', false);
+            $("#rfinmm").show(1200);
+        } else if (rf2selected === "years") {
+            $("#rf3").empty();
+            $("#rf3").append("<option value=\"$\">--Please Select--</option>");
+            $("#rf3").append("<option value=\"default\">Specific day</option>");
+            $("#rf3").append("<option value=\"eom\">End of month</option>")
+            $("#rf3").append("<option value=\"eoy\">End of year</option>")
+            $("#rf3").show(1200);
+
+            $("#rdd").hide(1200);
+            $("#rdd :selected").prop('selected', false);
+            $("#rmm").hide(1200);
+            $("#rmm :selected").prop('selected', false);
+
+            $("#rinitdd").hide(1200);
+            $("#rinitdd :selected").prop('selected', false);
+            $("#rinitmm").hide(1200);
+            $("#rinitmm :selected").prop('selected', false);
+
+            $("#rfindd").hide(1200);
+            $("#rfindd :selected").prop('selected', false);
+            $("#rfinmm").hide(1200);
+            $("#rfinmm :selected").prop('selected', false);
+        }
+    }
+
+    const fffff3 = function (k) {
+
+        if ($("#rlim :selected").val() === "unlimited") {
+            $("#rfindd").hide(1200);
+            $("#rfinmm").hide(1200);
+            $("#rfinyy").hide(1200);
+        } else if ($("#rlim :selected").val() === "limited") {
+            if ($("#rf2 :selected").val() === "day") {
+                $("#rinitdd").show(1200);
+                $("#rinitmm").show(1200);
+            } else if ($("#rf2 :selected").val() === "month") {
+                $("#rinitmm").show(1200);
+            }
+            $("#rinityy").show(1200);
+        }
+
+    }
+
     const adaptdates2 = function (k) {
 
         let rf2selected = $("#rf2 :selected").val();
         let rf3 = $("#rf3");
         let rf3selected = $("#rf3 :selected").val();
 
-        if (rf2selected === "$") {
-            $("#rf3").hide(1200);
-            $("#rdd").hide(1200);
-            $("#rmm").hide(1200);
-            $("#rinitdd").hide(1200);
-            $("#rinitmm").hide(1200);
-            $("#rfindd").hide(1200);
-            $("#rfinmm").hide(1200);
-        } else {
-            $("#rf3").show(1200);
-            if (rf2selected === "days") {
+        if (rf2selected === "months") {
+            if (rf3selected === "default") {
+                $('#rdd').show(1200);
+                $('#rmm').hide(1200);
+                $('#rmm :selected').prop('selected', false);
+            } else if (rf3selected === "eom") {
                 $('#rdd').hide(1200);
                 $('#rdd :selected').prop('selected', false);
                 $('#rmm').hide(1200);
                 $('#rmm :selected').prop('selected', false);
-                $("#rinitdd").show(1200);
-                $("#rinitmm").show(1200);
-                if ($("#rlim :selected").val() === 'limited') {
-                    $("#rfindd").show(1200);
-                    $("#rfinmm").show(1200);
-                    $("#rfinyy").show(1200);
-                } else if ($("#rlim :selected").val() === 'unlimited') {
-                    $("#rfindd").hide(1200);
-                    $("#rfindd :selected").prop('selected', false);
-                    $("#rfinmm").hide(1200);
-                    $("#rfinmm :selected").prop('selected', false);
-                    $("#rfinyy").hide(1200);
-                    $("#rfinyy :selected").prop('selected', false);
-                }
-                rf3.empty();
-                rf3.append("<option value=\"default\">Specific day</option>");
-            } else if (rf2selected === "months") {
-                $("#rinitdd").hide(1200);
-                $("#rinitdd").prop('selected', false);
-                $("#rinitmm").show(1200);
-                $("#rfindd").hide(1200);
-                $("#rfindd :selected").prop('selected', false);
-                if ($("#rlim :selected").val() === 'limited') {
-                    $("#rfinmm").show(1200);
-                    $("#rfinyy").show(1200);
-                } else if ($("#rlim :selected").val() === 'unlimited') {
-                    $("#rfinmm").hide(1200);
-                    $("#rfinmm :selected").prop('selected', false);
-                    $("#rfinyy").hide(1200);
-                    $("#rfinyy :selected").prop('selected', false);
-                }
-                if (rf3selected === "default") {
-                    $('#rdd').show(1200);
-                    $('#rmm').hide(1200);
-                    $('#rmm :selected').prop('selected', false);
-                } else if (rf3selected === "eom") {
-                    $('#rdd').hide(1200);
-                    $('#rdd :selected').prop('selected', false);
-                    $('#rmm').hide(1200);
-                    $('#rmm :selected').prop('selected', false);
-                }
-                rf3.empty();
-                rf3.append("<option value=\"$\">--Please Select--</option>");
-                rf3.append("<option value=\"default\">Specific day</option>");
-                rf3.append("<option value=\"eom\">End of month</option>");
-                $("#rf3 [value = '" + rf3selected + "']").prop("selected", true)
-            } else if (rf2selected === "years") {
-                $("#rinitdd").hide(1200);
-                $("#rinitdd").prop('selected', false);
-                $("#rinitmm").hide(1200);
-                $("#rinitmm").prop('selected', false);
-                $("#rfinmm").hide(1200);
-                $("#rfinmm").prop('selected', false);
-                if ($("#rlim :selected").val() === 'limited') {
-                    $("#rfinyy").show(1200);
-                } else if ($("#rlim :selected").val() === 'unlimited') {
-                    $("#rfinyy").hide(1200);
-                    $("#rfinyy :selected").prop('selected', false);
-                }
-                if (rf3selected === "default") {
-                    $('#rdd').show(1200);
-                    $('#rmm').show(1200);
-                } else if (rf3selected === "eom") {
-                    $('#rdd').hide(1200);
-                    $('#rdd :selected').prop('selected', false);
-                    $('#rmm').show(1200);
-                } else if (rf3selected === "eoy") {
-                    $('#rdd').hide(1200);
-                    $('#rdd :selected').prop('selected', false);
-                    $('#rmm').hide(1200);
-                    $('#rmm :selected').prop('selected', false);
-                }
-                rf3.empty();
-                rf3.append("<option value=\"$\">--Please Select--</option>");
-                rf3.append("<option value=\"default\">Specific day</option>");
-                rf3.append("<option value=\"eom\">End of month</option>");
-                rf3.append("<option value=\"eoy\">End of year</option>");
-                $("#rf3 [value = '" + rf3selected + "']").prop("selected", true)
+            }
+        } else if (rf2selected === "years") {
+            if (rf3selected === "default") {
+                $('#rdd').show(1200);
+                $('#rmm').show(1200);
+            } else if (rf3selected === "eom") {
+                $('#rdd').hide(1200);
+                $('#rdd :selected').prop('selected', false);
+                $('#rmm').show(1200);
+            } else if (rf3selected === "eoy") {
+                $('#rdd').hide(1200);
+                $('#rdd :selected').prop('selected', false);
+                $('#rmm').hide(1200);
+                $('#rmm :selected').prop('selected', false);
             }
         }
-        if ($("#rlim :selected").val() === 'unlimited') {
-            $("#rfindd").hide(1200);
-            $("#rfindd").prop('selected', false);
-            $("#rfinmm").hide(1200);
-            $("#rfinmm").prop('selected', false);
-            $("#rfinyy").hide(1200);
-            $("#rfinyy").prop('selected', false);
-        }
-
 
         forgivef2($("#rf2")[0])
     }
