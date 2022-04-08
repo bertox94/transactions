@@ -377,6 +377,7 @@
                     <div style="border: 2px solid #c7a800; ">
                         <select id="rinitdd" onchange="forgiveday(this)" style="display:none;padding: 1.8px"
                                 name="day1">
+                            <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -416,6 +417,7 @@
                     <div style="border: 2px solid #c7a800; ">
                         <select id="rinitmm" onchange="wrappermonth(this)" name="month1"
                                 style="display:none;padding: 1.8px">
+                            <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -443,6 +445,7 @@
                 <td>
                     <div style="border: 2px solid #c7a800; ">
                         <select id="rfindd" onchange="forgiveday(this)" style="display:none;padding: 1.8px" name="day2">
+                            <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -482,6 +485,7 @@
                     <div style="border: 2px solid #c7a800; ">
                         <select id="rfinmm" onchange="wrappermonth(this)" name="month2"
                                 style="display:none;padding: 1.8px">
+                            <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -876,10 +880,6 @@
     const ffff1 = function (k) {
         let rf2selected = $("#rf2 :selected").val();
 
-        let shouldrfindd = false;
-        let shouldrfinmm = false;
-        let shouldrfinyy = false;
-
         if (rf2selected === "$") {
             $("#rf3").hide(1200);
 
@@ -910,13 +910,16 @@
             $("#rinitdd").show(1200);
             $("#rinitmm").show(1200);
 
-            $("#rfindd").show(1200);
-            $("#rfinmm").show(1200);
+            if ($("#rlim :selected").val() === "limited") {
+                $("#rfindd").show(1200);
+                $("#rfinmm").show(1200);
+                $("#rfinyy").show(1200);
+            }
+
         } else if (rf2selected === "months") {
             $("#rf3").empty();
-            $("#rf3").append("<option value=\"$\">--Please Select--</option>");
-            $("#rf3").append("<option value=\"default\">Specific day</option>");
             $("#rf3").append("<option value=\"eom\">End of month</option>")
+            $("#rf3").append("<option value=\"default\">Specific day</option>");
             $("#rf3").show(1200);
 
             $("#rdd").hide(1200);
@@ -930,13 +933,16 @@
 
             $("#rfindd").hide(1200);
             $("#rfindd :selected").prop('selected', false);
-            $("#rfinmm").show(1200);
+
+            if ($("#rlim :selected").val() === "limited") {
+                $("#rfinmm").show(1200);
+                $("#rfinyy").show(1200);
+            }
         } else if (rf2selected === "years") {
             $("#rf3").empty();
-            $("#rf3").append("<option value=\"$\">--Please Select--</option>");
-            $("#rf3").append("<option value=\"default\">Specific day</option>");
-            $("#rf3").append("<option value=\"eom\">End of month</option>")
             $("#rf3").append("<option value=\"eoy\">End of year</option>")
+            $("#rf3").append("<option value=\"eom\">End of month</option>")
+            $("#rf3").append("<option value=\"default\">Specific day</option>");
             $("#rf3").show(1200);
 
             $("#rdd").hide(1200);
@@ -953,6 +959,10 @@
             $("#rfindd :selected").prop('selected', false);
             $("#rfinmm").hide(1200);
             $("#rfinmm :selected").prop('selected', false);
+
+            if ($("#rlim :selected").val() === "limited") {
+                $("#rfinyy").show(1200);
+            }
         }
     }
 
@@ -963,13 +973,13 @@
             $("#rfinmm").hide(1200);
             $("#rfinyy").hide(1200);
         } else if ($("#rlim :selected").val() === "limited") {
-            if ($("#rf2 :selected").val() === "day") {
-                $("#rinitdd").show(1200);
-                $("#rinitmm").show(1200);
-            } else if ($("#rf2 :selected").val() === "month") {
-                $("#rinitmm").show(1200);
+            if ($("#rf2 :selected").val() === "days") {
+                $("#rfindd").show(1200);
+                $("#rfinmm").show(1200);
+            } else if ($("#rf2 :selected").val() === "months") {
+                $("#rfinmm").show(1200);
             }
-            $("#rinityy").show(1200);
+            $("#rfinyy").show(1200);
         }
 
     }
