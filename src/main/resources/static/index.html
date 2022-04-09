@@ -83,7 +83,7 @@
                 </td>   <!-- WT -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="00" onchange="forgiveday(this)" style="padding: 1.8px" name="day">
+                        <select id="00" onchange="forgive3(this)" style="padding: 1.8px" name="day">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -279,7 +279,7 @@
                 <!-- Day -->
                 <td style="border-spacing: 20px; padding-right: 10px">
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rdd" onchange="forgiveday(this)" style="display:none; padding: 1.8px" name="dd">
+                        <select id="rdd" onchange="forgive3(this)" style="display:none; padding: 1.8px" name="dd">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -374,7 +374,7 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rinitdd" onchange="forgiveday(this)" style="display:none;padding: 1.8px"
+                        <select id="rinitdd" onchange="forgive3(this)" style="display:none;padding: 1.8px"
                                 name="day1">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
@@ -443,7 +443,7 @@
                 <!-- Day -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <select id="rfindd" onchange="forgiveday(this)" style="display:none;padding: 1.8px" name="day2">
+                        <select id="rfindd" onchange="forgive3(this)" style="display:none;padding: 1.8px" name="day2">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
@@ -887,6 +887,31 @@
         if (!K.options[K.selectedIndex].value.includes("$"))
             K.style.removeProperty("color");
     }
+
+    //for day
+    const forgive3 = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+    }
+
+    const forgivef2 = function (k) {
+        if (!k.options[k.selectedIndex].value.includes("$"))
+            k.style.removeProperty("color");
+    }
+
+    function forgive4(k) {
+        //forgive
+        if (k.value !== "")
+            k.parentElement.style.border = "2px solid #c7a800";
+
+        if (!isNaN(k.value))
+            k.style.removeProperty("color");
+
+        if (Number(k.value) !== 0)
+            k.style.removeProperty("color");
+    }
+
+
 </script>
 
 <!-- TEST -->
@@ -909,6 +934,54 @@
             return true;
         reset(K);
         return false;
+    }
+</script>
+
+<!-- CHECK FOR DEPARTURE -->
+<script>
+    function check1(el) {
+        let flag = 0;
+        if (el.val() === "") {
+            el.parent().css("border", "2px solid red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function check2(el) {
+        let flag = 0;
+        if (el.val().includes(";")) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function check3(el) {
+        let flag = 0;
+        if (el.find(":selected").val().includes("$")) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function check4(el) {
+        let flag = 0;
+        if (isNaN(el.val())) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
+    }
+
+    function check5(el) {
+        let flag = 0;
+        if (Number(el.val()) === 0) {
+            el.css("color", "red");
+            flag++;
+        }
+        return flag;
     }
 </script>
 
@@ -945,7 +1018,6 @@
 <!-- FUNCTIONS -->
 <script>
 
-
     function wrapperf1(k) {
         //fix
         let regex = /^0+/;
@@ -960,11 +1032,6 @@
 
         if (k.value !== "")
             k.parentElement.style.border = "2px solid #c7a800";
-    }
-
-    const forgivef2 = function (k) {
-        if (!k.options[k.selectedIndex].value.includes("$"))
-            k.style.removeProperty("color");
     }
 
     const ffff1 = function (k) {
@@ -1121,11 +1188,6 @@
         }
     }
 
-    const forgiveday = function (k) {
-        if (!k.options[k.selectedIndex].value.includes("$"))
-            k.style.removeProperty("color");
-    }
-
     const wrappermonth = function (k) {
         if (!k.options[k.selectedIndex].value.includes("$"))
             k.style.removeProperty("color");
@@ -1172,22 +1234,9 @@
         //setdays(k);
     }
 
-
-    function f112(k) {
-        //forgive
-        if (k.value !== "")
-            k.parentElement.style.border = "2px solid #c7a800";
-
-        if (!isNaN(k.value))
-            k.style.removeProperty("color");
-
-        if (Number(k.value) !== 0)
-            k.style.removeProperty("color");
-    }
-
     function wrapperamount(k) {
         fix1(k);
-        f112(k);
+        forgive4(k);
     }
 
     /*
@@ -1240,96 +1289,6 @@
             el.find("[value = '" + currday + "']").prop('selected', true);
         }
     */
-    function check1(el) {
-        let flag = 0;
-        if (el.val() === "") {
-            el.parent().css("border", "2px solid red");
-            flag++;
-        }
-        return flag;
-    }
-
-    function check2(el) {
-        let flag = 0;
-        if (el.val().includes(";")) {
-            el.css("color", "red");
-            flag++;
-        }
-        return flag;
-    }
-
-    function check3(el) {
-        let flag = 0;
-        if (el.find(":selected").val().includes("$")) {
-            el.css("color", "red");
-            flag++;
-        }
-        return flag;
-    }
-
-    function check4(el) {
-        let flag = 0;
-        if (isNaN(el.val())) {
-            el.css("color", "red");
-            flag++;
-        }
-        return flag;
-    }
-
-    function check5(el) {
-        let flag = 0;
-        if (Number(el.val()) === 0) {
-            el.css("color", "red");
-            flag++;
-        }
-        return flag;
-    }
-
-    function _delete(_id) {
-        $.post("/delete", {data: _id}, function (returnedData) {
-            $("#" + _id).remove();
-            console.log(returnedData)
-        }).fail(function () {
-            console.log("error")
-        })
-    }
-
-    function _duplicate(_id) {
-        $.post("/duplicate", {data: _id}, function (returnedData) {
-            populate1();
-            console.log(returnedData)
-        }).fail(function () {
-            console.log("error")
-        })
-    }
-
-    function _update(_id) {
-
-        $.post("/get", {_id: _id}, function (returnedData) {
-            let o = JSON.parse(returnedData);
-            if (!o.repeated) {
-                $("#addnewsingleorderbtn123parent").css("display", "none");
-                $("#confirmupdatesingleorderbtn123parent").css("display", "inline-block");
-                $("#cancelsingleorderbtn123parent").css("display", "inline-block");
-                let sel = $("#id12345");
-                if (!sel.is(':visible')) {
-                    sel.slideDown(1500, function () {
-                        $("#clickme1").children().attr("src", "images/minus.png")
-                    });
-                }
-                $("#singleordernew [name = id]").val(_id);
-                $("#singleordernew [name = amount]").val(o.amount);
-                $("#singleordernew [name = descr]").val(o.descr);
-            } else {
-
-
-            }
-
-        }).fail(function () {
-            console.log("error")
-        })
-
-    }
 
     function confirmupdatesingleorder() {
 
@@ -1499,6 +1458,54 @@
 
     function haltprocessor() {
         $.post("/haltprocessor")
+    }
+</script>
+
+<script>
+    function _delete(_id) {
+        $.post("/delete", {data: _id}, function (returnedData) {
+            $("#" + _id).remove();
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
+    function _duplicate(_id) {
+        $.post("/duplicate", {data: _id}, function (returnedData) {
+            populate1();
+            console.log(returnedData)
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
+    function _update(_id) {
+
+        $.post("/get", {_id: _id}, function (returnedData) {
+            let o = JSON.parse(returnedData);
+            if (!o.repeated) {
+                $("#addnewsingleorderbtn123parent").css("display", "none");
+                $("#confirmupdatesingleorderbtn123parent").css("display", "inline-block");
+                $("#cancelsingleorderbtn123parent").css("display", "inline-block");
+                let sel = $("#id12345");
+                if (!sel.is(':visible')) {
+                    sel.slideDown(1500, function () {
+                        $("#clickme1").children().attr("src", "images/minus.png")
+                    });
+                }
+                $("#singleordernew [name = id]").val(_id);
+                $("#singleordernew [name = amount]").val(o.amount);
+                $("#singleordernew [name = descr]").val(o.descr);
+            } else {
+
+
+            }
+
+        }).fail(function () {
+            console.log("error")
+        })
+
     }
 </script>
 
