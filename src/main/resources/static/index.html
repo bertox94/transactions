@@ -894,10 +894,10 @@
 <script>
     //for description
     function forgive1(K) {
-        if (K.value !== "")
-            K.parentElement.style.border = "2px solid #c7a800";
-        if (K.value.includes(";"))
-            K.style.removeProperty("color");
+        if (K.val() !== "")
+            K.parent().css('border', "2px solid #c7a800");
+        if (!K.val().includes(";"))
+            K.css('color', '');
     }
 
     //for wt
