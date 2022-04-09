@@ -687,21 +687,30 @@
         return `${wday}, ${day} ${month} ${year}`;
     }
 
-    function setprev(k) {
-        k.dirName = JSON.stringify([k.value, k.selectionEnd, k.selectionEnd]);
+    function setprev(K) {
+        K.dirName = JSON.stringify([K.value, K.selectionEnd, K.selectionEnd]);
+    }
+
+    function resetinputfield(K) {
+        K.empty();
+    }
+
+    function resetselect(K) {
+        K.find(":selected").prop("selected", false);
+        K.find("[value = '$']").prop("selected", true);
     }
 </script>
 
 
 <script>
     function wrapperpreviewdate(K) {
-        if (success2(K))
+        if (successdate(K))
             populate2();
     }
 
     function wrapperpreviewbalance(K) {
-        fix1(K);
-        if (success1(K))
+        fixamount(K);
+        if (successamount(K))
             populate2();
     }
 
@@ -791,6 +800,37 @@
 
 <!-- INITIALIZER SCRIPT-->
 <script>
+
+    let rdesc = $("#rdesc");
+    let rwt = $("#rwt");
+    let rwts = $("#rwt :selected");
+    let rf1 = $("#rf1");
+    let rf1s = $("#rf1 :selected");
+    let rf2 = $("#rf2");
+    let rf2s = $("#rf2 :selected");
+    let rf3 = $("#rf3");
+    let rf3s = $("#rf3 :selected");
+    let rdd = $("#rdd");
+    let rdds = $("#rdd :selected");
+    let rmm = $("#rmm");
+    let rmms = $("#rmm :selected");
+    let rlim = $("#rlim");
+    let rlims = $("#rlim :selected");
+    let rinitdd = rinitdd;
+    let rinitdds = $("#rinitdd :selected");
+    let rinitmm = $("#rinitmm");
+    let rinitmms = $("#rinitmm :selected");
+    let rinityy = $("#rinityy");
+    let rinityys = $("#rinityy :selected");
+    let rfindd = $("#rfindd");
+    let rfindds = $("#rfindd :selected");
+    let rfinmm = $("#rfinmm");
+    let rfinmms = $("#rfinmm :selected");
+    let rfinyy = $("#rfinyy");
+    let rfinyys = $("#rfinyy :selected");
+    let ram = $("#ram");
+
+
     $("#l111").attr("width", $("#id12345").width())
     $("#l222").attr("width", $("#id12346").width())
     chart1([], [], []);
@@ -803,7 +843,7 @@
 <!-- FIX -->
 <script>
     // for amount of money
-    function fix1(K) {
+    function fixamount(K) {
 
         //allow number like -09987, since maybe you want to do -0.9987 -> -0.99
 
@@ -876,7 +916,7 @@
     }
 
     //for dates
-    function fix2(K) {
+    function fixdate(K) {
 
     }
 
@@ -921,7 +961,6 @@
             k.style.removeProperty("color");
     }
 
-
 </script>
 
 <!-- TEST -->
@@ -930,16 +969,14 @@
         [K.value, K.selectionEnd, K.selectionStart] = JSON.parse(K.dirName);
     }
 
-    // for amount of money
-    function success1(K) {
+    function successamount(K) {
         if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(K.value))
             return true;
         reset(K);
         return false;
     }
 
-    //for dates
-    function success2(K) {
+    function successdate(K) {
         if (/^(\d?\d?\.\d?\d?\.\d?\d?\d?\d?)$/.test(K.value))
             return true;
         reset(K);
@@ -949,49 +986,44 @@
 
 <!-- CHECK FOR DEPARTURE -->
 <script>
-    function check1(el) {
-        let flag = 0;
+    function isempty(el) {
         if (el.val() === "") {
             el.parent().css("border", "2px solid red");
-            flag++;
+            return 1;
         }
-        return flag;
+        return 0;
     }
 
-    function check2(el) {
-        let flag = 0;
+    function includessemicolon(el) {
         if (el.val().includes(";")) {
             el.css("color", "red");
-            flag++;
+            return 1;
         }
-        return flag;
+        return 0;
     }
 
-    function check3(el) {
-        let flag = 0;
+    function selectunselected(el) {
         if (el.find(":selected").val().includes("$")) {
             el.css("color", "red");
-            flag++;
+            return 1;
         }
-        return flag;
+        return 0;
     }
 
-    function check4(el) {
-        let flag = 0;
+    function notanumber(el) {
         if (isNaN(el.val())) {
             el.css("color", "red");
-            flag++;
+            return 1;
         }
-        return flag;
+        return 0;
     }
 
-    function check5(el) {
-        let flag = 0;
+    function amountstozero(el) {
         if (Number(el.val()) === 0) {
             el.css("color", "red");
-            flag++;
+            return 1;
         }
-        return flag;
+        return 0;
     }
 </script>
 
@@ -1055,7 +1087,7 @@
             $("#rmm").hide(1200);
             $("#rmm :selected").prop('selected', false);
 
-            $("#rinitdd").hide(1200);
+            rinitdd.hide(1200);
             $("#rinitdd :selected").prop('selected', false);
             $("#rinitmm").hide(1200);
             $("#rinitmm :selected").prop('selected', false);
@@ -1072,7 +1104,7 @@
             $("#rmm").hide(1200);
             $("#rmm :selected").prop('selected', false);
 
-            $("#rinitdd").show(1200);
+            rinitdd.show(1200);
             $("#rinitmm").show(1200);
 
             if ($("#rlim :selected").val() === "limited") {
@@ -1092,7 +1124,7 @@
             $("#rmm").hide(1200);
             $("#rmm :selected").prop('selected', false);
 
-            $("#rinitdd").hide(1200);
+            rinitdd.hide(1200);
             $("#rinitdd :selected").prop('selected', false);
             $("#rinitmm").show(1200);
 
@@ -1115,7 +1147,7 @@
             $("#rmm").hide(1200);
             $("#rmm :selected").prop('selected', false);
 
-            $("#rinitdd").hide(1200);
+            rinitdd.hide(1200);
             $("#rinitdd :selected").prop('selected', false);
             $("#rinitmm").hide(1200);
             $("#rinitmm :selected").prop('selected', false);
@@ -1245,8 +1277,8 @@
     }
 
     function wrapperamount(K) {
-        fix1(K);
-        success1(K)
+        fixamount(K);
+        successamount(K)
         forgive4(K);
     }
 
@@ -1320,16 +1352,16 @@
         let flag = 0;
 
         //CHECKS
-        flag += check1(el.find("[name = descr]"));
-        flag += check2(el.find("[name = descr]"));
-        flag += check3(el.find("[name = wt]"));
-        flag += check3(el.find("[name = day]"));
-        flag += check3(el.find("[name = month]"));
-        flag += check1(el.find("[name = year]"));
-        flag += check4(el.find("[name = year]"));
-        flag += check1(el.find("[name = amount]"));
-        flag += check4(el.find("[name = amount]"));
-        flag += check5(el.find("[name = amount]"));
+        flag += isempty(el.find("[name = descr]"));
+        flag += includessemicolon(el.find("[name = descr]"));
+        flag += selectunselected(el.find("[name = wt]"));
+        flag += selectunselected(el.find("[name = day]"));
+        flag += selectunselected(el.find("[name = month]"));
+        flag += isempty(el.find("[name = year]"));
+        flag += notanumber(el.find("[name = year]"));
+        flag += isempty(el.find("[name = amount]"));
+        flag += notanumber(el.find("[name = amount]"));
+        flag += amountstozero(el.find("[name = amount]"));
 
 
         if (flag > 0)
@@ -1354,110 +1386,104 @@
     }
 
     function addnewr() {
-        let el = $("#repeatedordernew");
         let flag = 0;
 
-        if (el.find("[name = f2] :selected").val() === "months" && el.find("[name = f1]").val() % 12 === 0) {
-            el.find("[name = f2]").val('years');
-            el.find("[name = f1]").val(el.find("[name = f1]").val() / 12);
+        //convert for example 12 months in 1 year etc.
+        if (rf2.val() === "months" && rf1.val() % 12 === 0) {
+            rf2.val('years');
+            rf1.val(rf1.val() / 12);
         }
 
         //CHECKS
-        flag += check1(el.find("[name = descr]"));
-        flag += check2(el.find("[name = descr]"));
-        flag += check3(el.find("[name = wt]"));
-        flag += check1(el.find("[name = f1]"));
-        flag += check3(el.find("[name = f2]"));
-        flag += check1(el.find("[name = amount]"));
-        flag += check4(el.find("[name = amount]"));
-        flag += check5(el.find("[name = amount]"));
+        //--EMPTY or UNSELECTED (always):
+        flag += isempty(rdesc);
+        flag += isempty(rwt);
+        flag += isempty(rf1);
+        flag += selectunselected(rf2);
+        flag += isempty(rinityy);
+        flag += isempty(ram);
 
-        if (el.find("[name = opt1] :selected").val() === "default") {
-            flag += check3(el.find("[name = day1]"));
-            flag += check3(el.find("[name = month1]"));
-            flag += check1(el.find("[name = year1]"));
-            flag += check4(el.find("[name = year1]"));
-        } else if (el.find("[name = opt1] :selected").val() === "eom") {
-            if (el.find("[name = f2] :selected").val() === "days") {
-                el.find("[name = opt1]").css("color", "red");
-                el.find("[name = f2]").css("color", "red");
-                flag++;
+
+        //--EMPTY or UNSELECTED (conditioned):
+        if (rlims.val() === "limited")
+            flag += isempty(rfinyy)
+
+        if (rf2s.val() === "days") {
+            flag += selectunselected(rinitdd);
+            flag += selectunselected($("#rinitmm"));
+            if (rlims.val() === "limited") {
+                flag += selectunselected($("#rfindd"));
+                flag += selectunselected($("#rfinmm"));
             }
-            flag += check3(el.find("[name = month1]"));
-            flag += check1(el.find("[name = year1]"));
-            flag += check4(el.find("[name = year1]"));
-        } else if (el.find("[name = opt1] :selected").val() === "eoy") {
-            if (el.find("[name = f2] :selected").val() !== "years") {
-                el.find("[name = opt1]").css("color", "red");
-                el.find("[name = f2]").css("color", "red");
-                flag++;
-            }
-            flag += check1(el.find("[name = year1]"));
-            flag += check4(el.find("[name = year1]"));
         }
 
-        if (!(el.find("[name = day2] :selected").val() === "$" &&
-            el.find("[name = month2] :selected").val() === "$" &&
-            el.find("[name = year2]").val() === "")) {
-            if (el.find("[name = opt2] :selected").val() === "default") {
-                flag += check3(el.find("[name = day2]"));
-                flag += check3(el.find("[name = month2]"));
-                flag += check1(el.find("[name = year2]"));
-                flag += check4(el.find("[name = year2]"));
-            } else if (el.find("[name = opt2] :selected").val() === "eom") {
-                flag += check3(el.find("[name = month2]"));
-                flag += check1(el.find("[name = year2]"));
-                flag += check4(el.find("[name = year2]"));
-            } else if (el.find("[name = opt2] :selected").val() === "eoy") {
-                flag += check1(el.find("[name = year2]"));
-                flag += check4(el.find("[name = year2]"));
+        if (rf2s.val() === "months") {
+            if ($("#rf3 :selected").val() === "default")
+                flag += selectunselected($("#rdd"));
+            flag += selectunselected($("#rinitmm"));
+            if (rlims.val() === "limited") {
+                flag += selectunselected($("#rfinmm"));
             }
         }
+
+        if (rf2s.val() === "years") {
+            if ($("#rf3 :selected").val() === "default") {
+                flag += selectunselected($("#rdd"));
+                flag += selectunselected($("#rmm"));
+            } else if ($("#rf3 :selected").val() === "eom")
+                flag += selectunselected($("#rmm"));
+        }
+
+        //--PROPERTIES
+        flag += includessemicolon($("#rdesc"));
+        flag += notanumber(el.find("[name = amount]"));
+        flag += amountstozero(el.find("[name = amount]"));
+
+        // QUICK CHECK ?
+        //...
 
         if (flag > 0)
             return;
 
-        let k = el;
+        //place two 00 if it is an integer number
+        let amount = $("#ram").val();
+        $("#ram").val(parseFloat(amount).toFixed(2));
 
-        el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
         $.post("/addnew", {
             data: JSON.stringify({
                 repeated: "true",
                 descr: $("#rdesc").val(),
                 wt: $("#rwt :selected").val(),
                 f1: $("#rf1").val(),
-                f2: $("#rf2 :selected").val(),
+                f2: rf2s.val(),
                 f3: $("#rf3 :selected").val(),
                 rdd: $("#rdd :selected").val(),
                 rmm: $("#rmm :selected").val(),
-                rlim: $("#rlim :selected").val(),
+                rlim: rlims.val(),
                 rinitdd: $("#rinitdd :selected").val(),
                 rinitmm: $("#rinitmm :selected").val(),
                 rinityy: $("#rinityy").val(),
                 rfindd: $("#rfindd :selected").val(),
                 rfinmm: $("#rfinmm :selected").val(),
-                rfinyy: $("#rfinyy").val(),
+                rfinyy: rfinyy.val(),
                 amount: $("#ram").val()
             })
         }, function (returnedData) {
-            el.find("[name = descr]").val("");
-            el.find("[name = wt]").val("$");
-            el.find("[name = f1]").val("");
-            el.find("[name = f2]").val("$");
-
-            el.find("[name = opt1]").val("default");
-            el.find("[name = year1]").val("");
-            el.find("[name = month1]").val("1");
-            el.find("[name = day1]").val("1");
-            //setdays(el.find("[name = day1]")[0]);
-
-            el.find("[name = opt2]").val("default");
-            el.find("[name = year2]").val("");
-            el.find("[name = month2]").val("12");
-            el.find("[name = day2]").val("31");
-            //setdays(el.find("[name = day2]")[0]);
-
-            el.find("[name = amount]").val("");
+            resetinputfield($("#descr"))
+            resetselect($("#rwt"))
+            resetinputfield($("#rf1"))
+            resetselect($("#rf2"))
+            resetselect($("#rf3"))
+            resetselect($("#rdd"))
+            resetselect($("#rmm"))
+            resetselect($("#rlim"))
+            resetselect(rinitdd)
+            resetselect($("#rinitmm"))
+            resetselect($("#rinityy"))
+            resetselect($("#rfindd"))
+            resetselect($("#rfinmm"))
+            resetselect(rfinyy)
+            resetinputfield($("#ram"))
 
             populate1();
 
