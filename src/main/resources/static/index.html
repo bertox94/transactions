@@ -184,8 +184,8 @@
 <!-- SPACING -->
 <div style="margin: 40px"></div>
 
-<!--NEW REPEATED ORDER-->
-<div id="repeatedordernew" style="overflow: hidden">
+<!--NEW REPEATING ORDER-->
+<div id="repeatingordernew" style="overflow: hidden">
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Repeated Order</h4></td>
@@ -211,7 +211,7 @@
                 <!-- Desc -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="$('#rdesc')" onkeyup="forgive1(this)"
+                        <input id="rdescr" onkeyup="forgive1($('#'+this.id))"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
@@ -219,7 +219,7 @@
                 <!-- WT -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rwt" onchange="forgive2(this)" name="wt" style="padding: 1.8px">
+                        <select id="rwt" onchange="forgive2($('#rdescr'))" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -1363,7 +1363,7 @@
 
         //CHECKS
         //--EMPTY or UNSELECTED (always):
-        flag += isempty($("#rdesc"));
+        flag += isempty($("#rdescr"));
         flag += isempty($("#rwt"));
         flag += isempty($("#rf1"));
         flag += selectunselected($("#rf2"));
@@ -1402,7 +1402,7 @@
         }
 
         //--PROPERTIES
-        flag += includessemicolon($("#rdesc"));
+        flag += includessemicolon($("#rdescr"));
         flag += notanumber(el.find("[name = amount]"));
         flag += amountstozero(el.find("[name = amount]"));
 
@@ -1419,7 +1419,7 @@
         $.post("/addnew", {
             data: JSON.stringify({
                 repeated: "true",
-                descr: $("#rdesc").val(),
+                descr: $("#rdescr").val(),
                 wt: $("#rwt :selected").val(),
                 f1: $("#rf1").val(),
                 f2: $("#rf2 :selected").val(),
