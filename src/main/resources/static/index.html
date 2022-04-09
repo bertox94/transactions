@@ -1107,17 +1107,7 @@
         }
 
         //0006 -> 06
-        regex = /^(-?)0+(0[1-9][0-9]*)$/;
-        if (K.value.match(regex)) {
-            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
-            if (caret === 0 && K.value[0] === "-")
-                caret += 1;
-            K.value = K.value.replace(regex, '$1$2');
-            K.selectionStart = K.selectionEnd = caret;
-        }
-
-        //0000 -> 0
-        regex = /^(-?)0+(0)$/;
+        regex = /^(-?)0+(0([1-9][0-9]*)?)$/;
         if (K.value.match(regex)) {
             let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
             if (caret === 0 && K.value[0] === "-")
