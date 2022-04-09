@@ -807,8 +807,18 @@
 
         //allow number like -09987, since maybe you want to do -0.9987 -> -0.99
 
+        //--000.4 -> -0.4
+        let regex = /^(-)-+/;
+        if (K.value.match(regex)) {
+            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
+            if (caret === 0 && K.value[0] === "-")
+                caret += 1;
+            K.value = K.value.replace(regex, '$1');
+            K.selectionStart = K.selectionEnd = caret;
+        }
+
         //000.4 -> 0.4
-        let regex = /^(-?)0+(0\.[0-9]*)/;
+        regex = /^(-?)0+(0\.[0-9]*)/;
         if (K.value.match(regex)) {
             let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
             if (caret === 0 && K.value[0] === "-")
@@ -1234,9 +1244,10 @@
         //setdays(k);
     }
 
-    function wrapperamount(k) {
-        fix1(k);
-        forgive4(k);
+    function wrapperamount(K) {
+        fix1(K);
+        success1(K)
+        forgive4(K);
     }
 
     /*
@@ -1481,7 +1492,6 @@
     }
 
     function _update(_id) {
-
         $.post("/get", {_id: _id}, function (returnedData) {
             let o = JSON.parse(returnedData);
             if (!o.repeated) {
@@ -1505,7 +1515,6 @@
         }).fail(function () {
             console.log("error")
         })
-
     }
 </script>
 
