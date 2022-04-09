@@ -68,13 +68,13 @@
             <tr id="singleordernew">
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input onkeyup="forgivedesc(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
+                        <input onkeyup="forgive1(this)" style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
                 </td>   <!-- Desc -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
+                        <select onchange="forgive2(this)" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -211,7 +211,7 @@
                 <!-- Desc -->
                 <td>
                     <div style="border: 2px solid #c7a800; ">
-                        <input id="rdesc" onkeyup="forgivedesc(this)"
+                        <input id="rdesc" onkeyup="forgive1(this)"
                                style="border: 0; padding-top: 3.2px; padding-bottom: 3.2px"
                                size="40" type="text" name="descr">
                     </div>
@@ -219,7 +219,7 @@
                 <!-- WT -->
                 <td>
                     <div style="border: 2px solid #c7a800;">
-                        <select id="rwt" onchange="forgivewt(this)" name="wt" style="padding: 1.8px">
+                        <select id="rwt" onchange="forgive2(this)" name="wt" style="padding: 1.8px">
                             <option value="$">--Please Select--</option>
                             <option style="color : black" value="true">Yes</option>
                             <option style="color : black" value="false">No</option>
@@ -536,7 +536,8 @@
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="previewenddate" onkeydown="setprev(this)" oninput="wrapperprevd(this)" dirname=""
+                       type="text" id="previewenddate" onkeydown="setprev(this)" oninput="wrapperpreviewdate(this)"
+                       dirname=""
                        size="10" value="31.12.2025">
             </div>
         </td>
@@ -544,7 +545,8 @@
         <td>
             <div>
                 <input style="text-align: center; background-color: #383737; color: #c7a800; outline: none; border: 0;"
-                       type="text" id="initalbalance" onkeydown="setprev(this)" oninput="wrapperprevb(this)" dirname=""
+                       type="text" id="initalbalance" onkeydown="setprev(this)" oninput="wrapperpreviewbalance(this)"
+                       dirname=""
                        size="10" value="150.00">
             </div>
         </td>
@@ -579,132 +581,14 @@
 
 
 <a onclick="haltprocessor()">Stop</a>
-<!-- HERE BELOW IT IS ALWAYS UPDATED THE FULL SCHEDULE-->
 
 
 </body>
 
-<!-- FUNCTIONS  -->
+<!-- CHARTS -->
 <script>
-
     let myChart;
     let myChart2;
-
-    function wrapperprevd(k) {
-
-        let invalid = true;
-
-        //test
-        if (/^(\d?\d?.\d?\d?.\d?\d?\d?\d?)$/.test(k.value))
-            invalid = false;
-
-        if (invalid) {
-            [k.value, k.selectionEnd, k.selectionStart] = JSON.parse(k.dirName);
-            return;
-        }
-
-        populate2();
-    }
-
-    function wrapperprevb(k) {
-        let valid = f111(k);
-        if (!valid)
-            return;
-
-        populate2();
-    }
-
-    function formatdate(date) {
-
-        let wday = new Date(date).toLocaleDateString('en-us', {weekday: 'short'})
-        let day = new Date(date).toLocaleDateString('en-us', {day: 'numeric'})
-        let month = new Date(date).toLocaleDateString('en-us', {month: 'short'})
-        let year = new Date(date).toLocaleDateString('en-us', {year: 'numeric'})
-        return `${wday}, ${day} ${month} ${year}`;
-    }
-
-    function populate1() {
-        $.post("/orders", function (returnedData) {
-
-            let i;
-            if (returnedData === "")
-                return;
-
-            let el = $("#orders tbody");
-            el.empty();
-            el.append("        <tr style=\"background: #c7a800;\">\n" +
-                "            <td colspan=\"6\"></td>\n" +
-                "        </tr>");
-
-
-            let lines = returnedData.split("\n");
-
-            for (i = 0; i < lines.length - 1; i++) {
-                data = JSON.parse(lines[i])
-                el.append("        <tr id='" + data.id + "'>\n" +
-                    "            <td>" + data.descr + "</td>\n" +
-                    "            <td style = 'text-align: right'><div class=\"animate\">Loading</div></td>\n" +
-                    "            <td style = 'text-align: right'>" + data.amount + "</td>\n" +
-                    "            <td onclick='_duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
-                    "            <td onclick='_update(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
-                    "            <td onclick='_delete(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
-                    "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
-                    "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
-                    "        </tr>"
-                )
-            }
-
-            i = 0;
-            el.find("tr").each(function () {
-                let ell = $(this).children();
-                if (ell.length > 1) {
-                    $.post("/schedule", {data: lines[i]}, function (returnedData) {
-                        ell[1].removeChild(ell[1].firstChild)
-                        ell[1].append(returnedData)
-                    })
-                    i++;
-                }
-            });
-        }).fail(function () {
-            console.log("error")
-        })
-    }
-
-    function populate2() {
-        $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
-
-            let obj = JSON.parse(returnedData);
-
-            if ($("#previewenddate").val() !== obj.enddate || $("#initalbalance").val() !== obj.initialbal)
-                return;
-
-            $("#preview tbody").empty();
-
-            let hhtml;
-            let warn = " style = \"color:  red; font-weight: bold;\"";
-            let bold = " style = \"font-weight: bold;\"";
-            for (let i = 0; i < obj.html.length; i++) {
-                let khtml = obj.html[i];
-                hhtml = "<tr>\n";
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.amount).toFixed(2) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.balance).toFixed(2) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + (parseFloat(khtml.balance) === 0 ? "ALERT" : (parseFloat(khtml.balance) < 0 ? "FAILURE" : "OK")) + "</td>\n"
-                hhtml += "</tr>\n";
-                $("#preview tbody").append(hhtml);
-            }
-
-            updatechart(myChart, obj.arr1, obj.arr2, obj.arr3)
-            updatechart(myChart2, obj.arr4, obj.arr5, obj.arr6)
-
-        }).fail(function () {
-            console.log("error")
-        });
-    }
 
     function chart1(arr1, arr2, arr3) {
         const ctx = document.getElementById('myChart');
@@ -784,13 +668,125 @@
         });
     }
 
-    function updatechart(chart, arr1, arr2, arr3) {
+    function updatecharts(chart, arr1, arr2, arr3) {
         chart.data.labels = arr1;
         chart.data.datasets[0].data = arr2;
         chart.data.datasets[1].data = arr3;
         chart.update();
     }
+</script>
 
+
+<script>
+    function formatdate(date) {
+
+        let wday = new Date(date).toLocaleDateString('en-us', {weekday: 'short'})
+        let day = new Date(date).toLocaleDateString('en-us', {day: 'numeric'})
+        let month = new Date(date).toLocaleDateString('en-us', {month: 'short'})
+        let year = new Date(date).toLocaleDateString('en-us', {year: 'numeric'})
+        return `${wday}, ${day} ${month} ${year}`;
+    }
+
+    function setprev(k) {
+        k.dirName = JSON.stringify([k.value, k.selectionEnd, k.selectionEnd]);
+    }
+</script>
+
+
+<script>
+    function wrapperpreviewdate(K) {
+        if (success2(K))
+            populate2();
+    }
+
+    function wrapperpreviewbalance(K) {
+        fix1(K);
+        if (success1(K))
+            populate2();
+    }
+
+    function populate1() {
+        $.post("/orders", function (returnedData) {
+
+            let i;
+            if (returnedData === "")
+                return;
+
+            let el = $("#orders tbody");
+            el.empty();
+            el.append("        <tr style=\"background: #c7a800;\">\n" +
+                "            <td colspan=\"6\"></td>\n" +
+                "        </tr>");
+
+
+            let lines = returnedData.split("\n");
+
+            for (i = 0; i < lines.length - 1; i++) {
+                data = JSON.parse(lines[i])
+                el.append("        <tr id='" + data.id + "'>\n" +
+                    "            <td>" + data.descr + "</td>\n" +
+                    "            <td style = 'text-align: right'><div class=\"animate\">Loading</div></td>\n" +
+                    "            <td style = 'text-align: right'>" + data.amount + "</td>\n" +
+                    "            <td onclick='_duplicate(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/plus.svg\"></td>\n" +
+                    "            <td onclick='_update(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/pencil.svg\"></td>\n" +
+                    "            <td onclick='_delete(" + data.id + ")' style=\"cursor: pointer; padding: 5px\"><img style=\"vertical-align:middle;\" width=\"15px\"\n" +
+                    "                                                           alt=\"No\" src=\"images/bin.svg\"></td>\n" +
+                    "            <td style=\"font-size:0;\">" + "" + "</td>\n" +
+                    "        </tr>"
+                )
+            }
+
+            i = 0;
+            el.find("tr").each(function () {
+                let ell = $(this).children();
+                if (ell.length > 1) {
+                    $.post("/schedule", {data: lines[i]}, function (returnedData) {
+                        ell[1].removeChild(ell[1].firstChild)
+                        ell[1].append(returnedData)
+                    })
+                    i++;
+                }
+            });
+        }).fail(function () {
+            console.log("error")
+        })
+    }
+
+    function populate2() {
+        $.post("/preview", {data: $("#previewenddate").val() + "\n" + $("#initalbalance").val()}, function (returnedData) {
+
+            let obj = JSON.parse(returnedData);
+
+            if ($("#previewenddate").val() !== obj.enddate || $("#initalbalance").val() !== obj.initialbal)
+                return;
+
+            $("#preview tbody").empty();
+
+            let hhtml;
+            let warn = " style = \"color:  red; font-weight: bold;\"";
+            let bold = " style = \"font-weight: bold;\"";
+            for (let i = 0; i < obj.html.length; i++) {
+                let khtml = obj.html[i];
+                hhtml = "<tr>\n";
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.amount).toFixed(2) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.balance).toFixed(2) + "</td>\n"
+                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + (parseFloat(khtml.balance) === 0 ? "ALERT" : (parseFloat(khtml.balance) < 0 ? "FAILURE" : "OK")) + "</td>\n"
+                hhtml += "</tr>\n";
+                $("#preview tbody").append(hhtml);
+            }
+
+            updatecharts(myChart, obj.arr1, obj.arr2, obj.arr3)
+            updatecharts(myChart2, obj.arr4, obj.arr5, obj.arr6)
+
+        }).fail(function () {
+            console.log("error")
+        });
+    }
 </script>
 
 <!-- INITIALIZER SCRIPT-->
@@ -802,6 +798,118 @@
     populate1();
     populate2();
 
+</script>
+
+<!-- FIX -->
+<script>
+    // for amount of money
+    function fix1(K) {
+
+        //allow number like -09987, since maybe you want to do -0.9987 -> -0.99
+
+        //000.4 -> 0.4
+        let regex = /^(-?)0+(0\.[0-9]*)/;
+        if (K.value.match(regex)) {
+            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
+            if (caret === 0 && K.value[0] === "-")
+                caret += 1;
+            K.value = K.value.replace(regex, '$1$2');
+            K.selectionStart = K.selectionEnd = caret;
+        }
+
+        //001.4 -> 1.4
+        regex = /^(-?)0+([1-9][0-9]*\.[0-9]*)/;
+        if (K.value.match(regex)) {
+            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
+            if (caret === 0 && K.value[0] === "-")
+                caret += 1;
+            K.value = K.value.replace(regex, '$1$2');
+            K.selectionStart = K.selectionEnd = caret;
+        }
+
+        //0006 -> 06
+        regex = /^(-?)0+(0([1-9][0-9]*)?)$/;
+        if (K.value.match(regex)) {
+            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
+            if (caret === 0 && K.value[0] === "-")
+                caret += 1;
+            K.value = K.value.replace(regex, '$1$2');
+            K.selectionStart = K.selectionEnd = caret;
+        }
+
+        //.124 -> 0.12
+        regex = /^(-?)\.([0-9]*)/;
+        if (K.value.match(regex) && !(JSON.parse(K.dirName)[0].indexOf("0.") > -1)) {
+            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
+            caret += 2;
+            K.value = K.value.replace(regex, '$10.$2');
+            K.selectionStart = K.selectionEnd = caret;
+        }
+
+        // 123456.78 -> 12345.6.78 -> 12345.6
+        // 12345 -> 12.345 -> 12.34
+        //-. -> -0.
+        let pos = K.value.indexOf(".");
+        if (pos > -1) {
+            let caret = K.selectionStart;
+            let n = K.value.slice(0, pos + 3).split('.').length - 1
+            if (n === 1) {
+                K.value = K.value.slice(0, pos + 3);
+                K.selectionStart = K.selectionEnd = caret;
+            } else {
+                let pre = K.value.slice(0, pos);
+                let post = K.value.slice(pos);
+                K.value = pre + "." + post.replaceAll(".", "").slice(0, 2);
+                K.selectionStart = K.selectionEnd = caret;
+            }
+        }
+    }
+
+    //for dates
+    function fix2(K) {
+
+    }
+
+</script>
+
+<!-- FORGIVE -->
+<script>
+    //for description
+    function forgive1(K) {
+        if (K.value !== "")
+            K.parentElement.style.border = "2px solid #c7a800";
+        if (K.value.includes(";"))
+            K.style.removeProperty("color");
+    }
+
+    //for wt
+    function forgive2(K) {
+        if (!K.options[K.selectedIndex].value.includes("$"))
+            K.style.removeProperty("color");
+    }
+</script>
+
+<!-- TEST -->
+<script>
+    function reset(K) {
+        [K.value, K.selectionEnd, K.selectionStart] = JSON.parse(K.dirName);
+    }
+
+    // for amount of money
+    function success1(K) {
+        if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(K.value))
+            return true;
+        reset(K);
+        return false;
+    }
+
+    //for dates
+    function success2(K) {
+        if (/^(\d?\d?\.\d?\d?\.\d?\d?\d?\d?)$/.test(K.value))
+            return true;
+        reset(K);
+        return false;
+    }
 </script>
 
 
@@ -819,7 +927,6 @@
             });
         }
     });
-
     $("#clickme2").click(function () {
         let sel = $("#id12346");
         if (!sel.is(':visible')) {
@@ -838,22 +945,6 @@
 <!-- FUNCTIONS -->
 <script>
 
-    function setprev(k) {
-        k.dirName = JSON.stringify([k.value, k.selectionEnd, k.selectionEnd]);
-    }
-
-    const forgivedesc = function (k) {
-        if (k.value !== "")
-            k.parentElement.style.border = "2px solid #c7a800";
-
-        if (k.value.includes(";"))
-            k.style.removeProperty("color");
-    }
-
-    const forgivewt = function (k) {
-        if (!k.options[k.selectedIndex].value.includes("$"))
-            k.style.removeProperty("color");
-    }
 
     function wrapperf1(k) {
         //fix
@@ -1081,77 +1172,6 @@
         //setdays(k);
     }
 
-    function f111(K) {
-        let invalid = true;
-
-        //allow number like -09987, since maybe you want to do -0.9987 -> -0.99
-
-        //000.4 -> 0.4
-        let regex = /^(-?)0+(0\.[0-9]*)/;
-        if (K.value.match(regex)) {
-            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
-            if (caret === 0 && K.value[0] === "-")
-                caret += 1;
-            K.value = K.value.replace(regex, '$1$2');
-            K.selectionStart = K.selectionEnd = caret;
-        }
-
-        //001.4 -> 1.4
-        regex = /^(-?)0+([1-9][0-9]*\.[0-9]*)/;
-        if (K.value.match(regex)) {
-            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
-            if (caret === 0 && K.value[0] === "-")
-                caret += 1;
-            K.value = K.value.replace(regex, '$1$2');
-            K.selectionStart = K.selectionEnd = caret;
-        }
-
-        //0006 -> 06
-        regex = /^(-?)0+(0([1-9][0-9]*)?)$/;
-        if (K.value.match(regex)) {
-            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
-            if (caret === 0 && K.value[0] === "-")
-                caret += 1;
-            K.value = K.value.replace(regex, '$1$2');
-            K.selectionStart = K.selectionEnd = caret;
-        }
-
-        //.124 -> 0.12
-        regex = /^(-?)\.([0-9]*)/;
-        if (K.value.match(regex) && !(JSON.parse(K.dirName)[0].indexOf("0.") > -1)) {
-            let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
-            caret += 2;
-            K.value = K.value.replace(regex, '$10.$2');
-            K.selectionStart = K.selectionEnd = caret;
-        }
-
-        // 123456.78 -> 12345.6.78 -> 12345.6
-        // 12345 -> 12.345 -> 12.34
-        //-. -> -0.
-        let pos = K.value.indexOf(".");
-        if (pos > -1) {
-            let caret = K.selectionStart;
-            let n = K.value.slice(0, pos + 3).split('.').length - 1
-            if (n === 1) {
-                K.value = K.value.slice(0, pos + 3);
-                K.selectionStart = K.selectionEnd = caret;
-            } else {
-                let pre = K.value.slice(0, pos);
-                let post = K.value.slice(pos);
-                K.value = pre + "." + post.replaceAll(".", "").slice(0, 2);
-                K.selectionStart = K.selectionEnd = caret;
-            }
-        }
-
-        //test
-        if (/^(-?[0-9]*\.?[0-9]?[0-9]?)$/.test(K.value))
-            invalid = false;
-
-        if (invalid)
-            [K.value, K.selectionEnd, K.selectionStart] = JSON.parse(K.dirName);
-
-        return !invalid;
-    }
 
     function f112(k) {
         //forgive
@@ -1166,7 +1186,7 @@
     }
 
     function wrapperamount(k) {
-        f111(k);
+        fix1(k);
         f112(k);
     }
 
