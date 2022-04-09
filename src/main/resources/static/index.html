@@ -1118,7 +1118,7 @@
 
         //.124 -> 0.12
         regex = /^(-?)\.([0-9]*)/;
-        if (K.value.match(regex) && (!JSON.parse(K.dirName)[0].indexOf("0.") > -1)) {
+        if (K.value.match(regex) && !(JSON.parse(K.dirName)[0].indexOf("0.") > -1)) {
             let caret = K.selectionStart === 0 ? 0 : K.selectionStart - 1;
             caret += 2;
             K.value = K.value.replace(regex, '$10.$2');
