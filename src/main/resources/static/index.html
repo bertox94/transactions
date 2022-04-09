@@ -816,7 +816,7 @@
     let rmms = $("#rmm :selected");
     let rlim = $("#rlim");
     let rlims = $("#rlim :selected");
-    let rinitdd = rinitdd;
+    let rinitdd = $("#rinitdd");
     let rinitdds = $("#rinitdd :selected");
     let rinitmm = $("#rinitmm");
     let rinitmms = $("#rinitmm :selected");
@@ -1077,97 +1077,97 @@
     }
 
     const ffff1 = function (k) {
-        let rf2selected = $("#rf2 :selected").val();
+        let rf2selected = rf2s.val();
 
         if (rf2selected === "$") {
-            $("#rf3").hide(1200);
+            rf3.hide(1200);
 
-            $("#rdd").hide(1200);
-            $("#rdd :selected").prop('selected', false);
-            $("#rmm").hide(1200);
-            $("#rmm :selected").prop('selected', false);
+            rdd.hide(1200);
+            rdds.prop('selected', false);
+            rmm.hide(1200);
+            rmms.prop('selected', false);
 
             rinitdd.hide(1200);
-            $("#rinitdd :selected").prop('selected', false);
-            $("#rinitmm").hide(1200);
-            $("#rinitmm :selected").prop('selected', false);
+            rinitdds.prop('selected', false);
+            rinitmm.hide(1200);
+            rinitmms.prop('selected', false);
 
-            $("#rfindd").hide(1200);
-            $("#rfindd :selected").prop('selected', false);
-            $("#rfinmm").hide(1200);
-            $("#rfinmm :selected").prop('selected', false);
+            rfindd.hide(1200);
+            rfindds.prop('selected', false);
+            rfinmm.hide(1200);
+            rfinmms.prop('selected', false);
         } else if (rf2selected === "days") {
-            $("#rf3").hide(1200);
+            rf3.hide(1200);
 
-            $("#rdd").hide(1200);
-            $("#rdd :selected").prop('selected', false);
-            $("#rmm").hide(1200);
-            $("#rmm :selected").prop('selected', false);
+            rdd.hide(1200);
+            rdds.prop('selected', false);
+            rmm.hide(1200);
+            rmms.prop('selected', false);
 
             rinitdd.show(1200);
-            $("#rinitmm").show(1200);
+            rinitmm.show(1200);
 
-            if ($("#rlim :selected").val() === "limited") {
-                $("#rfindd").show(1200);
-                $("#rfinmm").show(1200);
-                $("#rfinyy").show(1200);
+            if (rlims.val() === "limited") {
+                rfindd.show(1200);
+                rfinmm.show(1200);
+                rfinyy.show(1200);
             }
 
         } else if (rf2selected === "months") {
-            $("#rf3").empty();
-            $("#rf3").append("<option value=\"eom\">End of month</option>")
-            $("#rf3").append("<option value=\"default\">Specific day</option>");
-            $("#rf3").show(1200);
+            rf3.empty();
+            rf3.append("<option value=\"eom\">End of month</option>")
+            rf3.append("<option value=\"default\">Specific day</option>");
+            rf3.show(1200);
 
-            $("#rdd").hide(1200);
-            $("#rdd :selected").prop('selected', false);
-            $("#rmm").hide(1200);
-            $("#rmm :selected").prop('selected', false);
+            rdd.hide(1200);
+            rdds.prop('selected', false);
+            rmm.hide(1200);
+            rmms.prop('selected', false);
 
             rinitdd.hide(1200);
-            $("#rinitdd :selected").prop('selected', false);
-            $("#rinitmm").show(1200);
+            rinitdds.prop('selected', false);
+            rinitmm.show(1200);
 
-            $("#rfindd").hide(1200);
-            $("#rfindd :selected").prop('selected', false);
+            rfindd.hide(1200);
+            rfindds.prop('selected', false);
 
-            if ($("#rlim :selected").val() === "limited") {
-                $("#rfinmm").show(1200);
-                $("#rfinyy").show(1200);
+            if (rlims.val() === "limited") {
+                rfinmm.show(1200);
+                rfinyy.show(1200);
             }
         } else if (rf2selected === "years") {
-            $("#rf3").empty();
-            $("#rf3").append("<option value=\"eoy\">End of year</option>")
-            $("#rf3").append("<option value=\"eom\">End of month</option>")
-            $("#rf3").append("<option value=\"default\">Specific day</option>");
-            $("#rf3").show(1200);
+            rf3.empty();
+            rf3.append("<option value=\"eoy\">End of year</option>")
+            rf3.append("<option value=\"eom\">End of month</option>")
+            rf3.append("<option value=\"default\">Specific day</option>");
+            rf3.show(1200);
 
-            $("#rdd").hide(1200);
-            $("#rdd :selected").prop('selected', false);
-            $("#rmm").hide(1200);
-            $("#rmm :selected").prop('selected', false);
+            rdd.hide(1200);
+            rdds.prop('selected', false);
+            rmm.hide(1200);
+            rmms.prop('selected', false);
 
             rinitdd.hide(1200);
-            $("#rinitdd :selected").prop('selected', false);
-            $("#rinitmm").hide(1200);
-            $("#rinitmm :selected").prop('selected', false);
+            rinitdds.prop('selected', false);
+            rinitmm.hide(1200);
+            rinitmms.prop('selected', false);
 
-            $("#rfindd").hide(1200);
-            $("#rfindd :selected").prop('selected', false);
-            $("#rfinmm").hide(1200);
-            $("#rfinmm :selected").prop('selected', false);
+            rfindd.hide(1200);
+            rfindds.prop('selected', false);
+            rfinmm.hide(1200);
+            rfinmms.prop('selected', false);
 
-            if ($("#rlim :selected").val() === "limited") {
-                $("#rfinyy").show(1200);
+            if (rlims.val() === "limited") {
+                rfinyy.show(1200);
             }
         }
     }
 
     const fffff2 = function (k) {
 
-        let rf2selected = $("#rf2 :selected").val();
-        let rf3 = $("#rf3");
-        let rf3selected = $("#rf3 :selected").val();
+        let rf2selected = rf2s.val();
+        let rf3 = rf3;
+        let rf3selected = rf3s.val();
 
         if (rf2selected === "months") {
             if (rf3selected === "default") {
@@ -1196,23 +1196,23 @@
             }
         }
 
-        forgivef2($("#rf2")[0])
+        forgivef2(rf2[0])
     }
 
     const fffff3 = function (k) {
 
-        if ($("#rlim :selected").val() === "unlimited") {
-            $("#rfindd").hide(1200);
-            $("#rfinmm").hide(1200);
-            $("#rfinyy").hide(1200);
-        } else if ($("#rlim :selected").val() === "limited") {
-            if ($("#rf2 :selected").val() === "days") {
-                $("#rfindd").show(1200);
-                $("#rfinmm").show(1200);
-            } else if ($("#rf2 :selected").val() === "months") {
-                $("#rfinmm").show(1200);
+        if (rlims.val() === "unlimited") {
+            rfindd.hide(1200);
+            rfinmm.hide(1200);
+            rfinyy.hide(1200);
+        } else if (rlims.val() === "limited") {
+            if (rf2s.val() === "days") {
+                rfindd.show(1200);
+                rfinmm.show(1200);
+            } else if (rf2s.val() === "months") {
+                rfinmm.show(1200);
             }
-            $("#rfinyy").show(1200);
+            rfinyy.show(1200);
         }
 
     }
@@ -1410,32 +1410,32 @@
 
         if (rf2s.val() === "days") {
             flag += selectunselected(rinitdd);
-            flag += selectunselected($("#rinitmm"));
+            flag += selectunselected(rinitmm);
             if (rlims.val() === "limited") {
-                flag += selectunselected($("#rfindd"));
-                flag += selectunselected($("#rfinmm"));
+                flag += selectunselected(rfindd);
+                flag += selectunselected(rfinmm);
             }
         }
 
         if (rf2s.val() === "months") {
-            if ($("#rf3 :selected").val() === "default")
-                flag += selectunselected($("#rdd"));
-            flag += selectunselected($("#rinitmm"));
+            if (rf3s.val() === "default")
+                flag += selectunselected(rdd);
+            flag += selectunselected(rinitmm);
             if (rlims.val() === "limited") {
-                flag += selectunselected($("#rfinmm"));
+                flag += selectunselected(rfinmm);
             }
         }
 
         if (rf2s.val() === "years") {
-            if ($("#rf3 :selected").val() === "default") {
-                flag += selectunselected($("#rdd"));
-                flag += selectunselected($("#rmm"));
-            } else if ($("#rf3 :selected").val() === "eom")
-                flag += selectunselected($("#rmm"));
+            if (rf3s.val() === "default") {
+                flag += selectunselected(rdd);
+                flag += selectunselected(rmm);
+            } else if (rf3s.val() === "eom")
+                flag += selectunselected(rmm);
         }
 
         //--PROPERTIES
-        flag += includessemicolon($("#rdesc"));
+        flag += includessemicolon(rdesc);
         flag += notanumber(el.find("[name = amount]"));
         flag += amountstozero(el.find("[name = amount]"));
 
@@ -1446,44 +1446,44 @@
             return;
 
         //place two 00 if it is an integer number
-        let amount = $("#ram").val();
-        $("#ram").val(parseFloat(amount).toFixed(2));
+        let amount = ram.val();
+        ram.val(parseFloat(amount).toFixed(2));
 
         $.post("/addnew", {
             data: JSON.stringify({
                 repeated: "true",
-                descr: $("#rdesc").val(),
-                wt: $("#rwt :selected").val(),
-                f1: $("#rf1").val(),
+                descr: rdesc.val(),
+                wt: rwts.val(),
+                f1: rf1.val(),
                 f2: rf2s.val(),
-                f3: $("#rf3 :selected").val(),
-                rdd: $("#rdd :selected").val(),
-                rmm: $("#rmm :selected").val(),
+                f3: rf3s.val(),
+                rdd: rdds.val(),
+                rmm: rmms.val(),
                 rlim: rlims.val(),
-                rinitdd: $("#rinitdd :selected").val(),
-                rinitmm: $("#rinitmm :selected").val(),
-                rinityy: $("#rinityy").val(),
-                rfindd: $("#rfindd :selected").val(),
-                rfinmm: $("#rfinmm :selected").val(),
+                rinitdd: rinitdds.val(),
+                rinitmm: rinitmms.val(),
+                rinityy: rinityy.val(),
+                rfindd: rfindds.val(),
+                rfinmm: rfinmms.val(),
                 rfinyy: rfinyy.val(),
-                amount: $("#ram").val()
+                amount: ram.val()
             })
         }, function (returnedData) {
             resetinputfield($("#descr"))
-            resetselect($("#rwt"))
-            resetinputfield($("#rf1"))
-            resetselect($("#rf2"))
-            resetselect($("#rf3"))
-            resetselect($("#rdd"))
-            resetselect($("#rmm"))
-            resetselect($("#rlim"))
+            resetselect(rwt)
+            resetinputfield(rf1)
+            resetselect(rf2)
+            resetselect(rf3)
+            resetselect(rdd)
+            resetselect(rmm)
+            resetselect(rlim)
             resetselect(rinitdd)
-            resetselect($("#rinitmm"))
-            resetselect($("#rinityy"))
-            resetselect($("#rfindd"))
-            resetselect($("#rfinmm"))
+            resetselect(rinitmm)
+            resetselect(rinityy)
+            resetselect(rfindd)
+            resetselect(rfinmm)
             resetselect(rfinyy)
-            resetinputfield($("#ram"))
+            resetinputfield(ram)
 
             populate1();
 
