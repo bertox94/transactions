@@ -63,8 +63,14 @@ public:
     bool rlim;
     datetime rinitdt;
     datetime rfindt;
+    int rinitdd;
+    int rinitmm;
+    int rinityy;
+    int rfindd;
+    int rfinmm;
+    int rfinyy;
     double amount;
-    bool cancelled;
+    bool expired;
     bool scheduled;
 };
 
@@ -192,82 +198,79 @@ string print_formatted_dates(list<tuple<struct datetime, double, double>> record
     return s;
 }
 
-string schedule(order &el, datetime today) {
-    if (el.repeated) {
-        datetime initial_date = el.rinitdt;
-        if (initial_date >= today) {
-            el.planned_execution_date = initial_date;
-        } else {
-            if (el.f2 == "days") {
-                period pd = today - initial_date;
-                datetime dtt = initial_date + (pd / dd(el.f1)) * dd(el.f1) +
-                               (pd % dd(el.f1) == 0 ? dd(0) : dd(el.f1));
-                el.planned_execution_date = dtt;
-            } else if (el.f2 == "months") {
-                long long mm = initial_date.months_between(today);
-                datetime dtt = initial_date.after_months(
-                        (mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
-                if (el.f3 == "eom") {
-                    el.planned_execution_date = dtt.end_of_month();
-                } else {
-                    el.planned_execution_date = dtt;
-                    el.planned_execution_date.setDay(el.rdd).fix();
-                    if (el.wt)
-                        dtt = dtt.first_working_day();
-
-                    if (dtt.getYear() == today.getYear())
-                        if (dtt.getMonth() == today.getMonth())
-                            if (dtt.getDay() < today.getDay())
-                                el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix();
-                }
-            } else if (el.f2 == "years") {
-                long long yy = initial_date.years_between(today);
-                datetime dtt = initial_date.after_years(
-                        (yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1));
-                if (el.f2 == "eoy") {
-                    el.planned_execution_date = datetime(31, 12, dtt.getYear());
-                } else if (el.f2 == "eom") {
-                    el.planned_execution_date = dtt.end_of_month();
-                } else {
-                    if (el.rmm < today.getMonth() || el.rmm == today.getMonth() && el.rdd < today.getDay())
-                        dtt = dtt.after_years(el.f1).fix();
-                    el.planned_execution_date = dtt.setMonth(el.rmm).setDay(el.rdd).fix();
-                }
-            }
-        }
-    }
-
-    el.effective_execution_date = el.planned_execution_date;
+void adjust_if_wt(order &el) {
     if (el.wt)
-        el.effective_execution_date = el.effective_execution_date.first_working_day();
+        el.effective_execution_date = el.planned_execution_date.first_working_day();
+}
 
-    if (!el.repeated) {
-        if (el.effective_execution_date < today) {
-            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
-            el.cancelled = true;
-            return "Expired";
+void check_expired(order &el) {
+    if (el.rfindt != nullptr)
+        if (el.effective_execution_date > el.rfindt)
+            el.expired = true;
+}
+
+void schedule(order &el, datetime today) {
+    el.scheduled = true;
+    if (el.repeated) {
+        datetime dtt;
+        if (el.f2 == "days") {
+            dtt = {el.rinitdd, el.rinitmm, el.rinityy};
+            if (dtt < today) {
+                period pd = today - dtt;
+                dtt += (pd / dd(el.f1)) * dd(el.f1) + (pd % dd(el.f1) == 0 ? dd(0) : dd(el.f1));
+            }
+            el.planned_execution_date = dtt;
+            adjust_if_wt(el);
+            check_expired(el);
+        } else if (el.f2 == "months") {
+            long long mm;
+            if (el.f3 == "default")
+                dtt = {el.rdd, el.rinitmm, el.rinityy};
+            else
+                dtt = {EndOfMonth, el.rinitmm, el.rinityy};
+
+            mm = dtt.months_between(today);
+            dtt = dtt.after_months((mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
+
+            if (el.f3 == "default") {
+                if (dtt.getYear() == today.getYear() &&
+                    dtt.getMonth() == today.getMonth() &&
+                    dtt.getDay() < today.getDay())
+                    dtt = dtt.after_months(el.f1).fix();
+            }
+
+            el.planned_execution_date = dtt;
+            adjust_if_wt(el);
+            check_expired(el);
+        } else if (el.f2 == "years") {
+
+            long long yy;
+            if (el.f3 == "default")
+                dtt = {el.rdd, el.rinitmm, el.rinityy};
+            else if (el.f3 == "eom")
+                dtt = {EndOfMonth, el.rinitmm, el.rinityy};
+            else
+                dtt = {EndOfYear, el.rinityy};
+
+            yy = dtt.years_between(today);
+            dtt = dtt.after_years((yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1)).fix();
+
+            if (el.f3 == "default") {
+                if (dtt.getYear() == today.getYear() &&
+                    dtt.getMonth() == today.getMonth() &&
+                    dtt.getDay() < today.getDay())
+                    dtt = dtt.after_years(el.f1).fix();
+            }
+
+            el.planned_execution_date = dtt;
+            adjust_if_wt(el);
+            check_expired(el);
         }
+    } else {
+        el.planned_execution_date = datetime(el.rinitdd, el.rinitmm, el.rinityy);
+        adjust_if_wt(el);
+        check_expired(el);
     }
-
-    if (el.rfindt != nullptr) {
-        if (el.effective_execution_date > el.rfindt) {
-            //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
-            //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
-            el.cancelled = true;
-            return "Expired";
-        }
-    }
-
-
-    //cout << right << setw(14) << std::setfill(' ') << "Scheduled " << (el.repeated ? "     " : " (R) ")
-    //     << setw(24) << el.name << "        for: " << setw(30) << el.effective_execution_date
-    //     << std::setfill(' ') << endl;
-
-    stringstream ss;
-    ss << el.effective_execution_date;
-    return ss.str();
-
 };
 
 void scheduleall(list<order> &orders, datetime &today) {
@@ -287,8 +290,8 @@ void scheduleall(list<order> &orders, datetime &today) {
                 break;
         }
 
-        it->scheduled = true;
-        orders.insert(el, *it);
+        if (!it->expired)
+            orders.insert(el, *it);
         it = orders.erase(it);
     }
 }
@@ -297,7 +300,7 @@ void reschedule(order &el) {
 
     if (!el.repeated) {
         //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
-        el.cancelled = true;
+        el.expired = true;
         return;
     }
 
@@ -324,7 +327,7 @@ void reschedule(order &el) {
         if (el.effective_execution_date > el.rfindt) {
             //cout << right << setw(14) << std::setfill(' ') << "Cancelled "
             //     << (el.repeated ? "     " : " (R) ") << setw(24) << el.name << endl;
-            el.cancelled = true;
+            el.expired = true;
         }
     }
 
@@ -388,7 +391,8 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
                 break;
         }
 
-        orders.insert(el, *it);
+        if (!el->expired)
+            orders.insert(el, *it);
         it = orders.erase(it);
     }
 

@@ -8,6 +8,7 @@ import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ public class DemoApplication {
 
     public static void main(String[] args) {
 
-        initialize_processor();
+        //initialize_processor();
         initialize_DB_connection();
         SpringApplication.run(DemoApplication.class, args);
         LoggerFactory.getLogger(DemoApplication.class).info("Processor started.");
@@ -28,8 +29,9 @@ public class DemoApplication {
     }
 
     public static boolean initialize_processor() {
+        Path path = Paths.get("processor\\main.exe");
         try {
-            Files.delete(Paths.get("processor\\main.exe"));
+            Files.delete(path);
         } catch (Exception ignored) {
             //no problem
         }
@@ -43,7 +45,8 @@ public class DemoApplication {
         try {
             String[] command = {"cmd.exe", "/C", "Start /B", "E:\\workspace\\webapp-transaction-scheduler\\processor\\build.bat"};
             Runtime.getRuntime().exec(command);
-            while (Files.notExists(Paths.get("processor\\main.exe"))) {
+            while (Files.notExists(path)) {
+                //pass
             }
             Thread.sleep(500);
             Runtime.getRuntime().exec("E:\\workspace\\webapp-transaction-scheduler\\processor\\main.exe", null, new File("E:\\workspace\\webapp-transaction-scheduler\\processor"));

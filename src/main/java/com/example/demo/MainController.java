@@ -83,19 +83,19 @@ public class MainController {
         String orders = orders();
         StringBuilder resp = new StringBuilder(SpaceTime_Gap.send("preview\n" + data + "\n" + orders));
         int val = getvalue();
-        String TABLENAME = "public.preview" + val;
+        String TABLENAME = "public.preview";
         try {
 
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate("DROP TABLE IF EXISTS " + TABLENAME + " ;");
-
-            stmt.executeUpdate("CREATE TABLE " + TABLENAME + " ( " +
-                    " executiondate date NULL UNIQUE, " +
-                    " planneddate date NULL, " +
-                    " descr varchar NULL, " +
-                    " amount numeric NULL, " +
-                    " balance numeric NULL " +
-                    ");");
+            //stmt.executeUpdate("DROP TABLE IF EXISTS " + TABLENAME + " ;");
+//
+            //stmt.executeUpdate("CREATE TABLE " + TABLENAME + " ( " +
+            //        " executiondate date NULL UNIQUE, " +
+            //        " planneddate date NULL, " +
+            //        " descr varchar NULL, " +
+            //        " amount numeric NULL, " +
+            //        " balance numeric NULL " +
+            //        ");");
 
             String[] lines = resp.toString().split("\n");
             StringBuilder VALUES = new StringBuilder();
@@ -106,18 +106,19 @@ public class MainController {
                         .append(Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'").append(", ")
                         .append(Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'").append(", ")
                         .append(tokens[3]).append(", ")
+                        .append(val).append(", ")
                         .append(tokens[4]).append("), ");
             }
             VALUES.deleteCharAt(VALUES.length() - 2);
             VALUES.append(";");
 
             stmt.executeUpdate(
-                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, balance) VALUES " + VALUES);
+                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount,id, balance) VALUES " + VALUES);
 
             //QUERY FOR THE TABLE
             ResultSet rs = stmt.executeQuery("select * " +
                     " from " + TABLENAME +
-                    " where planneddate is not null; ");
+                    " where planneddate is not null and id = " + val + "; ");
 
             resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":[");
 
@@ -140,6 +141,7 @@ public class MainController {
             //QUERIES FOR THE FIRST CHART
             rs = stmt.executeQuery(" select distinct executiondate " +
                     " from " + TABLENAME +
+                    " where id = " + val +
                     " ORDER BY executiondate ASC;");
 
             resp.append("\"arr1\":[");
@@ -152,6 +154,7 @@ public class MainController {
 
             rs = stmt.executeQuery(" select sum(balance) as balance " +
                     " from " + TABLENAME + " " +
+                    " where id = " + val +
                     " group by executiondate " +
                     " order by executiondate; ");
 
@@ -167,6 +170,7 @@ public class MainController {
                     " FROM (" +
                     "   select distinct executiondate " +
                     "   FROM " + TABLENAME +
+                    " where id = " + val +
                     "   ) as subq1");
 
             long num = 0L;
@@ -178,6 +182,7 @@ public class MainController {
                     "        (select avg(balance) " +
                     "         from (select sum(balance) as balance " +
                     "               from " + TABLENAME + " " +
+                    "               where id = " + val +
                     "               group by executiondate " +
                     "               order by executiondate " +
                     "              ) as subq_b " +
@@ -185,6 +190,7 @@ public class MainController {
                     "                 from ( " +
                     "                          select distinct executiondate " +
                     "                          from " + TABLENAME + " " +
+                    "                          where id = " + val +
                     "                      ) as subq2 " +
                     "        ) as q " +
                     " from ( " +
@@ -196,6 +202,7 @@ public class MainController {
                     "                                              from ( " +
                     "                                                       select sum(balance) as balance " +
                     "                                                       from " + TABLENAME + " " +
+                    "                                                       where id = " + val +
                     "                                                       group by executiondate " +
                     "                                                       order by executiondate " +
                     "                                                   ) as subq1) as balance_a, " +
@@ -203,6 +210,7 @@ public class MainController {
                     "                            from ( " +
                     "                                     select sum(balance) as balance, executiondate " +
                     "                                     from " + TABLENAME + " " +
+                    "                                     where id = " + val +
                     "                                     group by executiondate " +
                     "                                     order by executiondate " +
                     "                                 ) as subq2 " +
@@ -211,12 +219,14 @@ public class MainController {
                     "                                                                                     from ( " +
                     "                                                                                              select distinct executiondate " +
                     "                                                                                              from " + TABLENAME + " " +
+                    "                                                                                              where id = " + val +
                     "                                                                                          ) as subq2 " +
                     "                                ) as x_a, " +
                     "                                       executiondate " +
                     "                                from ( " +
                     "                                         select distinct executiondate " +
                     "                                         from " + TABLENAME + " " +
+                    "                                         where id = " + val +
                     "                                     ) as subq1 " +
                     "                            ) as subq3 on subq2.executiondate = subq3.executiondate " +
                     "                            where subq2.executiondate is not null " +
@@ -230,10 +240,12 @@ public class MainController {
                     "                                                                                 from ( " +
                     "                                                                                          select distinct executiondate " +
                     "                                                                                          from " + TABLENAME + " " +
+                    "                                                                                          where id = " + val +
                     "                                                                                      ) as subq2) as x_a " +
                     "                            from ( " +
                     "                                     select distinct executiondate " +
                     "                                     from " + TABLENAME + " " +
+                    "                                     where id = " + val +
                     "                                 ) as subq1 " +
                     "                        ) as subq5 " +
                     "               ) as sub7 " +
@@ -257,7 +269,7 @@ public class MainController {
             //QUERIES FOR THE SECOND CHART
             rs = stmt.executeQuery(" select executiondate " +
                     " from " + TABLENAME + " " +
-                    " where planneddate is not null" +
+                    " where planneddate is not null and id = " + val +
                     " order by executiondate;");
 
             resp.append("\"arr4\":[");
@@ -270,7 +282,7 @@ public class MainController {
 
             rs = stmt.executeQuery(" select amount " +
                     " from " + TABLENAME + " " +
-                    " where planneddate is not null " +
+                    " where planneddate is not null and id = " + val +
                     "order by executiondate;");
 
             resp.append("\"arr5\":[");
@@ -283,7 +295,7 @@ public class MainController {
 
             rs = stmt.executeQuery(" select balance " +
                     " from " + TABLENAME + " " +
-                    " where planneddate is not null" +
+                    " where planneddate is not null and id = " + val +
                     " order by executiondate;");
 
             resp.append("\"arr6\":[");
@@ -294,7 +306,7 @@ public class MainController {
             }
             resp.append("]}");
 
-            stmt.executeUpdate("DROP TABLE " + TABLENAME + " ;");
+            stmt.executeUpdate("DELETE FROM " + TABLENAME + " WHERE id = " + val + " ;");
 
         } catch (SQLException e) {
             e.printStackTrace();

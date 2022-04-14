@@ -34,8 +34,6 @@ SOFTWARE.*/
 #include <iomanip>
 #include <string>
 
-using namespace std;
-
 class dd {
 private:
     long long param;
@@ -316,13 +314,22 @@ public:
 
 };
 
+class eom {
+};
+
+class eoy {
+};
+
+static eom EndOfMonth;
+static eoy EndOfYear;
+
 /**
  * www, dd.MMM.yy, hh:mm:ss
  * ~~~, !!.@@@.##, $$:%%:&&
  */
 class datetime_formatter {
 public:
-    string format = "####-@@-!!";
+    std::string format = "####-@@-!!";
     bool month_str = false;
     bool h24 = true;
     bool keep_original_length = false;
@@ -347,9 +354,9 @@ private:
     _datetime *curr = nullptr;
 
     void _copyvalues(const datetime &dt) {
-        curr->day = dt.curr->day;
-        curr->month = dt.curr->month;
         curr->year = dt.curr->year;
+        curr->month = dt.curr->month;
+        curr->day = dt.curr->day;
         curr->hrs = dt.curr->hrs;
         curr->min = dt.curr->min;
         curr->sec = dt.curr->sec;
@@ -478,17 +485,31 @@ public:
 
     datetime(long long _day, long long _month, long long _year) {
         curr = new _datetime();
-        curr->day = _day - 1;
-        curr->month = _month - 1;
         curr->year = _year;
+        curr->month = _month - 1;
+        curr->day = _day - 1;
+    }
+
+    datetime(eom _eom, long long _month, long long _year) {
+        curr = new _datetime();
+        curr->year = _year;
+        curr->month = _month - 1;
+        curr->day = days_of_month(curr->month, curr->year) - 1;
+    }
+
+    datetime(eoy _eoy, long long _year) {
+        curr = new _datetime();
+        curr->year = _year;
+        curr->month = 11;
+        curr->day = days_of_month(curr->month, curr->year) - 1;
     }
 
 
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
             datetime(_day, _month, _year) {
-        curr->sec = _sec;
-        curr->min = _min;
         curr->hrs = _hrs;
+        curr->min = _min;
+        curr->sec = _sec;
     }
 
     ~datetime() { delete curr; }
@@ -852,18 +873,18 @@ period operator-(period &p) { return {dd(-p.getDays()), hh(-p.getHrs()), mm(-p.g
 
 period operator-(period &&p) { return -p; }
 
-void replace(string &input, const string &from, const string &to) {
+void replace(std::string &input, const std::string &from, const std::string &to) {
     unsigned int pos = 0;
     while (true) {
         size_t startPosition = input.find(from, pos);
-        if (startPosition == string::npos)
+        if (startPosition == std::string::npos)
             return;
         input.replace(startPosition, from.length(), to);
         pos += to.length();
     }
 }
 
-string to_week_day(int wk) {
+std::string to_week_day(int wk) {
     switch (wk) {
         case 0:
             return "Sunday";
@@ -880,11 +901,11 @@ string to_week_day(int wk) {
         case 6:
             return "Saturday";
         default:
-            throw runtime_error("");
+            throw std::runtime_error("");
     }
 }
 
-string to_month(int mm) {
+std::string to_month(int mm) {
     switch (mm) {
         case 1:
             return "January";
@@ -911,7 +932,7 @@ string to_month(int mm) {
         case 12:
             return "December";
         default:
-            throw runtime_error("");
+            throw std::runtime_error("");
     }
 }
 
@@ -920,7 +941,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     if (dd == nullptr)
         return os << "null";
 
-    string output = dd.format.format;
+    std::string output = dd.format.format;
     bool month_str = dd.format.month_str;
     bool h24 = dd.format.h24;
     bool keep_original_length = dd.format.keep_original_length;
@@ -934,7 +955,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     replace(output, std::string(num, '~'), W);
 
     num = output.find_last_of('!') - output.find('!') + 1;
-    std::string D = to_string(dd.getDay());
+    std::string D = std::to_string(dd.getDay());
     if (!keep_original_length) {
         D.insert(0, num - D.length(), '0');
     }
@@ -949,14 +970,14 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
             M += std::string(num - M.length(), ' ');
         }
     } else {
-        M = to_string(dd.getMonth());
+        M = std::to_string(dd.getMonth());
         if (!keep_original_length)
             M.insert(0, num - M.length(), '0');
     }
     replace(output, std::string(num, '@'), M);
 
     num = output.find_last_of('#') - output.find('#') + 1;
-    std::string Y = to_string(abs(dd.getYear()));
+    std::string Y = std::to_string(abs(dd.getYear()));
     if (!keep_original_length) {
         if (dd.getYear() >= 0) {
             if (Y.length() > num) {
@@ -981,27 +1002,27 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     std::string h;
     if (!h24) {
         if (dd.getHrs() > 12) {
-            h = to_string(dd.getHrs() - 12);
+            h = std::to_string(dd.getHrs() - 12);
             output += " PM";
         } else {
-            h = to_string(dd.getHrs());
+            h = std::to_string(dd.getHrs());
             output += " AM";
         }
     } else {
-        h = to_string(dd.getHrs());
+        h = std::to_string(dd.getHrs());
     }
     if (!keep_original_length)
         h.insert(0, (num > h.length() ? num - h.length() : 0), '0');
     replace(output, std::string(num, '$'), h);
 
     num = output.find_last_of('%') - output.find('%') + 1;
-    std::string m = to_string(dd.getMin());
+    std::string m = std::to_string(dd.getMin());
     if (!keep_original_length)
         m.insert(0, (num > m.length() ? num - m.length() : 0), '0');
     replace(output, std::string(num, '%'), m);
 
     num = output.find_last_of('&') - output.find('&') + 1;
-    std::string s = to_string(dd.getSec());
+    std::string s = std::to_string(dd.getSec());
     if (!keep_original_length)
         s.insert(0, (num > s.length() ? num - s.length() : 0), '0');
     replace(output, std::string(num, '&'), s);
