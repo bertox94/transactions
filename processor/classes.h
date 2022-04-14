@@ -761,9 +761,9 @@ public:
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
-     * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
+     * e.g. (5.1.2020).months_to(3.2.2020) =====> 1.
      */
-    long long months_between(datetime &dt) const {
+    long long months_to(datetime &dt) const {
         return 12 * (dt.curr->year - curr->year) + dt.curr->month - curr->month;
     }
 
@@ -790,7 +790,7 @@ public:
 
     /**
      * @return is the number of years from @this and @param dt regardless of the dd,
-     * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
+     * e.g. (5.1.2020).months_to(3.8.2021) =====> 1.
      */
     long long years_between(datetime &dt) const { return dt.curr->year - curr->year; }
 

@@ -84,7 +84,7 @@
                 <td>
                     <div style="border: 2px solid #c7a800; ">
                         <select id="00" onchange="forgive3(this)" style="padding: 1.8px" name="day">
-                            <option value="$">--Please Select--</option>
+                            <option selected value="$">--Please Select--</option>
                             <option style="color : black" value="1">1</option>
                             <option style="color : black" value="2">2</option>
                             <option style="color : black" value="3">3</option>
@@ -122,7 +122,7 @@
                 <td>
                     <div style="border: 2px solid #c7a800; ">
                         <select id="01" onchange="wrappermonth(this)" name="month" style="padding: 1.8px">
-                            <option value="$">--Please Select--</option>
+                            <option selected value="$">--Please Select--</option>
                             <option style="color : black" value="1">January</option>
                             <option style="color : black" value="2">February</option>
                             <option style="color : black" value="3">March</option>
@@ -774,17 +774,17 @@
             $("#preview tbody").empty();
 
             let hhtml;
-            let warn = " style = \"color:  red; font-weight: bold;\"";
-            let bold = " style = \"font-weight: bold;\"";
+            let warn = " color:  red; font-weight: bold;";
+            let bold = " font-weight: bold;";
             for (let i = 0; i < obj.html.length; i++) {
                 let khtml = obj.html[i];
                 hhtml = "<tr>\n";
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + "> " + formatdate(khtml.planneddate) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "> " + formatdate(khtml.executiondate) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + khtml.descr + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.amount).toFixed(2) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + parseFloat(khtml.balance).toFixed(2) + "</td>\n"
-                hhtml += "  <td " + (parseFloat(khtml.balance) < 0 ? warn : '') + ">" + (parseFloat(khtml.balance) === 0 ? "ALERT" : (parseFloat(khtml.balance) < 0 ? "FAILURE" : "OK")) + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : '') + "'> " + formatdate(khtml.planneddate) + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : (khtml.planneddate !== khtml.executiondate ? bold : '')) + "'> " + formatdate(khtml.executiondate) + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : '') + "'>" + khtml.descr + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : '') + "'>" + parseFloat(khtml.amount).toFixed(2) + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : '') + "'>" + parseFloat(khtml.balance).toFixed(2) + "</td>\n"
+                hhtml += "  <td style='text-align:right;" + (parseFloat(khtml.balance) < 0 ? warn : '') + "'>" + (parseFloat(khtml.balance) === 0 ? "ALERT" : (parseFloat(khtml.balance) < 0 ? "FAILURE" : "OK")) + "</td>\n"
                 hhtml += "</tr>\n";
                 $("#preview tbody").append(hhtml);
             }
@@ -1335,17 +1335,19 @@
             return;
 
         el.find("[name = amount]").val(parseFloat(el.find("[name = amount]").val()).toFixed(2));
-        $.post("/addnew", {data: JSON.stringify(preparetosend(el))}, function (returnedData) {
-            el.find("[name = descr]").val("")
-            el.find("[name = wt]").val("$")
-            el.find("[name = year]").val("")
-            el.find("[name = month]").val("$")
-            el.find("[name = day]").val("$");
-            setdays(el.find("[name = day]")[0]);
-            el.find("[name = amount]").val("");
 
+        $.post("/addnew", {
+            data: JSON.stringify({
+                repeated: "true",
+                descr: el.find("[name = descr]").val(),
+                wt: el.find("[name = wt] :selected").val(),
+                day: el.find("[name = day] :selected").val(),
+                month: el.find("[name = month] :selected").val(),
+                year: el.find("[name = year]").val(),
+                amount: el.find("[name = amount]").val(),
+            })
+        }, function (returnedData) {
             populate1();
-
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
@@ -1403,8 +1405,8 @@
 
         //--PROPERTIES
         flag += includessemicolon($("#rdescr"));
-        flag += notanumber(el.find("[name = amount]"));
-        flag += amountstozero(el.find("[name = amount]"));
+        flag += notanumber($("#ram"));
+        flag += amountstozero($("#ram"));
 
         // QUICK CHECK ?
         //...
