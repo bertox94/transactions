@@ -162,15 +162,15 @@ public class MainController {
                     "   RANGE BETWEEN " +
                     "   UNBOUNDED PRECEDING AND " +
                     "   UNBOUNDED FOLLOWING " +
-                    ") as bal " +
+                    ") as balance " +
                     " FROM " + TABLENAME +
                     " order by executiondate; ");
 
             resp.append("\"arr2\":[");
             if (rs.next())
-                resp.append("\"").append(rs.getString(1)).append("\"");
+                resp.append("\"").append(rs.getString(2)).append("\"");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(1)).append("\"");
+                resp.append(",\"").append(rs.getString(2)).append("\"");
             }
             resp.append("], ");
 
