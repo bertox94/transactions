@@ -152,10 +152,18 @@ public class MainController {
             }
             resp.append("], ");
 
-            rs = stmt.executeQuery(" select sum(balance) as balance " +
-                    " from " + TABLENAME + " " +
-                    " where id = " + val +
-                    " group by executiondate " +
+            rs = stmt.executeQuery(" SELECT " +
+                    " distinct on (executiondate) " +
+                    " executiondate, " +
+                    " LAST_VALUE(balance) " +
+                    " OVER( " +
+                    "   PARTITION BY executiondate " +
+                    "   ORDER BY executiondate " +
+                    "   RANGE BETWEEN " +
+                    "   UNBOUNDED PRECEDING AND " +
+                    "   UNBOUNDED FOLLOWING " +
+                    ") as bal " +
+                    " FROM " + TABLENAME +
                     " order by executiondate; ");
 
             resp.append("\"arr2\":[");
@@ -180,12 +188,21 @@ public class MainController {
 
             rs = stmt.executeQuery(" select m, " +
                     "        (select avg(balance) " +
-                    "         from (select sum(balance) as balance " +
-                    "               from " + TABLENAME + " " +
-                    "               where id = " + val +
-                    "               group by executiondate " +
-                    "               order by executiondate " +
-                    "              ) as subq_b " +
+                    "         from ( " +
+                    "           SELECT " +
+                    " 			distinct on (executiondate) " +
+                    " 			executiondate, " +
+                    " 			LAST_VALUE(balance) " +
+                    " 			OVER( " +
+                    "   			PARTITION BY executiondate " +
+                    "   			ORDER BY executiondate " +
+                    "   			RANGE BETWEEN " +
+                    "               UNBOUNDED PRECEDING AND " +
+                    "               UNBOUNDED FOLLOWING " +
+                    "           ) as balance " +
+                    "           FROM " + TABLENAME +
+                    "           order by executiondate " +
+                    "           ) as subq_b " +
                     "        ) - m * (select (count(*) + 1) / 2.0 " +
                     "                 from ( " +
                     "                          select distinct executiondate " +
@@ -200,20 +217,36 @@ public class MainController {
                     "                   from ( " +
                     "                            select balance - (select avg(balance) " +
                     "                                              from ( " +
-                    "                                                       select sum(balance) as balance " +
-                    "                                                       from " + TABLENAME + " " +
-                    "                                                       where id = " + val +
-                    "                                                       group by executiondate " +
-                    "                                                       order by executiondate " +
+                    "                                                   SELECT " +
+                    " 			                                        distinct on (executiondate) " +
+                    " 			                                        executiondate, " +
+                    " 			                                        LAST_VALUE(balance) " +
+                    " 			                                        OVER( " +
+                    "   		                                        	PARTITION BY executiondate " +
+                    "   		                                        	ORDER BY executiondate " +
+                    "   		                                        	RANGE BETWEEN " +
+                    "                                                       UNBOUNDED PRECEDING AND " +
+                    "                                                       UNBOUNDED FOLLOWING " +
+                    "                                                   ) as balance " +
+                    "                                                   FROM " + TABLENAME +
+                    "                                                   order by executiondate " +
                     "                                                   ) as subq1) as balance_a, " +
                     "                                   x_a " +
                     "                            from ( " +
-                    "                                     select sum(balance) as balance, executiondate " +
-                    "                                     from " + TABLENAME + " " +
-                    "                                     where id = " + val +
-                    "                                     group by executiondate " +
-                    "                                     order by executiondate " +
-                    "                                 ) as subq2 " +
+                    "                               SELECT " +
+                    " 			                    distinct on (executiondate) " +
+                    " 			                    executiondate, " +
+                    " 			                    LAST_VALUE(balance) " +
+                    " 			                    OVER( " +
+                    "   		                    	PARTITION BY executiondate " +
+                    "   		                    	ORDER BY executiondate " +
+                    "   		                    	RANGE BETWEEN " +
+                    "                                   UNBOUNDED PRECEDING AND " +
+                    "                                   UNBOUNDED FOLLOWING " +
+                    "                               ) as balance " +
+                    "                               FROM " + TABLENAME +
+                    "                               order by executiondate " +
+                    "                              ) as subq2 " +
                     "                                     full outer join ( " +
                     "                                select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
                     "                                                                                     from ( " +
