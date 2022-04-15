@@ -152,19 +152,12 @@ public class MainController {
             }
             resp.append("], ");
 
-            rs = stmt.executeQuery(" SELECT " +
-                    " distinct on (executiondate) " +
-                    " executiondate, " +
-                    " LAST_VALUE(balance) " +
-                    " OVER( " +
-                    "   PARTITION BY executiondate " +
-                    "   ORDER BY executiondate " +
-                    "   RANGE BETWEEN " +
-                    "   UNBOUNDED PRECEDING AND " +
-                    "   UNBOUNDED FOLLOWING " +
-                    ") as balance " +
-                    " FROM " + TABLENAME +
-                    " order by executiondate; ");
+            rs = stmt.executeQuery("select distinct on (executiondate) executiondate, balance " +
+                    "from (" +
+                    "   select ROW_NUMBER() OVER() as rownumber, *" +
+                    "   from preview p " +
+                    "   order by rownumber desc " +
+                    ") as subq2; ");
 
             resp.append("\"arr2\":[");
             if (rs.next())
@@ -186,103 +179,82 @@ public class MainController {
                 num = rs.getLong(1);
             }
 
-            rs = stmt.executeQuery(" select m, " +
-                    "        (select avg(balance) " +
-                    "         from ( " +
-                    "           SELECT " +
-                    " 			distinct on (executiondate) " +
-                    " 			executiondate, " +
-                    " 			LAST_VALUE(balance) " +
-                    " 			OVER( " +
-                    "   			PARTITION BY executiondate " +
-                    "   			ORDER BY executiondate " +
-                    "   			RANGE BETWEEN " +
-                    "               UNBOUNDED PRECEDING AND " +
-                    "               UNBOUNDED FOLLOWING " +
-                    "           ) as balance " +
-                    "           FROM " + TABLENAME +
-                    "           order by executiondate " +
+            rs = stmt.executeQuery("select m, (select avg(balance) " +
+                    "           from ( " +
+                    "               select distinct on (executiondate) executiondate, balance " +
+                    "               from ( " +
+                    "                   select ROW_NUMBER() OVER() as rownumber, * " +
+                    "                   from preview p " +
+                    "                   order by rownumber desc " +
+                    "               ) as subq223 " +
                     "           ) as subq_b " +
-                    "        ) - m * (select (count(*) + 1) / 2.0 " +
-                    "                 from ( " +
-                    "                          select distinct executiondate " +
-                    "                          from " + TABLENAME + " " +
-                    "                          where id = " + val +
-                    "                      ) as subq2 " +
-                    "        ) as q " +
-                    " from ( " +
-                    "          select _num / nullif(_denom,0) as m " +
-                    "          from ( " +
-                    "                   select sum(balance_a * x_a) as _num " +
+                    "       ) - m * (select (count(*) + 1) / 2.0 " +
+                    "           from ( " +
+                    "               select distinct executiondate " +
+                    "               from " + TABLENAME + " " +
+                    "               where id = " + val +
+                    "           ) as subq2 " +
+                    "       ) as q " +
+                    "       from ( " +
+                    "           select _num / nullif(_denom,0) as m " +
+                    "           from ( " +
+                    "               select sum(balance_a * x_a) as _num " +
+                    "               from ( " +
+                    "                   select balance - (select avg(balance) " +
+                    "                       from ( " +
+                    "                           select distinct on (executiondate) executiondate, balance " +
+                    "                           from ( " +
+                    "                               select ROW_NUMBER() OVER() as rownumber, * " +
+                    "                               from preview p " +
+                    "                               order by rownumber desc " +
+                    "                           ) as subq223 " +
+                    "                       ) as subq1" +
+                    "                   ) as balance_a, " +
+                    "                   x_a " +
                     "                   from ( " +
-                    "                            select balance - (select avg(balance) " +
-                    "                                              from ( " +
-                    "                                                   SELECT " +
-                    " 			                                        distinct on (executiondate) " +
-                    " 			                                        executiondate, " +
-                    " 			                                        LAST_VALUE(balance) " +
-                    " 			                                        OVER( " +
-                    "   		                                        	PARTITION BY executiondate " +
-                    "   		                                        	ORDER BY executiondate " +
-                    "   		                                        	RANGE BETWEEN " +
-                    "                                                       UNBOUNDED PRECEDING AND " +
-                    "                                                       UNBOUNDED FOLLOWING " +
-                    "                                                   ) as balance " +
-                    "                                                   FROM " + TABLENAME +
-                    "                                                   order by executiondate " +
-                    "                                                   ) as subq1) as balance_a, " +
-                    "                                   x_a " +
-                    "                            from ( " +
-                    "                               SELECT " +
-                    " 			                    distinct on (executiondate) " +
-                    " 			                    executiondate, " +
-                    " 			                    LAST_VALUE(balance) " +
-                    " 			                    OVER( " +
-                    "   		                    	PARTITION BY executiondate " +
-                    "   		                    	ORDER BY executiondate " +
-                    "   		                    	RANGE BETWEEN " +
-                    "                                   UNBOUNDED PRECEDING AND " +
-                    "                                   UNBOUNDED FOLLOWING " +
-                    "                               ) as balance " +
-                    "                               FROM " + TABLENAME +
-                    "                               order by executiondate " +
-                    "                              ) as subq2 " +
-                    "                                     full outer join ( " +
-                    "                                select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
-                    "                                                                                     from ( " +
-                    "                                                                                              select distinct executiondate " +
-                    "                                                                                              from " + TABLENAME + " " +
-                    "                                                                                              where id = " + val +
-                    "                                                                                          ) as subq2 " +
-                    "                                ) as x_a, " +
-                    "                                       executiondate " +
-                    "                                from ( " +
-                    "                                         select distinct executiondate " +
-                    "                                         from " + TABLENAME + " " +
-                    "                                         where id = " + val +
-                    "                                     ) as subq1 " +
-                    "                            ) as subq3 on subq2.executiondate = subq3.executiondate " +
-                    "                            where subq2.executiondate is not null " +
-                    "                               or subq3.executiondate is not null " +
-                    "                        ) as subq4 " +
-                    "               ) as sub6, " +
-                    "               ( " +
-                    "                   select sum(x_a ^ 2) as _denom " +
+                    "                       select distinct on (executiondate) executiondate, balance " +
+                    "                       from ( " +
+                    "                           select ROW_NUMBER() OVER() as rownumber, * " +
+                    "                           from preview p " +
+                    "                           order by rownumber desc " +
+                    "                       ) as subq223 " +
+                    "                    ) as subq2 " +
+                    "                    full outer join ( " +
+                    "                       select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
+                    "                           from ( " +
+                    "                               select distinct executiondate " +
+                    "                               from " + TABLENAME + " " +
+                    "                               where id = " + val +
+                    "                           ) as subq2 " +
+                    "                       ) as x_a, " +
+                    "                       executiondate " +
+                    "                       from ( " +
+                    "                           select distinct executiondate " +
+                    "                           from " + TABLENAME + " " +
+                    "                           where id = " + val +
+                    "                       ) as subq1 " +
+                    "                    ) as subq3 on subq2.executiondate = subq3.executiondate " +
+                    "                    where subq2.executiondate is not null " +
+                    "                    or subq3.executiondate is not null " +
+                    "               ) as subq4 " +
+                    "           ) as sub6, ( " +
+                    "               select sum(x_a ^ 2) as _denom " +
+                    "               from ( " +
+                    "                   select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
+                    "                       from ( " +
+                    "                            select distinct executiondate " +
+                    "                            from " + TABLENAME + " " +
+                    "                            where id = " + val +
+                    "                        ) as subq2" +
+                    "                   ) as x_a " +
                     "                   from ( " +
-                    "                            select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
-                    "                                                                                 from ( " +
-                    "                                                                                          select distinct executiondate " +
-                    "                                                                                          from " + TABLENAME + " " +
-                    "                                                                                          where id = " + val +
-                    "                                                                                      ) as subq2) as x_a " +
-                    "                            from ( " +
-                    "                                     select distinct executiondate " +
-                    "                                     from " + TABLENAME + " " +
-                    "                                     where id = " + val +
-                    "                                 ) as subq1 " +
-                    "                        ) as subq5 " +
-                    "               ) as sub7 " +
-                    "      ) as sub14; ");
+                    "                       select distinct executiondate " +
+                    "                       from " + TABLENAME + " " +
+                    "                       where id = " + val +
+                    "                   ) as subq1 " +
+                    "               ) as subq5 " +
+                    "           ) as sub7 " +
+                    "       ) as sub14; ");
 
             double m = 0;
             double q = 0;
