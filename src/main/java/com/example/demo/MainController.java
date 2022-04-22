@@ -390,22 +390,24 @@ public class MainController {
     public String duplicate(@RequestParam String data) {
         try {
             Statement stmt = connection.createStatement();
+
+            String _SUB_Q_ID = " (  SELECT ROW_NUMBER " +
+                    "               FROM (" +
+                    "                  SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
+                    "                  FROM ( " +
+                    "                      SELECT id    " +
+                    "                      FROM orders " +
+                    "                      UNION ALL  " +
+                    "                      SELECT COALESCE(MAX(id),2) AS id   " +
+                    "                      FROM orders         " +
+                    "                  ) AS sub1" +
+                    "               ) AS sub2       " +
+                    "               WHERE ROW_NUMBER != id      " +
+                    "               LIMIT 1) ";
+
             stmt.executeUpdate(
                     "INSERT INTO public.orders (id, encoded) " +
-                            "SELECT (" +
-                            "       SELECT ROW_NUMBER " +
-                            "       FROM( " +
-                            "           SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
-                            "           FROM (  " +
-                            "               SELECT id " +
-                            "               FROM orders " +
-                            "               UNION ALL " +
-                            "               SELECT COALESCE(MAX(id),2) AS id " +
-                            "               FROM orders " +
-                            "           ) AS sub1 " +
-                            "       ) AS sub2 " +
-                            "       WHERE ROW_NUMBER != id " +
-                            "       LIMIT 1 ),encoded " +
+                            "SELECT " + _SUB_Q_ID + ", REGEXP_REPLACE(encoded, '{\"id\":\"[0-9]*\"', '{\"id\":\"'||" + _SUB_Q_ID + "||'\"' ) " +
                             "FROM public.orders " +
                             "WHERE id = " + data + ";");
 
