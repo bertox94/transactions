@@ -141,8 +141,15 @@ void t_handler(SOCKET ClientSocket) {
         string cmd = msg.substr(0, msg.find('\n'));
         if (cmd == "schedule") {
             msg = msg.substr(msg.find('\n') + 1);
-            order o(JSONtomap(msg));
-            resp = schedule(o, datetime(time(NULL)));
+            auto map = JSONtomap(msg);
+            datetime dt = datetime(time(NULL));
+            if (map["repeated"] == "true") {
+                repeated_order ro(map);
+                resp = ro.schedule(dt);
+            } else {
+                single_order so(map);
+                resp = so.schedule(dt);
+            }
         } else if (cmd == "preview") {
             msg = msg.substr(msg.find('\n') + 1);
 
@@ -153,9 +160,14 @@ void t_handler(SOCKET ClientSocket) {
             double amount = stod(msg.substr(0, msg.find('\n')));
             msg = msg.substr(msg.find('\n') + 1);
 
-            list<order> orders;
-            for (; !msg.empty(); msg = msg.substr(msg.find('\n') + 1))
-                orders.emplace_back(JSONtomap(msg.substr(0, msg.find('\n'))));
+            list<shared_ptr<order>> orders;
+            for (; !msg.empty(); msg = msg.substr(msg.find('\n') + 1)) {
+                auto map = JSONtomap(msg.substr(0, msg.find('\n')));
+                if (map["repeated"] == "true")
+                    orders.push_back(make_shared<repeated_order>(JSONtomap(msg.substr(0, msg.find('\n')))));
+                else
+                    orders.push_back(make_shared<single_order>(JSONtomap(msg.substr(0, msg.find('\n')))));
+            }
             resp = preview(orders, enddate, amount);
         }
     }

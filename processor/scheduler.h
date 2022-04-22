@@ -22,52 +22,92 @@ std::string trim(const std::string &str, const std::string &whitespace = " \t") 
 
 class order {
 public:
-
-    explicit order(unordered_map<string, string> map) {
-
-        if (map.size() == 8) {
-            repeated = false;
-            descr = map["descr"];
-            wt = map["wt"] == "true";
-            amount = stol(map["amount"]);
-            planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
-        } else if (map.size() == 17) {
-            repeated = map["repeated"] == "true";
-            descr = map["descr"];
-            wt = map["wt"] == "true";
-            f1 = stol(map["f1"]);
-            f2 = map["f2"];
-            f3 = map["f3"];
-            if (map["rdd"] != "$")
-                rdd = stoi(map["rdd"]);
-            if (map["rmm"] != "$")
-                rmm = stoi(map["rmm"]);
-            if (map["rinitdd"] != "$")
-                rinitdd = stoi(map["rinitdd"]);
-            if (map["rinitmm"] != "$")
-                rinitmm = stoi(map["rinitmm"]);
-            if (map["rinityy"] != "$")
-                rinityy = stol(map["rinityy"]);
-            rlim = map["rlim"] == "limited";
-            if (rlim) {
-                if (map["rfindd"] != "$")
-                    rfindd = stoi(map["rfindd"]);
-                if (map["rfinmm"] != "$")
-                    rfinmm = stoi(map["rfinmm"]);
-                if (map["rfinyy"] != "$")
-                    rfinyy = stol(map["rfinyy"]);
-            }
-            amount = stod(map["amount"]);
-        }
-    }
-
-
-    datetime planned_execution_date;
-    datetime effective_execution_date;
-
     bool repeated;
     string descr;
     bool wt;
+    datetime planned_execution_date;
+    datetime effective_execution_date;
+    double amount;
+    bool scheduled = false;
+    bool expired = false;
+
+    explicit order(unordered_map<string, string> map) {
+        descr = map["descr"];
+        wt = map["wt"] == "true";
+        amount = stol(map["amount"]);
+    }
+
+    virtual void check_expired(datetime &today) = 0;
+
+    virtual std::string schedule(datetime &today) = 0;
+
+    virtual void reschedule(datetime &today) {};
+
+    virtual void execute(double &balance) = 0;
+
+    void set_execution_date() {
+        effective_execution_date = planned_execution_date;
+        if (wt)
+            effective_execution_date = effective_execution_date.first_working_day();
+    }
+};
+
+class single_order : public order {
+public:
+    explicit single_order(unordered_map<string, string> map) : order(map) {
+        repeated = false;
+        planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
+    }
+
+    void check_expired(datetime &today) override {
+        if (effective_execution_date < today)
+            expired = true;
+    }
+
+    std::string schedule(datetime &today) override {
+        scheduled = true;
+        set_execution_date();
+        check_expired(today);
+        std::stringstream ss;
+        ss << effective_execution_date;
+        return expired ? "Expired" : ss.str();
+    }
+
+    void execute(double &balance) override {
+        expired = true;
+        balance += amount;
+    }
+
+};
+
+class repeated_order : public order {
+public:
+    explicit repeated_order(unordered_map<string, string> map) : order(map) {
+        repeated = true;
+        f1 = stol(map["f1"]);
+        f2 = map["f2"];
+        f3 = map["f3"];
+        if (map["rdd"] != "$")
+            rdd = stoi(map["rdd"]);
+        if (map["rmm"] != "$")
+            rmm = stoi(map["rmm"]);
+        if (map["rinitdd"] != "$")
+            rinitdd = stoi(map["rinitdd"]);
+        if (map["rinitmm"] != "$")
+            rinitmm = stoi(map["rinitmm"]);
+        if (map["rinityy"] != "$")
+            rinityy = stol(map["rinityy"]);
+        rlim = map["rlim"] == "limited";
+        if (rlim) {
+            if (map["rfindd"] != "$")
+                rfindd = stoi(map["rfindd"]);
+            if (map["rfinmm"] != "$")
+                rfinmm = stoi(map["rfinmm"]);
+            if (map["rfinyy"] != "$")
+                rfinyy = stol(map["rfinyy"]);
+        }
+    }
+
     long f1;
     string f2;
     string f3;
@@ -80,213 +120,162 @@ public:
     int rfindd;
     int rfinmm;
     int rfinyy;
-    double amount;
-    bool expired = false;
-    bool scheduled = false;
-};
 
-void insert_in_order(list<tuple<std::string, struct datetime, struct datetime, double, double>> &records,
-                     order &el, double &balance) {
-    auto back = records.back();
-    auto dd = std::get<2>(back) + ::dd(1);
-    while (dd < el.effective_execution_date) {
-        records.emplace_back("", datetime(), dd, 0, std::get<4>(back));
-        dd += ::dd(1);
-    }
-    records.emplace_back(el.descr, el.planned_execution_date, el.effective_execution_date, el.amount, balance);
-}
-
-void set_execution_date(order &el) {
-    el.effective_execution_date = el.planned_execution_date;
-    if (el.wt)
-        el.effective_execution_date = el.effective_execution_date.first_working_day();
-}
-
-void check_expired(order &el, datetime &today) {
-
-    if (el.effective_execution_date < today) {
-        el.expired = true;
-        return;
-    }
-
-    if (el.repeated) {
-        if (!el.rlim) {
+    void check_expired(datetime &today) override {
+        if (!rlim)
             return;
-        } else {
-            datetime enddate;
-            if (el.f2 == "days") {
-                enddate = datetime(el.rfindd, el.rfinmm, el.rfinyy);
-            } else if (el.f2 == "months") {
-                if (el.f3 == "eom")
-                    enddate = datetime(EndOfMonth, el.rfinmm, el.rfinyy);
-                else
-                    enddate = datetime(el.rdd, el.rfinmm, el.rfinyy);
-            } else if (el.f2 == "years") {
-                if (el.f3 == "eoy")
-                    enddate = datetime(EndOfYear, el.rfinyy);
-                else if (el.f3 == "eom")
-                    enddate = datetime(EndOfMonth, el.rmm, el.rfinyy);
-                else
-                    enddate = datetime(el.rdd, el.rmm, el.rfinyy);
-            }
-            if (el.effective_execution_date > enddate)
-                el.expired = true;
+
+        datetime enddate;
+        if (f2 == "days") {
+            enddate = datetime(rfindd, rfinmm, rfinyy);
+        } else if (f2 == "months") {
+            if (f3 == "eom")
+                enddate = datetime(EndOfMonth, rfinmm, rfinyy);
+            else
+                enddate = datetime(rdd, rfinmm, rfinyy);
+        } else if (f2 == "years") {
+            if (f3 == "eoy")
+                enddate = datetime(EndOfYear, rfinyy);
+            else if (f3 == "eom")
+                enddate = datetime(EndOfMonth, rmm, rfinyy);
+            else
+                enddate = datetime(rdd, rmm, rfinyy);
         }
+        if (effective_execution_date > enddate)
+            expired = true;
     }
 
-
-}
-
-std::string schedule(order &el, datetime today) {
-    el.scheduled = true;
-    if (el.repeated) {
+    std::string schedule(datetime &today) override {
+        scheduled = true;
         datetime dtt;
-        if (el.f2 == "days") {
-            dtt = {el.rinitdd, el.rinitmm, el.rinityy};
+        if (f2 == "days") {
+            dtt = {rinitdd, rinitmm, rinityy};
             if (dtt < today) {
                 period pd = today - dtt;
-                dtt += (pd / dd(el.f1)) * dd(el.f1) + (pd % dd(el.f1) == 0 ? dd(0) : dd(el.f1));
+                dtt += (pd / dd(f1)) * dd(f1) + (pd % dd(f1) == 0 ? dd(0) : dd(f1));
             }
-            el.planned_execution_date = dtt;
-            set_execution_date(el);
-            check_expired(el, today);
-        } else if (el.f2 == "months") {
+            planned_execution_date = dtt;
+            set_execution_date();
+            check_expired(today);
+        } else if (f2 == "months") {
             long long mm;
-            if (el.f3 == "default")
-                dtt = {el.rdd, el.rinitmm, el.rinityy};
+            if (f3 == "default")
+                dtt = {rdd, rinitmm, rinityy};
             else
-                dtt = {EndOfMonth, el.rinitmm, el.rinityy};
+                dtt = {EndOfMonth, rinitmm, rinityy};
 
             if (dtt < today) {
                 mm = dtt.months_to(today);
-                dtt = dtt.after_months((mm / el.f1) * el.f1 + (mm % el.f1 == 0 ? 0 : el.f1)).fix();
+                dtt = dtt.after_months((mm / f1) * f1 + (mm % f1 == 0 ? 0 : f1)).fix();
 
-                if (el.f3 == "default") {
+                if (f3 == "default") {
                     if (dtt.getYear() == today.getYear() &&
                         dtt.getMonth() == today.getMonth() &&
                         dtt.getDay() < today.getDay())
-                        dtt = dtt.after_months(el.f1).fix();
+                        dtt = dtt.after_months(f1).fix();
                 }
             }
 
-            el.planned_execution_date = dtt;
-            set_execution_date(el);
-            check_expired(el, today);
-        } else if (el.f2 == "years") {
+            planned_execution_date = dtt;
+            set_execution_date();
+            check_expired(today);
+        } else if (f2 == "years") {
             long long yy;
-            if (el.f3 == "default")
-                dtt = {el.rdd, el.rinitmm, el.rinityy};
-            else if (el.f3 == "eom")
-                dtt = {EndOfMonth, el.rinitmm, el.rinityy};
+            if (f3 == "default")
+                dtt = {rdd, rinitmm, rinityy};
+            else if (f3 == "eom")
+                dtt = {EndOfMonth, rinitmm, rinityy};
             else
-                dtt = {EndOfYear, el.rinityy};
+                dtt = {EndOfYear, rinityy};
 
             if (dtt < today) {
                 yy = dtt.years_between(today);
-                dtt = dtt.after_years((yy / el.f1) * el.f1 + (yy % el.f1 == 0 ? 0 : el.f1)).fix();
+                dtt = dtt.after_years((yy / f1) * f1 + (yy % f1 == 0 ? 0 : f1)).fix();
 
-                if (el.f3 == "default") {
+                if (f3 == "default") {
                     if (dtt.getYear() == today.getYear() &&
                         dtt.getMonth() == today.getMonth() &&
                         dtt.getDay() < today.getDay())
-                        dtt = dtt.after_years(el.f1).fix();
+                        dtt = dtt.after_years(f1).fix();
                 }
             }
 
-            el.planned_execution_date = dtt;
-            set_execution_date(el);
-            check_expired(el, today);
+            planned_execution_date = dtt;
+            set_execution_date();
+            check_expired(today);
         }
-    } else {
-        set_execution_date(el);
-        check_expired(el, today);
+
+        std::stringstream ss;
+        ss << effective_execution_date;
+        return expired ? "Expired" : ss.str();
     }
 
-    std::stringstream ss;
-    ss << el.effective_execution_date;
-    return el.expired ? "Expired" : ss.str();
+    void reschedule(datetime &today) override {
+        if (f2 == "days") {
+            planned_execution_date += dd(f1);
+        } else if (f2 == "months") {
+            if (f3 == "eom") {
+                planned_execution_date = planned_execution_date.after_months(f1).fix().end_of_month();
+            } else {
+                planned_execution_date = planned_execution_date.after_months(f1).setDay(rdd).fix();
+            }
+        } else if (f2 == "years") {
+            if (f3 == "eoy") {
+                planned_execution_date = planned_execution_date.after_years(f1);
+            } else if (f3 == "eom") {
+                planned_execution_date = planned_execution_date.after_years(f1);
+            } else {
+                planned_execution_date = planned_execution_date.after_years(f1).setMonth(rmm).setDay(
+                        rdd).fix();
+            }
+        }
+
+        set_execution_date();
+        check_expired(today);
+    }
+
+    void execute(double &balance) override {
+        balance += amount;
+    }
+};
+
+void insert_in_order(list<tuple<std::string, struct datetime, struct datetime, double, double>> &records,
+                     const shared_ptr<order> &el, double &balance) {
+    auto back = records.back();
+    auto dd = std::get<2>(back) + ::dd(1);
+    while (dd < el->effective_execution_date) {
+        records.emplace_back("", datetime(), dd, 0, std::get<4>(back));
+        dd += ::dd(1);
+    }
+    records.emplace_back(el->descr, el->planned_execution_date, el->effective_execution_date, el->amount, balance);
 }
 
-void scheduleall(list<order> &orders, datetime &today) {
+void scheduleall(list<shared_ptr<order>> &orders, datetime &today) {
     for (auto it = orders.begin(); it != orders.end();) {
-        schedule(*it, today);
+        (*it)->schedule(today);
         auto el = orders.begin();
-        while (el != orders.end() && el->scheduled && el->effective_execution_date < it->effective_execution_date)
+        while (el != orders.end() && (*el)->scheduled &&
+               (*el)->effective_execution_date < (*it)->effective_execution_date)
             el++;
         auto el2 = el;
         while (el2 != orders.end()) {
             el2++;
-            if (el2 != orders.end() && el2->scheduled &&
-                el2->effective_execution_date == it->effective_execution_date &&
-                el2->amount < it->amount)
+            if (el2 != orders.end() && (*el2)->scheduled &&
+                (*el2)->effective_execution_date == (*it)->effective_execution_date &&
+                (*el2)->amount < (*it)->amount)
                 el++;
             else
                 break;
         }
 
-        if (!it->expired)
+        if (!(*it)->expired)
             orders.insert(el, *it);
         it = orders.erase(it);
     }
 }
 
-void reschedule(order &el, datetime &today) {
 
-    if (!el.repeated) {
-        //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
-        el.expired = true;
-        return;
-    }
-
-    if (el.f2 == "days") {
-        el.planned_execution_date += dd(el.f1);
-    } else if (el.f2 == "months") {
-        if (el.f3 == "eom") {
-            el.planned_execution_date = el.planned_execution_date.after_months(el.f1).fix().end_of_month();
-        } else {
-            el.planned_execution_date = el.planned_execution_date.after_months(el.f1).setDay(el.rdd).fix();
-        }
-    } else if (el.f2 == "years") {
-        if (el.f3 == "eoy") {
-            el.planned_execution_date = el.planned_execution_date.after_years(el.f1);
-        } else if (el.f3 == "eom") {
-            el.planned_execution_date = el.planned_execution_date.after_years(el.f1);
-        } else {
-            el.planned_execution_date = el.planned_execution_date.after_years(el.f1).setMonth(el.rmm).setDay(
-                    el.rdd).fix();
-        }
-    }
-
-    set_execution_date(el);
-    check_expired(el, today);
-}
-
-string execute(double &balance, order &el) {
-    balance += el.amount;
-    //record.emplace_back(el.effective_execution_date, balance, el.amount);
-    string warn = " style = \"color:  red; font-weight: bold;\"";
-    string bold = " style = \"font-weight: bold;\"";
-    stringstream ss;
-    ss <<
-       "        <tr>\n" <<
-       "          <!-- <th scope=\"row\">1</th> -->\n" <<
-       "          <td" << (balance < 0 ? warn : "") << ">" << el.planned_execution_date << "</td>\n" <<
-       "          <td"
-       << (balance < 0 ? warn : (el.planned_execution_date != el.effective_execution_date ? bold : ""))
-       << ">" << el.effective_execution_date << "</td>\n" <<
-       "          <td" << (balance < 0 ? warn : "") << ">" << el.descr << "</td>\n" <<
-       "          <td" << (balance < 0 ? warn : "") << ">" << fixed << std::setprecision(2) << el.amount
-       << "</td>\n" <<
-       "          <td" << (balance < 0 ? warn : "") << ">" << balance << "</td>\n" <<
-       "          <td" << (balance < 0 ? warn : "") << ">"
-       << ((balance == 0 ? "ALERT" : (balance < 0 ? "FAILURE" : "OK")))
-       << "</td>\n" <<
-       "        </tr>\n";
-
-    return ss.str();
-}
-
-string preview(list<order> &orders, datetime enddate, double account_balance) {
+string preview(list<shared_ptr<order>> &orders, datetime enddate, double account_balance) {
 
     list<tuple<string, datetime, datetime, double, double>> records;
     datetime today(time(NULL));
@@ -294,25 +283,25 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
 
     records.emplace_back("", datetime(), today, 0, account_balance);
 
-    for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
-        execute(account_balance, *it);
+    for (auto it = orders.begin(); it != orders.end() && (*it)->effective_execution_date <= enddate;) {
+        (*it)->execute(account_balance);
         insert_in_order(records, *it, account_balance);
-        reschedule(*it, today);
+        (*it)->reschedule(today);
         auto el = it;
         el++;
-        while (el != orders.end() && el->effective_execution_date < it->effective_execution_date)
+        while (el != orders.end() && (*el)->effective_execution_date < (*it)->effective_execution_date)
             el++;
         auto el2 = el;
         while (el2 != orders.end()) {
             el2++;
-            if (el2 != orders.end() && el2->effective_execution_date == it->effective_execution_date &&
-                el2->amount < it->amount)
+            if (el2 != orders.end() && (*el2)->effective_execution_date == (*it)->effective_execution_date &&
+                (*el2)->amount < (*it)->amount)
                 el++;
             else
                 break;
         }
 
-        if (!it->expired)
+        if (!(*it)->expired)
             orders.insert(el, *it);
         it = orders.erase(it);
     }
