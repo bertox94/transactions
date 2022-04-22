@@ -19,7 +19,7 @@ public class DemoApplication {
 
     public static void main(String[] args) {
 
-        //initialize_processor();
+        initialize_processor();
         initialize_DB_connection();
         SpringApplication.run(DemoApplication.class, args);
         LoggerFactory.getLogger(DemoApplication.class).info("Processor started.");
