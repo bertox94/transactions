@@ -189,7 +189,7 @@ public:
                 dtt = {EndOfYear, rinityy};
 
             if (dtt < today) {
-                yy = dtt.years_between(today);
+                yy = dtt.years_to(today);
                 dtt = dtt.after_years((yy / f1) * f1 + (yy % f1 == 0 ? 0 : f1)).fix();
 
                 if (f3 == "default") {
@@ -221,9 +221,9 @@ public:
             }
         } else if (f2 == "years") {
             if (f3 == "eoy") {
-                planned_execution_date = planned_execution_date.after_years(f1);
+                planned_execution_date = planned_execution_date.after_years(f1).end_of_year();
             } else if (f3 == "eom") {
-                planned_execution_date = planned_execution_date.after_years(f1);
+                planned_execution_date = planned_execution_date.after_years(f1).end_of_month();
             } else {
                 planned_execution_date = planned_execution_date.after_years(f1).setMonth(rmm).setDay(
                         rdd).fix();

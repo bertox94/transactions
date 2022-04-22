@@ -790,9 +790,9 @@ public:
 
     /**
      * @return is the number of years from @this and @param dt regardless of the dd,
-     * e.g. (5.1.2020).months_to(3.8.2021) =====> 1.
+     * e.g. (5.1.2020).years_to(3.8.2021) =====> 1.
      */
-    long long years_between(datetime &dt) const { return dt.curr->year - curr->year; }
+    long long years_to(datetime &dt) const { return dt.curr->year - curr->year; }
 
     /**
      * @return =  @this after @param n years. The obtained date is not checked against overflows,
@@ -849,6 +849,16 @@ public:
      */
     datetime end_of_month() const {
         datetime dt = *this;
+        dt.curr->day = dt.days_of_this_month() - 1;
+        return dt;
+    }
+
+    /**
+ * @return @this whose day is the last of the year.
+ */
+    datetime end_of_year() const {
+        datetime dt = *this;
+        dt.curr->month = 11;
         dt.curr->day = dt.days_of_this_month() - 1;
         return dt;
     }
