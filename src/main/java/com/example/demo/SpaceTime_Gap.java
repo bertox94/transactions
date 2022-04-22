@@ -7,13 +7,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class SpaceTime_Gap {
-
-    public static String read() {
-
-        return null;
-    }
-
-
     public static String send(String msg) {
         Socket clientSocket;
         PrintWriter out;
