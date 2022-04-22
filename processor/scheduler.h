@@ -102,10 +102,39 @@ void set_execution_date(order &el) {
         el.effective_execution_date = el.effective_execution_date.first_working_day();
 }
 
-void check_expired(order &el) {
-    //if (el.rfindt != nullptr)
-    //    if (el.effective_execution_date > el.rfindt)
-    //        el.expired = true;
+void check_expired(order &el, datetime &today) {
+
+    if (el.effective_execution_date < today) {
+        el.expired = true;
+        return;
+    }
+
+    if (el.repeated) {
+        if (!el.rlim) {
+            return;
+        } else {
+            datetime enddate;
+            if (el.f2 == "days") {
+                enddate = datetime(el.rfindd, el.rfinmm, el.rfinyy);
+            } else if (el.f2 == "months") {
+                if (el.f3 == "eom")
+                    enddate = datetime(EndOfMonth, el.rfinmm, el.rfinyy);
+                else
+                    enddate = datetime(el.rdd, el.rfinmm, el.rfinyy);
+            } else if (el.f2 == "years") {
+                if (el.f3 == "eoy")
+                    enddate = datetime(EndOfYear, el.rfinyy);
+                else if (el.f3 == "eom")
+                    enddate = datetime(EndOfMonth, el.rmm, el.rfinyy);
+                else
+                    enddate = datetime(el.rdd, el.rmm, el.rfinyy);
+            }
+            if (el.effective_execution_date > enddate)
+                el.expired = true;
+        }
+    }
+
+
 }
 
 std::string schedule(order &el, datetime today) {
@@ -120,7 +149,7 @@ std::string schedule(order &el, datetime today) {
             }
             el.planned_execution_date = dtt;
             set_execution_date(el);
-            check_expired(el);
+            check_expired(el, today);
         } else if (el.f2 == "months") {
             long long mm;
             if (el.f3 == "default")
@@ -142,7 +171,7 @@ std::string schedule(order &el, datetime today) {
 
             el.planned_execution_date = dtt;
             set_execution_date(el);
-            check_expired(el);
+            check_expired(el, today);
         } else if (el.f2 == "years") {
             long long yy;
             if (el.f3 == "default")
@@ -166,11 +195,11 @@ std::string schedule(order &el, datetime today) {
 
             el.planned_execution_date = dtt;
             set_execution_date(el);
-            check_expired(el);
+            check_expired(el, today);
         }
     } else {
         set_execution_date(el);
-        check_expired(el);
+        check_expired(el, today);
     }
 
     std::stringstream ss;
@@ -201,7 +230,7 @@ void scheduleall(list<order> &orders, datetime &today) {
     }
 }
 
-void reschedule(order &el) {
+void reschedule(order &el, datetime &today) {
 
     if (!el.repeated) {
         //cout << right << setw(25) << std::setfill(' ') << "Stopped " << endl;
@@ -229,7 +258,7 @@ void reschedule(order &el) {
     }
 
     set_execution_date(el);
-    check_expired(el);
+    check_expired(el, today);
 }
 
 string execute(double &balance, order &el) {
@@ -268,7 +297,7 @@ string preview(list<order> &orders, datetime enddate, double account_balance) {
     for (auto it = orders.begin(); it != orders.end() && it->effective_execution_date <= enddate;) {
         execute(account_balance, *it);
         insert_in_order(records, *it, account_balance);
-        reschedule(*it);
+        reschedule(*it, today);
         auto el = it;
         el++;
         while (el != orders.end() && el->effective_execution_date < it->effective_execution_date)

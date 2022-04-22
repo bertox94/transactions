@@ -219,7 +219,7 @@ public class MainController {
                     "                           order by rownumber desc " +
                     "                       ) as subq223 " +
                     "                    ) as subq2 " +
-                    "                    full outer join ( " +
+                    "                    inner join ( " +
                     "                       select ROW_NUMBER() OVER (ORDER BY executiondate) - (select (count(*) + 1) / 2.0 " +
                     "                           from ( " +
                     "                               select distinct executiondate " +
