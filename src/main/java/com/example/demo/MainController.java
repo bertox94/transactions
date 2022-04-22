@@ -59,7 +59,8 @@ public class MainController {
         StringBuilder data = new StringBuilder();
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.orders;");
+            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.orders " +
+                    " order by substring(encoded from (position('\"descr\":' in encoded))) asc ;");
 
             while (rs.next()) {
                 data.append(rs.getString(1)).append("\n");
@@ -104,7 +105,7 @@ public class MainController {
             VALUES.append(";");
 
             stmt.executeUpdate(
-                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount,id, balance) VALUES " + VALUES);
+                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, id, balance) VALUES " + VALUES);
 
             //QUERY FOR THE TABLE
             ResultSet rs = stmt.executeQuery("select * " +

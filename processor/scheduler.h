@@ -34,7 +34,7 @@ public:
     explicit order(unordered_map<string, string> map) {
         descr = map["descr"];
         wt = map["wt"] == "true";
-        amount = stol(map["amount"]);
+        amount = stod(map["amount"]);
     }
 
     virtual void check_expired(datetime &today) = 0;
