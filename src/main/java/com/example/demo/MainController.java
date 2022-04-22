@@ -87,15 +87,6 @@ public class MainController {
         try {
 
             Statement stmt = connection.createStatement();
-            //stmt.executeUpdate("DROP TABLE IF EXISTS " + TABLENAME + " ;");
-//
-            //stmt.executeUpdate("CREATE TABLE " + TABLENAME + " ( " +
-            //        " executiondate date NULL UNIQUE, " +
-            //        " planneddate date NULL, " +
-            //        " descr varchar NULL, " +
-            //        " amount numeric NULL, " +
-            //        " balance numeric NULL " +
-            //        ");");
 
             String[] lines = resp.toString().split("\n");
             StringBuilder VALUES = new StringBuilder();
