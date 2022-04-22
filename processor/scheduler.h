@@ -259,13 +259,13 @@ void scheduleall(list<shared_ptr<order>> &orders, datetime &today) {
             el++;
         auto el2 = el;
         while (el2 != orders.end()) {
-            el2++;
             if (el2 != orders.end() && (*el2)->scheduled &&
                 (*el2)->effective_execution_date == (*it)->effective_execution_date &&
                 (*el2)->amount < (*it)->amount)
                 el++;
             else
                 break;
+            el2++;
         }
 
         if (!(*it)->expired)
@@ -293,12 +293,12 @@ string preview(list<shared_ptr<order>> &orders, datetime enddate, double account
             el++;
         auto el2 = el;
         while (el2 != orders.end()) {
-            el2++;
             if (el2 != orders.end() && (*el2)->effective_execution_date == (*it)->effective_execution_date &&
                 (*el2)->amount < (*it)->amount)
                 el++;
             else
                 break;
+            el2++;
         }
 
         if (!(*it)->expired)
