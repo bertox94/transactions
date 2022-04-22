@@ -1348,6 +1348,7 @@
             })
         }, function (returnedData) {
             populate1();
+            populate2();
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
@@ -1455,6 +1456,7 @@
             resetinputfield($("#ram"))
 
             populate1();
+            populate2();
 
             console.log(returnedData)
         }).fail(function () {
@@ -1481,11 +1483,11 @@
     function _duplicate(_id) {
         $.post("/duplicate", {data: _id}, function (returnedData) {
             populate1();
+            populate2();
             console.log(returnedData)
         }).fail(function () {
             console.log("error")
         })
-        populate2();
     }
 
     function _update(_id) {
