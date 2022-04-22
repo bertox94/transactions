@@ -182,9 +182,9 @@ public:
         } else if (f2 == "years") {
             long long yy;
             if (f3 == "default")
-                dtt = {rdd, rinitmm, rinityy};
+                dtt = {rdd, rmm, rinityy};
             else if (f3 == "eom")
-                dtt = {EndOfMonth, rinitmm, rinityy};
+                dtt = {EndOfMonth, rmm, rinityy};
             else
                 dtt = {EndOfYear, rinityy};
 
