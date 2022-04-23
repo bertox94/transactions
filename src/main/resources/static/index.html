@@ -42,7 +42,8 @@
 
 <!--NEW SINGLE ORDER-->
 <div style="overflow: hidden">
-    <div style="padding: 10px"></div>                                                   <!-- SPACING -->
+    <!-- SPACING -->
+    <div style="padding: 10px"></div>
     <table class="myclass">
         <tr>
             <td style="padding: 5px"><h4>Enter new Single Order</h4></td>
@@ -573,6 +574,27 @@
 <div style="page-break-inside:avoid;page-break-after:always">
 </div>
 
+<!-- SPACING -->
+<div style="padding: 5px"></div>
+<table class="myclass">
+    <tr>
+        <td style="padding: 0; margin: 0">Slope:</td>
+        <td>
+            <div>
+                <input style="text-align: center; background-color: #1f1f1f; color: #c7a800; outline:none; border:0; border-bottom: 2px solid #c7a800;"
+                       type="text" id="idm" size="6" value="" readonly>
+            </div>
+        </td>
+        <td style="padding: 0 0 0 30px;">Offset:</td>
+        <td>
+            <div>
+                <input style="text-align: center; background-color: #1f1f1f; color: #c7a800; outline:none; border:0; border-bottom: 2px solid #c7a800;"
+                       type="text" id="idq" size="6" value="" readonly>
+            </div>
+        </td>
+    </tr>
+</table>
+
 <canvas id="myChart" style="width:100%;max-width:100%"></canvas>
 <canvas id="myChart2" style="width:100%;max-width:100%"></canvas>
 
@@ -770,6 +792,11 @@
 
             if ($("#previewenddate").val() !== obj.enddate || $("#initalbalance").val() !== obj.initialbal)
                 return;
+
+            $("#idm").val(parseFloat(obj.m).toFixed(2));
+            $("#idm").prop("size", $("#idm").val().length)
+            $("#idq").val(parseFloat(obj.q).toFixed(2));
+            $("#idq").prop("size", $("#idq").val().length)
 
             $("#preview tbody").empty();
 

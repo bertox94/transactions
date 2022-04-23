@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -112,23 +113,19 @@ public class MainController {
                     " from " + TABLENAME +
                     " where planneddate is not null and id = " + val + "; ");
 
-            resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":[");
+            resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":");
 
-            if (rs.next()) {
-                resp.append("{\"executiondate\":\"").append(rs.getString(1)).append("\",");
-                resp.append("\"planneddate\":\"").append(rs.getString(2)).append("\",");
-                resp.append("\"descr\":\"").append(rs.getString(3)).append("\",");
-                resp.append("\"amount\":\"").append(rs.getString(4)).append("\",");
-                resp.append("\"balance\":\"").append(rs.getString(5)).append("\"}");
-            }
+            StringJoiner sj = new StringJoiner(",", "[", "]");
+
             while (rs.next()) {
-                resp.append(",{\"executiondate\":\"").append(rs.getString(1)).append("\",");
-                resp.append("\"planneddate\":\"").append(rs.getString(2)).append("\",");
-                resp.append("\"descr\":\"").append(rs.getString(3)).append("\",");
-                resp.append("\"amount\":\"").append(rs.getString(4)).append("\",");
-                resp.append("\"balance\":\"").append(rs.getString(5)).append("\"}");
+                sj.add("{\"executiondate\":\"" + rs.getString(1) + "\"," +
+                        "\"planneddate\":\"" + rs.getString(2) + "\"," +
+                        "\"descr\":\"" + rs.getString(3) + "\"," +
+                        "\"amount\":\"" + rs.getString(4) + "\"," +
+                        "\"balance\":\"" + rs.getString(5) + "\"}");
             }
-            resp.append("], ");
+            resp.append(sj);
+            resp.append(", ");
 
             //QUERIES FOR THE FIRST CHART
             rs = stmt.executeQuery(" select distinct executiondate " +
@@ -255,6 +252,9 @@ public class MainController {
                 m = rs.getDouble(1);
                 q = rs.getDouble(2);
             }
+
+            resp.append("\"m\":\"" + m + "\", ");
+            resp.append("\"q\":\"" + q + "\", ");
 
             resp.append("\"arr3\":[");
             resp.append("\"").append(q).append("\"");
