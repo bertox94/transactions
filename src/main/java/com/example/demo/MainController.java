@@ -84,14 +84,14 @@ public class MainController {
     @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
         String orders = orders();
-        String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+        String _resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
         int val = getvalue();
         String TABLENAME = "public.preview";
         try {
 
             Statement stmt = connection.createStatement();
 
-            String[] lines = resp.toString().split("\n");
+            String[] lines = _resp.split("\n");
             StringJoiner VALUES = new StringJoiner(",", "", "");
 
             for (String line :
@@ -118,6 +118,7 @@ public class MainController {
             ResultSet rs = stmt.executeQuery("select * " +
                     " from " + TABLENAME +
                     " where planneddate is not null and id = " + val + "; ");
+
 
             resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":");
 
