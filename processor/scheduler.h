@@ -9,17 +9,6 @@
 
 using namespace std;
 
-std::string trim(const std::string &str, const std::string &whitespace = " \t") {
-    const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
-        return ""; // no content
-
-    const auto strEnd = str.find_last_not_of(whitespace);
-    const auto strRange = strEnd - strBegin + 1;
-
-    return str.substr(strBegin, strRange);
-}
-
 class order {
 public:
     bool repeated;
@@ -154,9 +143,6 @@ public:
                 period pd = today - dtt;
                 dtt += (pd / dd(f1)) * dd(f1) + (pd % dd(f1) == 0 ? dd(0) : dd(f1));
             }
-            planned_execution_date = dtt;
-            set_execution_date();
-            check_expired(today);
         } else if (f2 == "months") {
             long long mm;
             if (f3 == "default")
@@ -175,10 +161,6 @@ public:
                         dtt = dtt.after_months(f1).fix();
                 }
             }
-
-            planned_execution_date = dtt;
-            set_execution_date();
-            check_expired(today);
         } else if (f2 == "years") {
             long long yy;
             if (f3 == "default")
@@ -199,11 +181,10 @@ public:
                         dtt = dtt.after_years(f1).fix();
                 }
             }
-
-            planned_execution_date = dtt;
-            set_execution_date();
-            check_expired(today);
         }
+        planned_execution_date = dtt;
+        set_execution_date();
+        check_expired(today);
 
         std::stringstream ss;
         ss << effective_execution_date;
@@ -214,22 +195,18 @@ public:
         if (f2 == "days") {
             planned_execution_date += dd(f1);
         } else if (f2 == "months") {
-            if (f3 == "eom") {
-                planned_execution_date = planned_execution_date.after_months(f1).fix().end_of_month();
-            } else {
+            if (f3 == "eom")
+                planned_execution_date = planned_execution_date.after_months(f1).end_of_month();
+            else
                 planned_execution_date = planned_execution_date.after_months(f1).setDay(rdd).fix();
-            }
         } else if (f2 == "years") {
-            if (f3 == "eoy") {
+            if (f3 == "eoy")
                 planned_execution_date = planned_execution_date.after_years(f1).end_of_year();
-            } else if (f3 == "eom") {
+            else if (f3 == "eom")
                 planned_execution_date = planned_execution_date.after_years(f1).end_of_month();
-            } else {
-                planned_execution_date = planned_execution_date.after_years(f1).setMonth(rmm).setDay(
-                        rdd).fix();
-            }
+            else
+                planned_execution_date = planned_execution_date.after_years(f1).setMonth(rmm).setDay(rdd).fix();
         }
-
         set_execution_date();
         check_expired(today);
     }
@@ -273,7 +250,6 @@ void scheduleall(list<shared_ptr<order>> &orders, datetime &today) {
         it = orders.erase(it);
     }
 }
-
 
 string preview(list<shared_ptr<order>> &orders, datetime enddate, double account_balance) {
 

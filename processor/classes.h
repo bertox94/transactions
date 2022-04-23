@@ -504,12 +504,28 @@ public:
         curr->day = days_of_month(curr->month, curr->year) - 1;
     }
 
-
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
             datetime(_day, _month, _year) {
         curr->hrs = _hrs;
         curr->min = _min;
         curr->sec = _sec;
+    }
+
+    datetime(long long _day, long long _month, long long _year, bool _default) : datetime(_day, _month, _year) {
+        *this = fix(_default);
+    }
+
+    datetime(eom _eom, long long _month, long long _year, bool _default) : datetime(_eom, _month, _year) {
+        *this = fix(_default);
+    }
+
+    datetime(eoy _eoy, long long _year, bool _default) : datetime(_eoy, _year) {
+        *this = fix(_default);
+    }
+
+    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
+             bool _default) : datetime(_day, _month, _year, _hrs, _min, _sec) {
+        *this = fix(_default);
     }
 
     ~datetime() { delete curr; }
