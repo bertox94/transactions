@@ -326,7 +326,7 @@ public class MainController {
                     "                      UNION ALL  " +
                     "                      SELECT COALESCE(MAX(id),2) AS id   " +
                     "                      FROM orders         " +
-                    "                  ) AS sub1" +
+                    "                  ) AS sub1 " +
                     "               ) AS sub2       " +
                     "               WHERE ROW_NUMBER != id      " +
                     "               LIMIT 1) ";
@@ -391,7 +391,7 @@ public class MainController {
                     "                      UNION ALL  " +
                     "                      SELECT COALESCE(MAX(id),2) AS id   " +
                     "                      FROM orders         " +
-                    "                  ) AS sub1" +
+                    "                  ) AS sub1 " +
                     "               ) AS sub2       " +
                     "               WHERE ROW_NUMBER != id      " +
                     "               LIMIT 1) ";
