@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.Vector;
@@ -83,7 +84,7 @@ public class MainController {
     @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
         String orders = orders();
-        StringBuilder resp = new StringBuilder(SpaceTime_Gap.send("preview\n" + data + "\n" + orders));
+        String resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
         int val = getvalue();
         String TABLENAME = "public.preview";
         try {
@@ -91,22 +92,27 @@ public class MainController {
             Statement stmt = connection.createStatement();
 
             String[] lines = resp.toString().split("\n");
-            StringBuilder VALUES = new StringBuilder();
+            StringJoiner VALUES = new StringJoiner(",", "", "");
+
             for (String line :
                     lines) {
                 String[] tokens = line.split(";");
-                VALUES.append("('").append(tokens[0]).append("',")
-                        .append(Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'").append(", ")
-                        .append(Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'").append(", ")
-                        .append(tokens[3]).append(", ")
-                        .append(val).append(", ")
-                        .append(tokens[4]).append("), ");
-            }
-            VALUES.deleteCharAt(VALUES.length() - 2);
-            VALUES.append(";");
 
-            stmt.executeUpdate(
-                    "INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, id, balance) VALUES " + VALUES);
+                StringJoiner sjj = new StringJoiner(",", "(", ")");
+                sjj.add("'" + tokens[0] + "'");
+                sjj.add((Objects.equals(tokens[1], " null") ? "NULL" : "'" + tokens[1] + "'"));
+                sjj.add((Objects.equals(tokens[2], " null") ? "NULL" : "'" + tokens[2] + "'"));
+                sjj.add(tokens[3]);
+                sjj.add(Integer.toString(val));
+                sjj.add(tokens[4]);
+
+                VALUES.add(sjj.toString());
+            }
+
+            System.out.println(VALUES);
+
+            stmt.executeUpdate("INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, id, balance) VALUES "
+                    + VALUES + ";");
 
             //QUERY FOR THE TABLE
             ResultSet rs = stmt.executeQuery("select * " +
@@ -133,13 +139,12 @@ public class MainController {
                     " where id = " + val +
                     " ORDER BY executiondate ASC;");
 
-            resp.append("\"arr1\":[");
-            if (rs.next())
-                resp.append("\"").append(rs.getString(1)).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr1\":");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(1)).append("\"");
+                sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append("], ");
+            resp.append(sj + ", ");
 
             rs = stmt.executeQuery("select distinct on (executiondate) executiondate, balance " +
                     "from (" +
@@ -148,13 +153,12 @@ public class MainController {
                     "   order by rownumber desc " +
                     ") as subq2; ");
 
-            resp.append("\"arr2\":[");
-            if (rs.next())
-                resp.append("\"").append(rs.getString(2)).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr2\":");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(2)).append("\"");
+                sj.add("\"" + rs.getString(2) + "\"");
             }
-            resp.append("], ");
+            resp.append(sj + ", ");
 
             rs = stmt.executeQuery("SELECT COUNT(*) " +
                     " FROM (" +
@@ -256,12 +260,12 @@ public class MainController {
             resp.append("\"m\":\"" + m + "\", ");
             resp.append("\"q\":\"" + q + "\", ");
 
-            resp.append("\"arr3\":[");
-            resp.append("\"").append(q).append("\"");
-            for (long i = 1; i < num; i++) {
-                resp.append(",\"").append(m * i + q).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr3\":");
+            for (long i = 0; i < num; i++) {
+                sj.add("\"" + String.format(Locale.US, "%.2f", (m * i + q)) + "\"");
             }
-            resp.append("], ");
+            resp.append(sj + ", ");
 
             //QUERIES FOR THE SECOND CHART
             rs = stmt.executeQuery(" select executiondate " +
@@ -269,39 +273,36 @@ public class MainController {
                     " where planneddate is not null and id = " + val +
                     " order by executiondate;");
 
-            resp.append("\"arr4\":[");
-            if (rs.next())
-                resp.append("\"").append(rs.getString(1)).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr4\":");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(1)).append("\"");
+                sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append("], ");
+            resp.append(sj + ", ");
 
             rs = stmt.executeQuery(" select amount " +
                     " from " + TABLENAME + " " +
                     " where planneddate is not null and id = " + val +
                     "order by executiondate;");
 
-            resp.append("\"arr5\":[");
-            if (rs.next())
-                resp.append("\"").append(rs.getString(1)).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr5\":");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(1)).append("\"");
+                sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append("], ");
+            resp.append(sj + ", ");
 
             rs = stmt.executeQuery(" select balance " +
                     " from " + TABLENAME + " " +
                     " where planneddate is not null and id = " + val +
                     " order by executiondate;");
 
-            resp.append("\"arr6\":[");
-            if (rs.next())
-                resp.append("\"").append(rs.getString(1)).append("\"");
+            sj = new StringJoiner(",", "[", "]");
+            resp.append("\"arr6\":");
             while (rs.next()) {
-                resp.append(",\"").append(rs.getString(1)).append("\"");
+                sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append("]}");
+            resp.append(sj + "}");
 
             stmt.executeUpdate("DELETE FROM " + TABLENAME + " WHERE id = " + val + " ;");
 
