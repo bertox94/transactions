@@ -85,6 +85,7 @@ public class MainController {
     public String preview(@RequestParam String data) {
         String orders = orders();
         String _resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+        StringJoiner resp = new StringJoiner(",", "{", "}");
         int val = getvalue();
         String TABLENAME = "public.preview";
         try {
@@ -109,8 +110,6 @@ public class MainController {
                 VALUES.add(sjj.toString());
             }
 
-            System.out.println(VALUES);
-
             stmt.executeUpdate("INSERT INTO " + TABLENAME + " (descr, planneddate, executiondate, amount, id, balance) VALUES "
                     + VALUES + ";");
 
@@ -119,20 +118,24 @@ public class MainController {
                     " from " + TABLENAME +
                     " where planneddate is not null and id = " + val + "; ");
 
-
-            resp = new StringBuilder("{\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\",\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\", \"html\":");
+            resp.add("\"enddate\":\"" + data.substring(0, data.indexOf('\n')) + "\"");
+            resp.add("\"initialbal\":\"" + data.substring(data.indexOf('\n') + 1) + "\"");
 
             StringJoiner sj = new StringJoiner(",", "[", "]");
 
             while (rs.next()) {
-                sj.add("{\"executiondate\":\"" + rs.getString(1) + "\"," +
-                        "\"planneddate\":\"" + rs.getString(2) + "\"," +
-                        "\"descr\":\"" + rs.getString(3) + "\"," +
-                        "\"amount\":\"" + rs.getString(4) + "\"," +
-                        "\"balance\":\"" + rs.getString(5) + "\"}");
+                StringJoiner sjj = new StringJoiner(",", "{", "}");
+
+                sjj.add("\"executiondate\":\"" + rs.getString(1) + "\"");
+                sjj.add("\"planneddate\":\"" + rs.getString(2) + "\"");
+                sjj.add("\"descr\":\"" + rs.getString(3) + "\"");
+                sjj.add("\"amount\":\"" + rs.getString(4) + "\"");
+                sjj.add("\"balance\":\"" + rs.getString(5) + "\"");
+
+                sj.add(sjj.toString());
+
             }
-            resp.append(sj);
-            resp.append(", ");
+            resp.add("\"html\":" + sj);
 
             //QUERIES FOR THE FIRST CHART
             rs = stmt.executeQuery(" select distinct executiondate " +
@@ -141,11 +144,10 @@ public class MainController {
                     " ORDER BY executiondate ASC;");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr1\":");
             while (rs.next()) {
                 sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append(sj + ", ");
+            resp.add("\"arr1\":" + sj);
 
             rs = stmt.executeQuery("select distinct on (executiondate) executiondate, balance " +
                     "from (" +
@@ -155,11 +157,10 @@ public class MainController {
                     ") as subq2; ");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr2\":");
             while (rs.next()) {
                 sj.add("\"" + rs.getString(2) + "\"");
             }
-            resp.append(sj + ", ");
+            resp.add("\"arr2\":" + sj);
 
             rs = stmt.executeQuery("SELECT COUNT(*) " +
                     " FROM (" +
@@ -258,15 +259,14 @@ public class MainController {
                 q = rs.getDouble(2);
             }
 
-            resp.append("\"m\":\"" + m + "\", ");
-            resp.append("\"q\":\"" + q + "\", ");
+            resp.add("\"m\":\"" + m + "\"");
+            resp.add("\"q\":\"" + q + "\"");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr3\":");
             for (long i = 0; i < num; i++) {
                 sj.add("\"" + String.format(Locale.US, "%.2f", (m * i + q)) + "\"");
             }
-            resp.append(sj + ", ");
+            resp.add("\"arr3\":" + sj);
 
             //QUERIES FOR THE SECOND CHART
             rs = stmt.executeQuery(" select executiondate " +
@@ -275,11 +275,10 @@ public class MainController {
                     " order by executiondate;");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr4\":");
             while (rs.next()) {
                 sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append(sj + ", ");
+            resp.add("\"arr4\":" + sj);
 
             rs = stmt.executeQuery(" select amount " +
                     " from " + TABLENAME + " " +
@@ -287,11 +286,10 @@ public class MainController {
                     "order by executiondate;");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr5\":");
             while (rs.next()) {
                 sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append(sj + ", ");
+            resp.add("\"arr5\":" + sj);
 
             rs = stmt.executeQuery(" select balance " +
                     " from " + TABLENAME + " " +
@@ -299,11 +297,10 @@ public class MainController {
                     " order by executiondate;");
 
             sj = new StringJoiner(",", "[", "]");
-            resp.append("\"arr6\":");
             while (rs.next()) {
                 sj.add("\"" + rs.getString(1) + "\"");
             }
-            resp.append(sj + "}");
+            resp.add("\"arr6\":" + sj);
 
             stmt.executeUpdate("DELETE FROM " + TABLENAME + " WHERE id = " + val + " ;");
 
