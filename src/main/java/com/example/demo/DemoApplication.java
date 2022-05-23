@@ -22,7 +22,6 @@ public class DemoApplication {
         initialize_processor();
         initialize_DB_connection();
         SpringApplication.run(DemoApplication.class, args);
-        LoggerFactory.getLogger(DemoApplication.class).info("Processor started.");
         LoggerFactory.getLogger(DemoApplication.class).info("Database online.");
         LoggerFactory.getLogger(DemoApplication.class).info("Initialization completed.");
 
@@ -50,6 +49,7 @@ public class DemoApplication {
             }
             Thread.sleep(500);
             Runtime.getRuntime().exec("E:\\workspace\\webapp-transaction-scheduler\\processor\\main.exe", null, new File("E:\\workspace\\webapp-transaction-scheduler\\processor"));
+            LoggerFactory.getLogger(DemoApplication.class).info("Processor started.");
         } catch (Exception e) {
             e.printStackTrace();
             return false;
