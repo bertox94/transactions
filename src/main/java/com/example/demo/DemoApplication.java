@@ -41,7 +41,7 @@ public class DemoApplication {
         }
 
         try {
-            String[] command = {"cmd.exe", "/C", "Start /B", ".\\processor\\build.bat"};
+            String[] command = {"cmd.exe", "/C", "Start /B", "processor\\build.bat"};
             Runtime.getRuntime().exec(command);
             while (Files.notExists(path)) {
                 //pass
