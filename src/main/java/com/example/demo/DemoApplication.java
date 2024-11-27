@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 @SpringBootApplication
@@ -42,7 +41,7 @@ public class DemoApplication {
         }
 
         try {
-            String[] command = {"cmd.exe", "/C", "Start /B", "E:\\workspace\\webapp-transaction-scheduler\\processor\\build.bat"};
+            String[] command = {"cmd.exe", "/C", "Start /B", ".\\processor\\build.bat"};
             Runtime.getRuntime().exec(command);
             while (Files.notExists(path)) {
                 //pass
@@ -59,12 +58,58 @@ public class DemoApplication {
 
     public static boolean initialize_DB_connection() {
         try {
+
+
+            String jdbcURL = "jdbc:h2:~/test";
+            String username = "sa";
+            String password = "1234";
+
+            MainController.connection = DriverManager.getConnection(jdbcURL, username, password);
+
+/*            System.out.println("Connected to H2 embedded database.");
+
+
+            String sql = "Create table students (ID int primary key, name varchar(50))";
+            Statement statement = connection.createStatement();
+            statement.execute(sql);
+
+            System.out.println("Created table students.");
+
+            sql = "Insert into students (ID, name) values (1, 'Nam Ha Minh')";
+
+            int rows = statement.executeUpdate(sql);
+
+            if (rows > 0) {
+                System.out.println("Inserted a new row.");
+            }
+
+
+            sql = "SELECT * FROM students";
+
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            int count = 0;
+
+            while (resultSet.next()) {
+                count++;
+
+                int ID = resultSet.getInt("ID");
+                String name = resultSet.getString("name");
+                System.out.println("Student #" + count + ": " + ID + ", " + name);
+            }
+
+            //connection.close();
+
+
             String url = "jdbc:postgresql://localhost/postgres";
             Properties props = new Properties();
             props.setProperty("user", "postgres");
             props.setProperty("password", "admin");
             props.setProperty("ssl", "false");
             MainController.connection = DriverManager.getConnection(url, props);
+
+ */
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
