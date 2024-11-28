@@ -1,50 +1,17 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <iomanip>
-#include <list>
-#include <cmath>
-#include <sstream>
-#include "classes.h"
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
-using namespace std;
 
-class order {
-public:
-    bool repeated;
-    string descr;
-    bool wt;
-    datetime planned_execution_date;
-    datetime effective_execution_date;
-    double amount;
-    bool scheduled = false;
-    bool expired = false;
+public class order {
 
-    explicit order(unordered_map<string, string> map) {
-        descr = map["descr"];
-        wt = map["wt"] == "true";
-        amount = stod(map["amount"]);
-    }
 
-    virtual void check_expired(datetime &today) = 0;
-
-    virtual std::string schedule(datetime &today) = 0;
-
-    virtual void reschedule(datetime &today) {};
-
-    virtual void execute(double &balance) = 0;
-
-    void set_execution_date() {
-        effective_execution_date = planned_execution_date;
-        if (wt)
-            effective_execution_date = effective_execution_date.first_working_day();
-    }
 };
 
-class single_order : public order {
-public:
-    explicit single_order(unordered_map<string, string> map) : order(map) {
-        repeated = false;
+class single_order extends order {
+public single_order(HashMap<String, String> map) {
+    super(map);
+    repeated = false;
         planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
     }
 
