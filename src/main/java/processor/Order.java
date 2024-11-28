@@ -26,7 +26,9 @@ public class Order {
 
     void reschedule(Calendar today) {}
 
-    void execute(double balance){}
+    double execute(double balance){
+        return balance;
+    }
 
     void set_execution_date() {
         effective_execution_date = planned_execution_date;

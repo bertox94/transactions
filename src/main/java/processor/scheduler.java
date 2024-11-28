@@ -10,10 +10,7 @@ public class order {
 
 class single_order extends order {
 public single_order(HashMap<String, String> map) {
-    super(map);
-    repeated = false;
-        planned_execution_date = datetime(stol(map["day"]), stol(map["month"]), stol(map["year"]));
-    }
+
 
     void check_expired(datetime &today) override {
         if (effective_execution_date < today)
@@ -29,10 +26,7 @@ public single_order(HashMap<String, String> map) {
         return expired ? "Expired" : ss.str();
     }
 
-    void execute(double &balance) override {
-        expired = true;
-        balance += amount;
-    }
+
 
 };
 
