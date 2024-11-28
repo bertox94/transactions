@@ -83,6 +83,10 @@ public class RepeatedOrder extends Order {
             expired = true;
     }
 
+    int monthsTo(Calendar date, Calendar today) {
+        return 12 * (date.get(Calendar.YEAR) - today.get(Calendar.YEAR)) + date.get(Calendar.MONTH) - today.get(Calendar.MONTH);
+    }
+
     //make sure today has 0hrs, 0min, 0sec
     String schedule(Calendar today) {
 
@@ -100,21 +104,20 @@ public class RepeatedOrder extends Order {
                 }
                 break;
             case "months":
-                long long mm;
-                if (f3 == "default")
-                    dtt = {rdd, rinitmm, rinityy};
-                else
-                    dtt = {EndOfMonth, rinitmm, rinityy};
+                if (f3.equals("eom")) {
+                    int lastDay = dtt.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    dtt.set(Calendar.DAY_OF_MONTH, lastDay);
+                }
 
-                if (dtt < today) {
-                    mm = dtt.months_to(today);
-                    dtt = dtt.after_months((mm / f1) * f1 + (mm % f1 == 0 ? 0 : f1)).fix();
+                if (dtt.compareTo(today) < 0) {
+                    int months = monthsTo(dtt, today);
+                    dtt.add(Calendar.MONTH, (months / f1) * f1 + (months % f1 == 0 ? 0 : f1));
 
-                    if (f3 == "default") {
-                        if (dtt.getYear() == today.getYear() &&
-                                dtt.getMonth() == today.getMonth() &&
-                                dtt.getDay() < today.getDay())
-                            dtt = dtt.after_months(f1).fix();
+                    if (f3.equals("default")) {
+                        if (dtt.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                                dtt.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                                dtt.get(Calendar.DAY_OF_MONTH) < today.get(Calendar.DAY_OF_MONTH))
+                            dtt.add(Calendar.MONTH, f1);
                     }
                 }
                 break;
