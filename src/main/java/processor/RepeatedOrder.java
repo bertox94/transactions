@@ -85,11 +85,70 @@ public class RepeatedOrder extends Order {
 
     //make sure today has 0hrs, 0min, 0sec
     String schedule(Calendar today) {
+
         scheduled = true;
         Calendar dtt = Calendar.getInstance();
         dtt.set(Calendar.DAY_OF_MONTH, rinitdd);
         dtt.set(Calendar.MONTH, rinitmm);
         dtt.set(Calendar.YEAR, rinityy);
+
+        switch (f2) {
+            case "days":
+                if (dtt.compareTo(today) < 0) {
+                    int days = Math.toIntExact(Duration.between(dtt.toInstant(), today.toInstant()).toDays());
+                    dtt.add(Calendar.DATE, (days / f1) * f1 + (days % f1 == 0 ? 0 : f1));
+                }
+                break;
+            case "months":
+                long long mm;
+                if (f3 == "default")
+                    dtt = {rdd, rinitmm, rinityy};
+                else
+                    dtt = {EndOfMonth, rinitmm, rinityy};
+
+                if (dtt < today) {
+                    mm = dtt.months_to(today);
+                    dtt = dtt.after_months((mm / f1) * f1 + (mm % f1 == 0 ? 0 : f1)).fix();
+
+                    if (f3 == "default") {
+                        if (dtt.getYear() == today.getYear() &&
+                                dtt.getMonth() == today.getMonth() &&
+                                dtt.getDay() < today.getDay())
+                            dtt = dtt.after_months(f1).fix();
+                    }
+                }
+                break;
+            case "years":
+                long long yy;
+                if (f3 == "default")
+                    dtt = {rdd, rmm, rinityy};
+                else if (f3 == "eom")
+                    dtt = {EndOfMonth, rmm, rinityy};
+                else
+                    dtt = {EndOfYear, rinityy};
+
+                if (dtt < today) {
+                    yy = dtt.years_to(today);
+                    dtt = dtt.after_years((yy / f1) * f1 + (yy % f1 == 0 ? 0 : f1)).fix();
+
+                    if (f3 == "default") {
+                        if (dtt.getYear() == today.getYear() &&
+                                dtt.getMonth() == today.getMonth() &&
+                                dtt.getDay() < today.getDay())
+                            dtt = dtt.after_years(f1).fix();
+                    }
+                }
+                break;
+        }
+        planned_execution_date = dtt;
+        set_execution_date();
+        check_expired(today);
+
+        std::stringstream ss;
+        ss << effective_execution_date;
+        return expired ? "Expired" : ss.str();
+
+
         switch (f2) {
             case "days":
                 if (dtt.compareTo(today) < 0) {
