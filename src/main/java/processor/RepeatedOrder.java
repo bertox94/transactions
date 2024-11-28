@@ -1,12 +1,13 @@
 package processor;
 
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 public class RepeatedOrder extends Order {
 
-    public long f1;
+    public int f1;
     public String f2;
     public String f3;
     public int rdd;
@@ -22,7 +23,7 @@ public class RepeatedOrder extends Order {
     public RepeatedOrder(HashMap<String, String> map) {
         super(map);
         repeated = true;
-        f1 = Long.parseLong(map.get("f1"));
+        f1 = Integer.parseInt(map.get("f1"));
         f2 = map.get("f2");
         f3 = map.get("f3");
         if (!map.get("rdd").equals("$"))
@@ -82,66 +83,61 @@ public class RepeatedOrder extends Order {
             expired = true;
     }
 
-    std::
-
-    string schedule(datetime &today) override {
+    //make sure today has 0hrs, 0min, 0sec
+    String schedule(Calendar today) {
         scheduled = true;
-        datetime dtt;
-        if (f2 == "days") {
-            dtt = {rinitdd, rinitmm, rinityy};
-            if (dtt < today) {
-                period pd = today - dtt;
-                dtt += (pd / dd(f1)) * dd(f1) + (pd % dd(f1) == 0 ? dd(0) : dd(f1));
-            }
-        } else if (f2 == "months") {
-            long long mm;
-            if (f3 == "default")
-                dtt = {rdd, rinitmm, rinityy};
-            else
-                dtt = {EndOfMonth, rinitmm, rinityy};
-
-            if (dtt < today) {
-                mm = dtt.months_to(today);
-                dtt = dtt.after_months((mm / f1) * f1 + (mm % f1 == 0 ? 0 : f1)).fix();
-
-                if (f3 == "default") {
-                    if (dtt.getYear() == today.getYear() &&
-                            dtt.getMonth() == today.getMonth() &&
-                            dtt.getDay() < today.getDay())
-                        dtt = dtt.after_months(f1).fix();
+        Calendar dtt = Calendar.getInstance();
+        dtt.set(Calendar.DAY_OF_MONTH, rinitdd);
+        dtt.set(Calendar.MONTH, rinitmm);
+        dtt.set(Calendar.YEAR, rinityy);
+        switch (f2) {
+            case "days":
+                if (dtt.compareTo(today) < 0) {
+                    dtt.add(Calendar.DATE, f1);
                 }
-            }
-        } else if (f2 == "years") {
-            long long yy;
-            if (f3 == "default")
-                dtt = {rdd, rmm, rinityy};
-            else if (f3 == "eom")
-                dtt = {EndOfMonth, rmm, rinityy};
-            else
-                dtt = {EndOfYear, rinityy};
+                break;
+            case "months":
 
-            if (dtt < today) {
-                yy = dtt.years_to(today);
-                dtt = dtt.after_years((yy / f1) * f1 + (yy % f1 == 0 ? 0 : f1)).fix();
-
-                if (f3 == "default") {
-                    if (dtt.getYear() == today.getYear() &&
-                            dtt.getMonth() == today.getMonth() &&
-                            dtt.getDay() < today.getDay())
-                        dtt = dtt.after_years(f1).fix();
+                if (f3.equals("eom")) {
+                    int lastDay = dtt.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    dtt.set(Calendar.DAY_OF_MONTH, lastDay);
                 }
-            }
+
+                if (dtt.compareTo(today) < 0) {
+                    dtt.add(Calendar.MONTH, f1);
+                }
+                break;
+            case "years":
+                if (f3.equals("eom")) {
+                    int lastDay = dtt.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    dtt.set(Calendar.DAY_OF_MONTH, lastDay);
+                } else if (f3.equals("eoy")) {
+                    int lastDay = dtt.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    dtt.set(Calendar.DAY_OF_MONTH, lastDay);
+                    int lastMonth = dtt.getActualMaximum(Calendar.MONTH);
+                    dtt.set(Calendar.MONTH, lastMonth);
+                }
+
+                if (dtt.compareTo(today) < 0) {
+                    dtt.add(Calendar.YEAR, f1);
+                }
+                   /* if (f3 == "default") {
+                        if (dtt.getYear() == today.getYear() &&
+                                dtt.getMonth() == today.getMonth() &&
+                                dtt.getDay() < today.getDay())
+                            dtt = dtt.after_years(f1).fix();
+                        */
+                break;
         }
         planned_execution_date = dtt;
         set_execution_date();
-        check_expired(today);
+        if (effective_execution_date.compareTo(today) < 0)
+            expired = true;
 
-        std::stringstream ss;
-        ss << effective_execution_date;
-        return expired ? "Expired" : ss.str();
+        return expired ? "Expired" : effective_execution_date.toString();
     }
 
-    void reschedule(datetime &today) override {
+    void reschedule(Calendar today) override {
         if (f2 == "days") {
             planned_execution_date += dd(f1);
         } else if (f2 == "months") {

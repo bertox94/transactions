@@ -8,8 +8,8 @@ public class Order {
     public boolean repeated;
     public String descr;
     public boolean wt;
-    public GregorianCalendar planned_execution_date;
-    public GregorianCalendar effective_execution_date;
+    public Calendar planned_execution_date;
+    public Calendar effective_execution_date;
     public double amount;
     public boolean scheduled = false;
     public boolean expired = false;
