@@ -160,7 +160,7 @@ void t_handler(SOCKET ClientSocket) {
             double amount = stod(msg.substr(0, msg.find('\n')));
             msg = msg.substr(msg.find('\n') + 1);
 
-            list<shared_ptr<order>> orders;
+            list<shared_ptr<Scheduler>> orders;
             for (; !msg.empty(); msg = msg.substr(msg.find('\n') + 1)) {
                 auto map = JSONtomap(msg.substr(0, msg.find('\n')));
                 if (map["repeated"] == "true")
