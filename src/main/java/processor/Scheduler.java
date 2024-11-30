@@ -68,52 +68,53 @@ public class Scheduler {
         }
     }
 
+    public String preview(List<Order> orders, Calendar endDate, double accountBalance) {
+        List<Record> records = new LinkedList<>();
+        Calendar today = Calendar.getInstance();
+        scheduleAll(orders, today);
+        records.add(new Record("", null, today, 0, accountBalance));
 
-    string preview(list<shared_ptr<order>> &orders, datetime enddate, double account_balance) {
+        // Iterate through orders
+        for (int i = 0; i < orders.size() && (orders.get(i).effectiveExecutionDate.before(endDate) || 
+             orders.get(i).effectiveExecutionDate.equals(endDate));) {
+             
+            Order order = orders.get(i);
+            order.execute(accountBalance);
+            insertInOrder(records, order, accountBalance);
+            order.reschedule(today);
 
-        list<tuple<string, datetime, datetime, double, double>> records;
-        datetime today (time(NULL));
-        scheduleall(orders, today);
-
-        records.emplace_back("", datetime(), today, 0, account_balance);
-
-        for (auto it = orders.begin(); it != orders.end() && ( * it)->effective_execution_date <= enddate;){
-            ( * it)->execute(account_balance);
-            insert_in_order(records, * it, account_balance);
-            ( * it)->reschedule(today);
-            auto el = it;
-            el++;
-            while (el != orders.end() && ( * el)->effective_execution_date < ( * it)->effective_execution_date)
-            el++;
-            auto el2 = el;
-            while (el2 != orders.end()) {
-                if (el2 != orders.end() && ( * el2)->effective_execution_date == ( * it)->effective_execution_date &&
-                        ( * el2)->amount < ( * it)->amount)
+            // Find the proper position for this order
+            int el = i + 1;
+            while (el < orders.size() && orders.get(el).effectiveExecutionDate.before(order.effectiveExecutionDate)) {
                 el++;
-            else
-                break;
+            }
+
+            int el2 = el;
+            while (el2 < orders.size()) {
+                if (orders.get(el2).effectiveExecutionDate.equals(order.effectiveExecutionDate) && 
+                    orders.get(el2).amount < order.amount) {
+                    el++;
+                } else {
+                    break;
+                }
                 el2++;
             }
 
-            if (!( * it)->expired)
-            orders.insert(el, * it);
-            it = orders.erase(it);
+            if (!order.isExpired()) {
+                orders.add(el, order);
+            }
+            orders.remove(i);
         }
 
-        string resp;
-
-        for (auto & el:records){
-            stringstream ss;
-            ss << std::get < 0 > (el) << "; ";
-            ss << std::get < 1 > (el) << "; ";
-            ss << std::get < 2 > (el) << "; ";
-            ss << std::get < 3 > (el) << "; ";
-            ss << std::get < 4 > (el) << endl;
-            resp += ss.str();
+        StringBuilder resp = new StringBuilder();
+        for (Record el : records) {
+            resp.append(el.toString()).append("\n");
         }
-        resp.pop_back();
+        // Remove last character (newline)
+        if (resp.length() > 0) {
+            resp.setLength(resp.length() - 1);  
+        }
 
-        return resp;
+        return resp.toString();
     }
-
-};
+}
