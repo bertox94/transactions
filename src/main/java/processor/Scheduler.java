@@ -22,53 +22,52 @@ public class Scheduler {
         records.addLast(q);
     }
 
-    void scheduleall(List<Order> orders, Calendar today) {
-        for (int i = 0; i < orders.size(); ) {
-            orders.get(i).schedule(today);
-            int j = 0;
-            while (j < orders.size() && orders.get(j).scheduled &&
-                    orders.get(j).effective_execution_date.compareTo(orders.get(i).effective_execution_date) < 0)
-                j++;
-            int k = j;
-            Order el2 = orders.get(j);
-            while (k != orders.size()) {
-                if (k != orders.size() && orders.get(k).scheduled &&
-                        ( * el2)->effective_execution_date == ( * it)->effective_execution_date &&
-                        ( * el2)->amount < ( * it)->amount)
-                j++;
-            else
-                break;
-                k++;
+   
+    void scheduleAll(List<Order> orders, Calendar today) {
+        Iterator<Order> it = orders.iterator();
+        
+        while (it.hasNext()) {
+            Order currentOrder = it.next();
+            currentOrder.schedule(today);
+            
+            Iterator<Order> el = orders.iterator();
+            while (el.hasNext()) {
+                Order order = el.next();
+                if (order.scheduled && 
+                    order.effectiveExecutionDate.before(currentOrder.effectiveExecutionDate)) {
+                    continue;
+                }
+                break; // Break when we find the first order that is not scheduled or is after currentOrder
             }
 
-            if (!( * it)->expired)
-            orders.insert(el, * it);
-            it = orders.erase(it);
-        }
-    }
+            // Keep a reference to where to insert
+            Order insertionPosition = el.hasNext() ? el.next() : null;
 
-    void scheduleall(List<Order> orders, Calendar today) {
-        for (int i = 0; i < orders.size(); ) {
-            orders.get(i).schedule(today);
-            int j = 0;
-            while (j != orders.size() && orders.get(j).scheduled &&
-                    (orders.get(j).effective_execution_date.compareTo(orders.get(i).effective_execution_date) < 0))
-                j++;
-            int k = j;
-            while (k < orders.size()) {
-                if (orders.get(k).scheduled &&
-                        orders.get(k).effective_execution_date == orders.get(i).effective_execution_date &&
-                        orders.get(k).amount < orders.get(i).amount)
-                    j++;
-                else
+            Iterator<Order> el2 = el; // Copy iterator reference to compare later
+            while (el2.hasNext()) {
+                Order nextOrder = el2.next();
+                // Compare the dates and amounts accordingly
+                if (nextOrder.scheduled &&
+                    nextOrder.effectiveExecutionDate.equals(currentOrder.effectiveExecutionDate) &&
+                    nextOrder.amount < currentOrder.amount) {
+                    insertionPosition = el2.next(); // This will point to where we should insert currentOrder
+                } else {
                     break;
-                k++;
+                }
             }
-            if (!orders.get(i).expired)
-            orders.(el, * it);
-            it = orders.erase(it);
+
+            if (!currentOrder.expired) {
+                // Use the insertion position's index, if it's not null
+                if (insertionPosition != null) {
+                    orders.add(orders.indexOf(insertionPosition), currentOrder);
+                } else {
+                    orders.add(currentOrder); // or add at end if no position
+                }
+            }
+            it.remove(); // Remove current order
         }
     }
+
 
     string preview(list<shared_ptr<order>> &orders, datetime enddate, double account_balance) {
 
