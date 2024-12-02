@@ -1,15 +1,14 @@
 package processor;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 public class Order {
     public boolean repeated;
     public String descr;
     public boolean wt;
-    public Calendar planned_execution_date;
-    public Calendar effective_execution_date;
+    public Calendar plannedExecutionDate;
+    public Calendar effectiveExecutionDate;
     public double amount;
     public boolean scheduled = false;
     public boolean expired = false;
@@ -30,11 +29,15 @@ public class Order {
         return balance;
     }
 
+    boolean isExpired(){
+        return expired;
+    }
+
     void set_execution_date() {
-        effective_execution_date = planned_execution_date;
+        effectiveExecutionDate = plannedExecutionDate;
         if (wt){
-            while(effective_execution_date.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY)
-                effective_execution_date.add(Calendar.DATE,1);
+            while(effectiveExecutionDate.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY)
+                effectiveExecutionDate.add(Calendar.DATE,1);
         }
     }
 }

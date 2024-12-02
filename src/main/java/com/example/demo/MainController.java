@@ -77,6 +77,20 @@ public class MainController {
     @ResponseBody
     @PostMapping(path = "/schedule")
     public String schedule(@RequestParam String data) {
+
+        /*
+        msg = msg.substr(msg.find('\n') + 1);
+            auto map = JSONtomap(msg);
+            datetime dt = datetime(time(NULL));
+            if (map["repeated"] == "true") {
+                repeated_order ro(map);
+                resp = ro.schedule(dt);
+            } else {
+                single_order so(map);
+                resp = so.schedule(dt);
+         */
+
+
         return SpaceTime_Gap.send("schedule\n" + data);
     }
 

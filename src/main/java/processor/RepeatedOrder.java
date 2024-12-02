@@ -81,7 +81,7 @@ public class RepeatedOrder extends Order {
                 }
                 break;
         }
-        if (effective_execution_date.compareTo(today) < 0)
+        if (effectiveExecutionDate.compareTo(today) < 0)
             expired = true;
     }
 
@@ -157,11 +157,11 @@ public class RepeatedOrder extends Order {
                 }
                 break;
         }
-        planned_execution_date = dtt;
+        plannedExecutionDate = dtt;
         set_execution_date();
         check_expired(today);
 
-        return expired ? "Expired" : effective_execution_date.toString();
+        return expired ? "Expired" : effectiveExecutionDate.toString();
 
 //
 //        switch (f2) {
@@ -215,38 +215,38 @@ public class RepeatedOrder extends Order {
         timesRepeated++;
         switch (f2) {
             case "days":
-                planned_execution_date.add(Calendar.DATE, f1);
+                plannedExecutionDate.add(Calendar.DATE, f1);
                 break;
             case "months":
-                planned_execution_date.set(Calendar.DAY_OF_MONTH, 1);
-                planned_execution_date.set(Calendar.MONTH, rinitmm);
-                planned_execution_date.set(Calendar.YEAR, rinityy);
+                plannedExecutionDate.set(Calendar.DAY_OF_MONTH, 1);
+                plannedExecutionDate.set(Calendar.MONTH, rinitmm);
+                plannedExecutionDate.set(Calendar.YEAR, rinityy);
 
-                planned_execution_date.add(Calendar.MONTH, f1 * timesRepeated);
+                plannedExecutionDate.add(Calendar.MONTH, f1 * timesRepeated);
 
                 if (f3.equals("eom")) {
-                    int lastDay = planned_execution_date.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    planned_execution_date.set(Calendar.DAY_OF_MONTH, lastDay);
+                    int lastDay = plannedExecutionDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    plannedExecutionDate.set(Calendar.DAY_OF_MONTH, lastDay);
                 } else
-                    planned_execution_date.set(Calendar.DAY_OF_MONTH, rinitdd);
+                    plannedExecutionDate.set(Calendar.DAY_OF_MONTH, rinitdd);
                 break;
             case "years":
 
-                planned_execution_date.set(Calendar.DAY_OF_MONTH, 1);
-                planned_execution_date.set(Calendar.MONTH, rinitmm);
-                planned_execution_date.set(Calendar.YEAR, rinityy);
+                plannedExecutionDate.set(Calendar.DAY_OF_MONTH, 1);
+                plannedExecutionDate.set(Calendar.MONTH, rinitmm);
+                plannedExecutionDate.set(Calendar.YEAR, rinityy);
 
-                planned_execution_date.add(Calendar.YEAR, f1 * timesRepeated);
+                plannedExecutionDate.add(Calendar.YEAR, f1 * timesRepeated);
 
                 if (f3.equals("eom")) {
-                    int lastDay = planned_execution_date.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    planned_execution_date.set(Calendar.DAY_OF_MONTH, lastDay);
+                    int lastDay = plannedExecutionDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    plannedExecutionDate.set(Calendar.DAY_OF_MONTH, lastDay);
                 }
                 if (f3.equals("eoy")) {
-                    int lastDay = planned_execution_date.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    planned_execution_date.set(Calendar.DAY_OF_MONTH, lastDay);
+                    int lastDay = plannedExecutionDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    plannedExecutionDate.set(Calendar.DAY_OF_MONTH, lastDay);
                 } else
-                    planned_execution_date.set(Calendar.DAY_OF_MONTH, rinitdd);
+                    plannedExecutionDate.set(Calendar.DAY_OF_MONTH, rinitdd);
                 break;
 
         }

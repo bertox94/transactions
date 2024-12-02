@@ -4,21 +4,22 @@ import org.javatuples.Quintet;
 
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 
 public class Scheduler {
-    void insert_in_order(List<Quintet<String, Calendar, Calendar, Double, Double>> records,
+    void insertInOrder(List<Quintet<String, Calendar, Calendar, Double, Double>> records,
                          Order el, double balance) {
         Quintet<String, Calendar, Calendar, Double, Double> back = records.getLast();
         Calendar dd = back.getValue2();
         dd.add(Calendar.DAY_OF_MONTH, 1);
-        while (dd.compareTo(el.effective_execution_date) < 0) {
+        while (dd.compareTo(el.effectiveExecutionDate) < 0) {
             Quintet<String, Calendar, Calendar, Double, Double> q = new Quintet<>("", Calendar.getInstance(), dd, (double) 0, back.getValue4());
             records.addLast(q);
             dd.add(Calendar.DAY_OF_MONTH, 1);
         }
-        Quintet<String, Calendar, Calendar, Double, Double> q = new Quintet<>(el.descr, el.planned_execution_date, el.effective_execution_date, el.amount, balance);
+        Quintet<String, Calendar, Calendar, Double, Double> q = new Quintet<>(el.descr, el.plannedExecutionDate, el.effectiveExecutionDate, el.amount, balance);
         records.addLast(q);
     }
 
@@ -69,10 +70,10 @@ public class Scheduler {
     }
 
     public String preview(List<Order> orders, Calendar endDate, double accountBalance) {
-        List<Record> records = new LinkedList<>();
+        List<Quintet<String, Calendar, Calendar, Double, Double>> records = new LinkedList<>();
         Calendar today = Calendar.getInstance();
         scheduleAll(orders, today);
-        records.add(new Record("", null, today, 0, accountBalance));
+        records.add(new Quintet<>("", null, today, (double) 0, accountBalance));
 
         // Iterate through orders
         for (int i = 0; i < orders.size() && (orders.get(i).effectiveExecutionDate.before(endDate) || 
@@ -107,7 +108,7 @@ public class Scheduler {
         }
 
         StringBuilder resp = new StringBuilder();
-        for (Record el : records) {
+        for (Quintet<String, Calendar, Calendar, Double, Double> el : records) {
             resp.append(el.toString()).append("\n");
         }
         // Remove last character (newline)
