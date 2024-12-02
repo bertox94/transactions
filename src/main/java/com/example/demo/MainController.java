@@ -91,14 +91,14 @@ public class MainController {
          */
 
 
-        return SpaceTime_Gap.send("schedule\n" + data);
+        return data+"\r\n";
     }
 
     @ResponseBody
     @PostMapping(path = "/preview")
     public String preview(@RequestParam String data) {
         String orders = orders();
-        String _resp = SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+        String _resp = data+"\r\n";//SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
         StringJoiner resp = new StringJoiner(",", "{", "}");
         int val = getvalue();
         String TABLENAME = "public.preview";
@@ -421,12 +421,6 @@ public class MainController {
             return "KO";
         }
         return "OK";
-    }
-
-    @PostMapping("/haltprocessor")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void haltprocessor() {
-        SpaceTime_Gap.send("close");
     }
 
     @PostMapping("/export")

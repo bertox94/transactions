@@ -1,41 +1,51 @@
 package processor;
 
-import org.javatuples.Quintet;
+import java.util.*;
 
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+class Request {
+    public String descr;
+    public Calendar plannedExecutionDate;
+    public Calendar effectiveExecutionDate;
+    public Double amount;
+    public Double balance;
 
+    public Request(String descr, Calendar plannedExecutionDate, Calendar effectiveExecutionDate, Double amount, Double balance) {
+        this.descr = descr;
+        this.plannedExecutionDate = plannedExecutionDate;
+        this.effectiveExecutionDate = effectiveExecutionDate;
+        this.amount = amount;
+        this.balance = balance;
+    }
+}
 
 public class Scheduler {
-    void insertInOrder(List<Quintet<String, Calendar, Calendar, Double, Double>> records,
-                         Order el, double balance) {
-        Quintet<String, Calendar, Calendar, Double, Double> back = records.getLast();
-        Calendar dd = back.getValue2();
+    static void insertInOrder(List<Request> records,
+                              Order el, double balance) {
+        Request back = records.getLast();
+        Calendar dd = back.effectiveExecutionDate;
         dd.add(Calendar.DAY_OF_MONTH, 1);
         while (dd.compareTo(el.effectiveExecutionDate) < 0) {
-            Quintet<String, Calendar, Calendar, Double, Double> q = new Quintet<>("", Calendar.getInstance(), dd, (double) 0, back.getValue4());
+            Request q = new Request("", Calendar.getInstance(), dd, (double) 0, back.balance);
             records.addLast(q);
             dd.add(Calendar.DAY_OF_MONTH, 1);
         }
-        Quintet<String, Calendar, Calendar, Double, Double> q = new Quintet<>(el.descr, el.plannedExecutionDate, el.effectiveExecutionDate, el.amount, balance);
+        Request q = new Request(el.descr, el.plannedExecutionDate, el.effectiveExecutionDate, el.amount, balance);
         records.addLast(q);
     }
 
-   
-    void scheduleAll(List<Order> orders, Calendar today) {
+
+    static void scheduleAll(List<Order> orders, Calendar today) {
         Iterator<Order> it = orders.iterator();
-        
+
         while (it.hasNext()) {
             Order currentOrder = it.next();
             currentOrder.schedule(today);
-            
+
             Iterator<Order> el = orders.iterator();
             while (el.hasNext()) {
                 Order order = el.next();
-                if (order.scheduled && 
-                    order.effectiveExecutionDate.before(currentOrder.effectiveExecutionDate)) {
+                if (order.scheduled &&
+                        order.effectiveExecutionDate.before(currentOrder.effectiveExecutionDate)) {
                     continue;
                 }
                 break; // Break when we find the first order that is not scheduled or is after currentOrder
@@ -49,8 +59,8 @@ public class Scheduler {
                 Order nextOrder = el2.next();
                 // Compare the dates and amounts accordingly
                 if (nextOrder.scheduled &&
-                    nextOrder.effectiveExecutionDate.equals(currentOrder.effectiveExecutionDate) &&
-                    nextOrder.amount < currentOrder.amount) {
+                        nextOrder.effectiveExecutionDate.equals(currentOrder.effectiveExecutionDate) &&
+                        nextOrder.amount < currentOrder.amount) {
                     insertionPosition = el2.next(); // This will point to where we should insert currentOrder
                 } else {
                     break;
@@ -69,16 +79,17 @@ public class Scheduler {
         }
     }
 
-    public String preview(List<Order> orders, Calendar endDate, double accountBalance) {
-        List<Quintet<String, Calendar, Calendar, Double, Double>> records = new LinkedList<>();
+    public static String preview(List<Order> orders, Calendar endDate, double accountBalance) {
+        List<Request> records = new LinkedList<>();
         Calendar today = Calendar.getInstance();
         scheduleAll(orders, today);
-        records.add(new Quintet<>("", null, today, (double) 0, accountBalance));
+        records.getLast();
+        records.add(new Request("", null, today, (double) 0, accountBalance));
 
         // Iterate through orders
-        for (int i = 0; i < orders.size() && (orders.get(i).effectiveExecutionDate.before(endDate) || 
-             orders.get(i).effectiveExecutionDate.equals(endDate));) {
-             
+        for (int i = 0; i < orders.size() && (orders.get(i).effectiveExecutionDate.before(endDate) ||
+                orders.get(i).effectiveExecutionDate.equals(endDate)); ) {
+
             Order order = orders.get(i);
             order.execute(accountBalance);
             insertInOrder(records, order, accountBalance);
@@ -92,8 +103,8 @@ public class Scheduler {
 
             int el2 = el;
             while (el2 < orders.size()) {
-                if (orders.get(el2).effectiveExecutionDate.equals(order.effectiveExecutionDate) && 
-                    orders.get(el2).amount < order.amount) {
+                if (orders.get(el2).effectiveExecutionDate.equals(order.effectiveExecutionDate) &&
+                        orders.get(el2).amount < order.amount) {
                     el++;
                 } else {
                     break;
@@ -108,12 +119,12 @@ public class Scheduler {
         }
 
         StringBuilder resp = new StringBuilder();
-        for (Quintet<String, Calendar, Calendar, Double, Double> el : records) {
+        for (Request el : records) {
             resp.append(el.toString()).append("\n");
         }
         // Remove last character (newline)
         if (resp.length() > 0) {
-            resp.setLength(resp.length() - 1);  
+            resp.setLength(resp.length() - 1);
         }
 
         return resp.toString();
