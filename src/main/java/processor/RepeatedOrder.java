@@ -94,7 +94,7 @@ public class RepeatedOrder extends Order {
     }
 
     //make sure today has 0hrs, 0min, 0sec
-    String schedule(Calendar today) {
+    public String schedule(Calendar today) {
 
         scheduled = true;
         Calendar dtt = Calendar.getInstance();

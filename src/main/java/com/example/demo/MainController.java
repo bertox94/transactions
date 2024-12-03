@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -9,16 +11,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import processor.Order;
+import processor.RepeatedOrder;
+import processor.Scheduler;
 
 import javax.swing.plaf.nimbus.State;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.StringJoiner;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
@@ -58,11 +60,29 @@ public class MainController {
     @ResponseBody
     @PostMapping(path = "/orders")
     public String orders() {
+
+        /*public class Library {
+            @JsonProperty("libraryname")
+            public String name;
+
+            @JsonProperty("mymusic")
+            public List<Song> songs;
+        }
+        public class Song {
+            @JsonProperty("Artist Name") public String artistName;
+            @JsonProperty("Song Name") public String songName;
+        }
+
+        Library lib = mapper.readValue(jsonString, Library.class);
+        */
+
         StringBuilder data = new StringBuilder();
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.orders " +
-                    " order by substring(encoded from (position('\"descr\":' in encoded))) asc ;");
+            ResultSet rs = stmt.executeQuery("SELECT encoded FROM public.ORDERS " +
+                    " order by substring(encoded from (locate('\"descr\":', encoded))) asc ;");
+
+            List<Order> orders = new ArrayList<>();
 
             while (rs.next()) {
                 data.append(rs.getString(1)).append("\n");
@@ -76,29 +96,45 @@ public class MainController {
 
     @ResponseBody
     @PostMapping(path = "/schedule")
-    public String schedule(@RequestParam String data) {
+    public String schedule(@RequestParam String data) throws JsonProcessingException {
 
-        /*
-        msg = msg.substr(msg.find('\n') + 1);
-            auto map = JSONtomap(msg);
-            datetime dt = datetime(time(NULL));
-            if (map["repeated"] == "true") {
-                repeated_order ro(map);
-                resp = ro.schedule(dt);
-            } else {
-                single_order so(map);
-                resp = so.schedule(dt);
-         */
+/*
+        data = data.substr(data.find('\n') + 1);
+        auto map = JSONtomap(msg);
+        datetime dt = datetime(time(NULL));
+        if (map["repeated"] == "true") {
+            repeated_order ro (map);
+            resp = ro.schedule(dt);
+        } else {
+            single_order so (map);
+            resp = so.schedule(dt);
+*/
+        ObjectMapper mapper = new ObjectMapper();
+        Order order = mapper.readValue(data, RepeatedOrder.class);
 
 
-        return data+"\r\n";
+        return order.schedule(Calendar.getInstance()) + "\r\n";
     }
 
     @ResponseBody
     @PostMapping(path = "/preview")
-    public String preview(@RequestParam String data) {
-        String orders = orders();
-        String _resp = data+"\r\n";//SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
+    public String preview(@RequestParam String data) throws JsonProcessingException {
+        String ordersString = orders();
+        List<Order> orders = new ArrayList<>();
+
+        if (ordersString.isEmpty())
+            return "";
+
+        String[] lines = ordersString.split("\n");
+        StringJoiner VALUES = new StringJoiner(",", "", "");
+
+        for (String line :
+                lines) {
+            //String[] tokens = line.split(";");
+            orders.addLast(mapper.readValue(line, Order.class));
+
+        }
+        String _resp = Scheduler.preview(orders, Calendar.getInstance(), 2300);//(data+"\n"+orders);//SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
         StringJoiner resp = new StringJoiner(",", "{", "}");
         int val = getvalue();
         String TABLENAME = "public.preview";
@@ -106,8 +142,8 @@ public class MainController {
 
             Statement stmt = connection.createStatement();
 
-            String[] lines = _resp.split("\n");
-            StringJoiner VALUES = new StringJoiner(",", "", "");
+            lines = _resp.split("\n");
+            VALUES = new StringJoiner(",", "", "");
 
             for (String line :
                     lines) {
@@ -333,7 +369,7 @@ public class MainController {
         try {
             String _SUB_Q_ID = " (  SELECT ROW_NUMBER " +
                     "               FROM (" +
-                    "                  SELECT ROW_NUMBER() OVER (ORDER BY id), id " +
+                    "                  SELECT ROW_NUMBER() OVER (ORDER BY id) as ROW_NUMBER, id " +
                     "                  FROM ( " +
                     "                      SELECT id    " +
                     "                      FROM orders " +

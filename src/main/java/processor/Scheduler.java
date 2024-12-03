@@ -34,7 +34,7 @@ public class Scheduler {
     }
 
 
-    static void scheduleAll(List<Order> orders, Calendar today) {
+    public static void scheduleAll(List<Order> orders, Calendar today) {
         Iterator<Order> it = orders.iterator();
 
         while (it.hasNext()) {

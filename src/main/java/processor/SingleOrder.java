@@ -19,7 +19,7 @@ public class SingleOrder extends Order {
             expired = true;
     }
 
-    String schedule(Calendar today) {
+    public String schedule(Calendar today) {
         scheduled = true;
         set_execution_date();
         check_expired(today);

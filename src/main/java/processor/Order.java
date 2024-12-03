@@ -21,7 +21,7 @@ public class Order {
 
     void check_expired(Calendar today){}
 
-    String schedule(Calendar today) {  return "";  }
+    public String schedule(Calendar today) {  return "";  }
 
     void reschedule(Calendar today) {}
 

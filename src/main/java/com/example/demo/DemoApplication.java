@@ -36,10 +36,21 @@ public class DemoApplication {
             String sql = "Create table if not exists ORDERS (ID int primary key, encoded varchar(250))";
             Statement statement = connection.createStatement();
             statement.execute(sql);
+            //descr, planneddate, executiondate, amount, id, balance
+            sql = "Create table if not exists PREVIEW (" +
+                    "id_prev int primary key auto_increment, " +
+                    "descr varchar(100), " +
+                    "planneddate date, " +
+                    "executiondate date, " +
+                    "amount double, " +
+                    "id int, " +
+                    "balance double " +
+                    ")";
+            statement = connection.createStatement();
+            statement.execute(sql);
 
-            System.out.println("Created table Orders.");
 /*
-            sql = "Insert into students (ID, name) values (1, 'Nam Ha Minh')";
+            sql = "Insert into orders (ID, encoded) values (1, 'Nam Ha Minh')";
 
             int rows = statement.executeUpdate(sql);
 
@@ -48,7 +59,7 @@ public class DemoApplication {
             }
 
 
-            sql = "SELECT * FROM students";
+            sql = "SELECT * FROM orders";
 
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -59,10 +70,14 @@ public class DemoApplication {
                 count++;
 
                 int ID = resultSet.getInt("ID");
-                String name = resultSet.getString("name");
+                String name = resultSet.getString("encoded");
                 System.out.println("Student #" + count + ": " + ID + ", " + name);
             }
-            connection.close();
+
+            sql = "Delete from ORDERS;";
+            statement = connection.createStatement();
+            statement.execute(sql);
+            // connection.close();
 */
 
         } catch (SQLException throwables) {
