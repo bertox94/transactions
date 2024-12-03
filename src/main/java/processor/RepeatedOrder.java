@@ -161,7 +161,7 @@ public class RepeatedOrder extends Order {
         set_execution_date();
         check_expired(today);
 
-        return expired ? "Expired" : effectiveExecutionDate.toString();
+        return expired ? "Expired" : effectiveExecutionDate.getTime().toString();
 
 //
 //        switch (f2) {

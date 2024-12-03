@@ -1,5 +1,7 @@
 package processor;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class SingleOrder extends Order {
         scheduled = true;
         set_execution_date();
         check_expired(today);
-        return expired ? "Expired" : effectiveExecutionDate.toString();
+        return expired ? "Expired" : effectiveExecutionDate.getTime().toString();
     }
 
     double execute(double balance) {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import processor.Order;
 import processor.RepeatedOrder;
 import processor.Scheduler;
+import processor.SingleOrder;
 
 import javax.swing.plaf.nimbus.State;
 import java.io.*;
@@ -110,8 +111,12 @@ public class MainController {
             resp = so.schedule(dt);
 */
         ObjectMapper mapper = new ObjectMapper();
-        Order order = mapper.readValue(data, RepeatedOrder.class);
-
+        Map<String, String> map = mapper.readValue(data, Map.class);
+        Order order;
+        if (!Boolean.parseBoolean(map.get("repeated")))
+            order = new SingleOrder(new HashMap<>(map));
+        else
+            order = new RepeatedOrder(new HashMap<>(map));
 
         return order.schedule(Calendar.getInstance()) + "\r\n";
     }
@@ -131,7 +136,11 @@ public class MainController {
         for (String line :
                 lines) {
             //String[] tokens = line.split(";");
-            orders.addLast(mapper.readValue(line, Order.class));
+            HashMap<String, String> map = mapper.readValue(line, HashMap.class);
+            if (!Boolean.parseBoolean(map.get("repeated")))
+                orders.addLast(new SingleOrder(map));
+            else
+                orders.addLast(new RepeatedOrder(map));
 
         }
         String _resp = Scheduler.preview(orders, Calendar.getInstance(), 2300);//(data+"\n"+orders);//SpaceTime_Gap.send("preview\n" + data + "\n" + orders);
